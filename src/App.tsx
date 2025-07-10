@@ -47,36 +47,29 @@ const letterExit = {
 
 function App() {
   const [step, setStep] = useState(() => {
-    // Skip animation if user has already visited
     if (typeof window !== 'undefined' && localStorage.getItem('hasVisited')) {
-      return 11; // Jump to the final step
+      return 12;
     }
-    return 0; // Start animation for first-time visitors
+    return 0;
   });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Sequence timings (0.5x speed = half the original durations)
   const durations = [
-    1000, // 0: BITCOIN
-    1000, // 1: NOSTR
-    2000, // 2: PROTOCOLS + USER EXPERIENCE typed
-    1000, // 3: USER EXPERIENCE -> UX
-    1500, // 4: -> PROUX transition
-    1000, // 5: -> PROUX fades to top left logo
-    500,  // 6: Research appears
-    500,  // 7: Testing appears
-    500,  // 8: Ergonomics appears
-    500,  // 9: Product appears
+    1000, 1000, 2000, 1000, 1500, 1000, 500, 500, 500, 500, 500,
   ];
 
-  const navItems = ['Research', 'Testing', 'Ergonomics', 'Product'];
+  const navItems = ['App Anatomy', 'Research', 'Testing', 'Ergonomics', 'Product'];
+
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, targetId: string) => {
+    e.preventDefault();
+    document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
+    setMobileMenuOpen(false);
+  };
 
   useEffect(() => {
-    // If it's the first visit, run the animation and mark as visited
     if (step === 0 && typeof window !== 'undefined') {
       localStorage.setItem('hasVisited', 'true');
     }
-
     if (step < durations.length) {
       const timer = setTimeout(() => {
         setStep((prevStep) => prevStep + 1);
@@ -86,243 +79,233 @@ function App() {
   }, [step]);
 
   return (
-    <div className="bg-white h-screen flex items-center justify-center overflow-hidden font-orbitron relative px-4 sm:px-0">
-      {/* Top left logo - appears in step 5 */}
-      <motion.div
-        id="proux-logo"
-        className="absolute top-4 left-4 sm:top-8 sm:left-8 text-lg sm:text-2xl font-bold text-black z-20"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: step >= 5 ? 1 : 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        PROUX
-      </motion.div>
+    <div className="bg-white font-orbitron">
+      {/* --- Sticky Header --- */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm">
+        <div className="relative h-24">
+          <motion.div
+            className="absolute top-4 left-4 sm:top-8 sm:left-8 text-lg sm:text-2xl font-bold text-black"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: step >= 5 ? 1 : 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            PROUX
+          </motion.div>
 
-      {/* Desktop Navigation - horizontal layout */}
-      <motion.nav
-        className="hidden sm:flex absolute top-4 right-4 sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium text-black z-20"
-      >
-        {navItems.map((item, index) => {
-          const appearStep = 6 + index;
-          return (
-            <motion.div
-              key={item}
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ 
-                opacity: step >= appearStep ? 1 : 0,
-                y: step >= appearStep ? 0 : -20
-              }}
-              transition={{ duration: 0.3 }}
-              className="cursor-pointer hover:text-gray-600 transition-colors"
-            >
-              {item}
-            </motion.div>
-          );
-        })}
-      </motion.nav>
+          {/* Desktop Navigation */}
+          <nav className="hidden sm:flex absolute top-4 right-4 sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium text-black">
+            {navItems.map((item, index) => {
+              const appearStep = 6 + index;
+              const targetId = item.toLowerCase().replace(/\s+/g, '-');
+              return (
+                <motion.a
+                  key={item}
+                  href={`#${targetId}`}
+                  onClick={(e) => handleLinkClick(e, targetId)}
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: step >= appearStep ? 1 : 0, y: step >= appearStep ? 0 : -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="cursor-pointer hover:text-gray-600 transition-colors"
+                >
+                  {item}
+                </motion.a>
+              );
+            })}
+          </nav>
 
-      {/* Mobile Hamburger Menu Button */}
-      <motion.button
-        className="sm:hidden absolute top-4 right-4 z-30 w-8 h-8 flex flex-col justify-center items-center"
-        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: step >= 6 ? 1 : 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <motion.span
-          className="w-6 h-0.5 bg-black mb-1"
-          animate={{
-            rotate: mobileMenuOpen ? 45 : 0,
-            y: mobileMenuOpen ? 6 : 0,
-          }}
-          transition={{ duration: 0.2 }}
-        />
-        <motion.span
-          className="w-6 h-0.5 bg-black mb-1"
-          animate={{
-            opacity: mobileMenuOpen ? 0 : 1,
-          }}
-          transition={{ duration: 0.2 }}
-        />
-        <motion.span
-          className="w-6 h-0.5 bg-black"
-          animate={{
-            rotate: mobileMenuOpen ? -45 : 0,
-            y: mobileMenuOpen ? -6 : 0,
-          }}
-          transition={{ duration: 0.2 }}
-        />
-      </motion.button>
-
-      {/* Mobile Menu Overlay */}
+          {/* Mobile Hamburger Button */}
+          <motion.button
+            className="sm:hidden absolute top-6 right-4 z-30 w-8 h-8 flex flex-col justify-center items-center"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: step >= 6 ? 1 : 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.span className="w-6 h-0.5 bg-black mb-1" animate={{ rotate: mobileMenuOpen ? 45 : 0, y: mobileMenuOpen ? 6 : 0 }} />
+            <motion.span className="w-6 h-0.5 bg-black mb-1" animate={{ opacity: mobileMenuOpen ? 0 : 1 }} />
+            <motion.span className="w-6 h-0.5 bg-black" animate={{ rotate: mobileMenuOpen ? -45 : 0, y: mobileMenuOpen ? -6 : 0 }} />
+          </motion.button>
+        </div>
+      </header>
+      
+      {/* --- Mobile Menu Overlay --- */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            className="sm:hidden fixed inset-0 bg-white z-25 flex flex-col items-center justify-center"
+            className="sm:hidden fixed inset-0 bg-white z-40 flex flex-col items-center justify-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
           >
-            {navItems.map((item, index) => (
-              <motion.div
-                key={item}
-                className="text-2xl font-medium text-black mb-8 cursor-pointer hover:text-gray-600 transition-colors"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {item}
-              </motion.div>
-            ))}
+            {navItems.map((item, index) => {
+              const targetId = item.toLowerCase().replace(/\s+/g, '-');
+              return (
+                <motion.a
+                  key={item}
+                  href={`#${targetId}`}
+                  onClick={(e) => handleLinkClick(e, targetId)}
+                  className="text-2xl font-medium text-black mb-8 cursor-pointer hover:text-gray-600 transition-colors"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  {item}
+                </motion.a>
+              );
+            })}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Screen image - appears at the end */}
-      <motion.div
-        className="absolute inset-0 w-full h-full flex items-center justify-center p-4 sm:p-8 md:p-12 lg:p-16 z-0"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: step >= 6 ? 1 : 0 }}
-        transition={{ duration: 0.8 }}
-      >
-        <div className="relative w-full h-full">
-          <img
-            src="/screen-1.png"
-            alt="Proux application screenshot"
-            className="w-full h-full object-contain scale-75"
-          />
-        </div>
-      </motion.div>
-
-      <LayoutGroup>
-        <AnimatePresence mode="wait">
-          {step <= 1 && (
-            <motion.div
-              key="word-sequence"
-              className="text-3xl sm:text-6xl md:text-8xl font-bold text-black text-center"
-            >
-              {step === 0 && (
-                <motion.span
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  BITCOIN
-                </motion.span>
-              )}
-              {step === 1 && (
-                <motion.span
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  NOSTR
-                </motion.span>
-              )}
-            </motion.div>
-          )}
-
-          {/* Step 2: Show PROTOCOLS and USER EXPERIENCE with typing animation */}
-          {step === 2 && (
-            <motion.div
-              key="source-words-full"
-              className="flex flex-col items-center justify-center text-center w-full"
-            >
-              <motion.div
-                className="text-3xl sm:text-6xl md:text-8xl font-bold text-black flex justify-center w-full tracking-wide md:tracking-wider"
-                variants={sentenceRightToLeft}
-                initial="hidden"
-                animate="visible"
-              >
-                {'PROTOCOLS'.split('').map((char, index) => (
-                  <motion.span
-                    key={`p-${index}`}
-                    layoutId={`char-proux-${index}`}
-                    variants={letter}
-                    className="inline-block"
+      <main className="-mt-24">
+        {/* --- App Anatomy Section (First Fold) --- */}
+        <section id="app-anatomy" className="h-screen flex items-center justify-center overflow-hidden relative px-4 sm:px-0">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <LayoutGroup>
+              <AnimatePresence mode="wait">
+                {step <= 1 && (
+                  <motion.div
+                    key="word-sequence"
+                    className="text-3xl sm:text-6xl md:text-8xl font-bold text-black text-center"
                   >
-                    {char}
-                  </motion.span>
-                ))}
-              </motion.div>
-              <motion.div
-                className="text-2xl sm:text-5xl md:text-7xl font-bold text-black flex flex-wrap justify-center w-full mt-4"
-                variants={sentenceLeftToRight}
-                initial="hidden"
-                animate="visible"
-              >
-                {'USER EXPERIENCE'.split('').map((char, index) => (
-                  <motion.span
-                    key={`ue-${index}`}
-                    layoutId={`ue-${index}`}
-                    variants={letter}
-                    className="inline-block"
+                    {step === 0 && (
+                      <motion.span
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        BITCOIN
+                      </motion.span>
+                    )}
+                    {step === 1 && (
+                      <motion.span
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        NOSTR
+                      </motion.span>
+                    )}
+                  </motion.div>
+                )}
+
+                {step === 2 && (
+                  <motion.div
+                    key="source-words-full"
+                    className="flex flex-col items-center justify-center text-center w-full"
                   >
-                    {char === ' ' ? '\u00A0' : char}
-                  </motion.span>
-                ))}
-              </motion.div>
-            </motion.div>
-          )}
+                    <motion.div
+                      className="text-3xl sm:text-6xl md:text-8xl font-bold text-black flex justify-center w-full tracking-wide md:tracking-wider"
+                      variants={sentenceRightToLeft}
+                      initial="hidden"
+                      animate="visible"
+                    >
+                      {'PROTOCOLS'.split('').map((char, index) => (
+                        <motion.span
+                          key={`p-${index}`}
+                          layoutId={`char-proux-${index}`}
+                          variants={letter}
+                          className="inline-block"
+                        >
+                          {char}
+                        </motion.span>
+                      ))}
+                    </motion.div>
+                    <motion.div
+                      className="text-2xl sm:text-5xl md:text-7xl font-bold text-black flex flex-wrap justify-center w-full mt-4"
+                      variants={sentenceLeftToRight}
+                      initial="hidden"
+                      animate="visible"
+                    >
+                      {'USER EXPERIENCE'.split('').map((char, index) => (
+                        <motion.span
+                          key={`ue-${index}`}
+                          layoutId={`ue-${index}`}
+                          variants={letter}
+                          className="inline-block"
+                        >
+                          {char === ' ' ? '\u00A0' : char}
+                        </motion.span>
+                      ))}
+                    </motion.div>
+                  </motion.div>
+                )}
 
-          {/* Step 3: Reduce to UX */}
-          {step === 3 && (
-            <motion.div
-              key="source-words-reduced"
-              className="flex flex-col items-center justify-center text-center w-full"
-            >
-              <motion.div className="text-3xl sm:text-6xl md:text-8xl font-bold text-black flex justify-center w-full tracking-wide md:tracking-wider">
-                {'PROTOCOLS'.split('').map((char, index) => (
-                  <motion.span
-                    key={`p-${index}`}
-                    layoutId={`char-proux-${index}`}
-                    className="inline-block"
+                {step === 3 && (
+                  <motion.div
+                    key="source-words-reduced"
+                    className="flex flex-col items-center justify-center text-center w-full"
                   >
-                    {char}
-                  </motion.span>
-                ))}
-              </motion.div>
-              <motion.div className="text-2xl sm:text-5xl md:text-7xl font-bold text-black flex flex-wrap justify-center w-full mt-4">
-                <motion.span layoutId="ue-0" className="inline-block">U</motion.span>
-                <motion.span layoutId="ue-13" className="inline-block">X</motion.span>
-              </motion.div>
-            </motion.div>
-          )}
+                    <motion.div className="text-3xl sm:text-6xl md:text-8xl font-bold text-black flex justify-center w-full tracking-wide md:tracking-wider">
+                      {'PROTOCOLS'.split('').map((char, index) => (
+                        <motion.span
+                          key={`p-${index}`}
+                          layoutId={`char-proux-${index}`}
+                          className="inline-block"
+                        >
+                          {char}
+                        </motion.span>
+                      ))}
+                    </motion.div>
+                    <motion.div className="text-2xl sm:text-5xl md:text-7xl font-bold text-black flex flex-wrap justify-center w-full mt-4">
+                      <motion.span layoutId="ue-0" className="inline-block">U</motion.span>
+                      <motion.span layoutId="ue-13" className="inline-block">X</motion.span>
+                    </motion.div>
+                  </motion.div>
+                )}
 
-          {/* Step 4: PROUX center */}
-          {step === 4 && (
-            <motion.div
-              key="proux-center"
-              className="text-6xl sm:text-8xl md:text-9xl font-bold flex items-center text-black"
-            >
-              <motion.span layoutId="char-proux-0" transition={{ type: "spring", stiffness: 200, damping: 25 }}>P</motion.span>
-              <motion.span layoutId="char-proux-1" transition={{ type: "spring", stiffness: 200, damping: 25 }}>R</motion.span>
-              <motion.span layoutId="char-proux-2" transition={{ type: "spring", stiffness: 200, damping: 25 }}>O</motion.span>
-              <motion.span layoutId="ue-0" transition={{ type: "spring", stiffness: 200, damping: 25 }}>U</motion.span>
-              <motion.span layoutId="ue-13" transition={{ type: "spring", stiffness: 200, damping: 25 }}>X</motion.span>
-            </motion.div>
-          )}
+                {step === 4 && (
+                  <motion.div
+                    key="proux-center"
+                    className="text-6xl sm:text-8xl md:text-9xl font-bold flex items-center text-black"
+                  >
+                    <motion.span layoutId="char-proux-0" transition={{ type: "spring", stiffness: 200, damping: 25 }}>P</motion.span>
+                    <motion.span layoutId="char-proux-1" transition={{ type: "spring", stiffness: 200, damping: 25 }}>R</motion.span>
+                    <motion.span layoutId="char-proux-2" transition={{ type: "spring", stiffness: 200, damping: 25 }}>O</motion.span>
+                    <motion.span layoutId="ue-0" transition={{ type: "spring", stiffness: 200, damping: 25 }}>U</motion.span>
+                    <motion.span layoutId="ue-13" transition={{ type: "spring", stiffness: 200, damping: 25 }}>X</motion.span>
+                  </motion.div>
+                )}
+                
+                {step >= 5 && (
+                  <motion.div
+                    key="proux-fade-out"
+                    className="text-6xl sm:text-8xl md:text-9xl font-bold text-black"
+                    initial={{ opacity: 1 }}
+                    animate={{ opacity: 0, scale: 0.5 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    PROUX
+                  </motion.div>
+                )}
 
-          {/* Step 5: PROUX fades out as top left logo appears */}
-          {step === 5 && (
-            <motion.div
-              key="proux-fade-out"
-              className="text-6xl sm:text-8xl md:text-9xl font-bold text-black"
-              initial={{ opacity: 1 }}
-              animate={{ opacity: 0, scale: 0.5 }}
-              transition={{ duration: 0.5 }}
-            >
-              PROUX
-            </motion.div>
-          )}
+              </AnimatePresence>
+            </LayoutGroup>
+          </div>
 
-        </AnimatePresence>
-      </LayoutGroup>
+          <motion.div
+            className="absolute inset-0 w-full h-full flex items-center justify-center p-4 sm:p-8 md:p-12 lg:p-16 z-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: step >= 6 ? 1 : 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <img src="/screen-1.png" alt="Proux application screenshot" className="w-full h-full object-contain scale-75" />
+          </motion.div>
+        </section>
+
+        {/* --- Other Sections --- */}
+        {navItems.slice(1).map((item) => {
+          const targetId = item.toLowerCase().replace(/\s+/g, '-');
+          return (
+            <section key={targetId} id={targetId} className="h-screen flex items-center justify-center">
+              <h2 className="text-4xl font-bold">{item}</h2>
+            </section>
+          );
+        })}
+      </main>
     </div>
   );
 }

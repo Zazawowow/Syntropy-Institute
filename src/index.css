@@ -1,1 +1,7 @@
 @import "tailwindcss";
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 6rem; /* h-24 -> 96px */
+}
