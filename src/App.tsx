@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { wrap } from 'popmotion';
 import './App.css';
 
 const letter = {
@@ -53,6 +54,12 @@ function App() {
     return 0;
   });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const screens = ['/screen-1.png', '/screen-2.png'];
+  const [screenIndex, setScreenIndex] = useState(0);
+
+  const paginate = (newDirection: number) => {
+    setScreenIndex(wrap(0, screens.length, screenIndex + newDirection));
+  };
 
   const durations = [
     1000, 1000, 2000, 1000, 1500, 1000, 500, 500, 500, 500, 500,
@@ -82,9 +89,9 @@ function App() {
     <div className="bg-white font-orbitron">
       {/* --- Sticky Header --- */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm">
-        <div className="relative h-24">
+        <div className="relative flex h-16 items-center justify-between px-4 sm:h-24 sm:block sm:px-0">
           <motion.div
-            className="absolute top-4 left-4 sm:top-8 sm:left-8 text-lg sm:text-2xl font-bold text-black"
+            className="text-lg font-bold text-black sm:absolute sm:top-8 sm:left-8 sm:text-2xl"
             initial={{ opacity: 0 }}
             animate={{ opacity: step >= 5 ? 1 : 0 }}
             transition={{ duration: 0.5 }}
@@ -93,7 +100,7 @@ function App() {
           </motion.div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden sm:flex absolute top-4 right-4 sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium text-black">
+          <nav className="hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium text-black">
             {navItems.map((item, index) => {
               const appearStep = 6 + index;
               const targetId = item.toLowerCase().replace(/\s+/g, '-');
@@ -115,15 +122,15 @@ function App() {
 
           {/* Mobile Hamburger Button */}
           <motion.button
-            className="sm:hidden absolute top-6 right-4 z-30 w-8 h-8 flex flex-col justify-center items-center"
+            className="z-30 flex h-8 w-8 flex-col items-center justify-center sm:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             initial={{ opacity: 0 }}
             animate={{ opacity: step >= 6 ? 1 : 0 }}
             transition={{ duration: 0.3 }}
           >
-            <motion.span className="w-6 h-0.5 bg-black mb-1" animate={{ rotate: mobileMenuOpen ? 45 : 0, y: mobileMenuOpen ? 6 : 0 }} />
-            <motion.span className="w-6 h-0.5 bg-black mb-1" animate={{ opacity: mobileMenuOpen ? 0 : 1 }} />
-            <motion.span className="w-6 h-0.5 bg-black" animate={{ rotate: mobileMenuOpen ? -45 : 0, y: mobileMenuOpen ? -6 : 0 }} />
+            <motion.span className="mb-1 h-0.5 w-6 bg-black" animate={{ rotate: mobileMenuOpen ? 45 : 0, y: mobileMenuOpen ? 6 : 0 }} />
+            <motion.span className="mb-1 h-0.5 w-6 bg-black" animate={{ opacity: mobileMenuOpen ? 0 : 1 }} />
+            <motion.span className="h-0.5 w-6 bg-black" animate={{ rotate: mobileMenuOpen ? -45 : 0, y: mobileMenuOpen ? -6 : 0 }} />
           </motion.button>
         </div>
       </header>
@@ -158,9 +165,9 @@ function App() {
         )}
       </AnimatePresence>
 
-      <main className="-mt-24">
+      <main className="-mt-16 sm:-mt-24">
         {/* --- App Anatomy Section (First Fold) --- */}
-        <section id="app-anatomy" className="h-screen flex items-center justify-center overflow-hidden relative px-4 sm:px-0">
+        <section id="app-anatomy" className="h-dvh flex items-center justify-center overflow-hidden relative px-4 sm:px-0">
           <div className="absolute inset-0 flex items-center justify-center">
             <LayoutGroup>
               <AnimatePresence mode="wait">
@@ -286,13 +293,48 @@ function App() {
             </LayoutGroup>
           </div>
 
+          {/* --- Image Carousel --- */}
           <motion.div
             className="absolute inset-0 w-full h-full flex items-center justify-center p-4 sm:p-8 md:p-12 lg:p-16 z-0"
             initial={{ opacity: 0 }}
             animate={{ opacity: step >= 6 ? 1 : 0 }}
             transition={{ duration: 0.8 }}
           >
-            <img src="/screen-1.png" alt="Proux application screenshot" className="w-full h-full object-contain scale-75" />
+            <AnimatePresence initial={false}>
+              <motion.img
+                key={screenIndex}
+                src={screens[screenIndex]}
+                alt={`Proux application screenshot ${screenIndex + 1}`}
+                className="absolute w-full h-full object-contain scale-75"
+                initial={{ x: 300, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -300, opacity: 0 }}
+                transition={{
+                  x: { type: 'spring', stiffness: 300, damping: 30 },
+                  opacity: { duration: 0.2 },
+                }}
+              />
+            </AnimatePresence>
+          </motion.div>
+
+          {/* --- Carousel Controls --- */}
+          <motion.div
+            className="absolute inset-x-0 bottom-8 z-10 flex justify-center space-x-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: step >= 6 ? 1 : 0 }}
+          >
+            <button
+              onClick={() => paginate(-1)}
+              className="p-2 bg-white/50 rounded-full hover:bg-white/80 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <button
+              onClick={() => paginate(1)}
+              className="p-2 bg-white/50 rounded-full hover:bg-white/80 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            </button>
           </motion.div>
         </section>
 
@@ -300,8 +342,8 @@ function App() {
         {navItems.slice(1).map((item) => {
           const targetId = item.toLowerCase().replace(/\s+/g, '-');
           return (
-            <section key={targetId} id={targetId} className="h-screen flex items-center justify-center">
-              <h2 className="text-4xl font-bold">{item}</h2>
+            <section key={targetId} id={targetId} className="h-dvh flex items-center justify-center">
+              <h2 className="text-4xl font-bold -translate-y-8 sm:-translate-y-12">{item}</h2>
             </section>
           );
         })}

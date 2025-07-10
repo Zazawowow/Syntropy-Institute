@@ -3,5 +3,11 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 6rem; /* h-24 -> 96px */
+  scroll-padding-top: 4rem; /* h-16, mobile-first */
+}
+
+@media (min-width: 640px) { /* sm breakpoint */
+  html {
+    scroll-padding-top: 6rem; /* h-24, for desktop */
+  }
 }

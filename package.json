@@ -15,6 +15,7 @@
     "framer-motion": "^12.23.3",
     "gsap": "^3.13.0",
     "lottie-react": "^2.4.1",
+    "popmotion": "^11.0.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-spring": "^10.0.1",
