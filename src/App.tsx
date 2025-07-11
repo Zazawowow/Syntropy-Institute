@@ -394,7 +394,7 @@ function App() {
                
                <h2 className={`text-2xl font-bold mb-6 ${
                  shouldInvertNav() ? 'text-white' : 'text-black'
-               }`}>UX Mistakes</h2>
+               }`}>UX Mistakes on this site</h2>
                
                <div className="space-y-4 mb-6">
                  <div>
@@ -404,7 +404,7 @@ function App() {
                    <p className={`text-sm leading-relaxed ${
                      shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
                    }`}>
-                     Never hijack the users scroll, it's annoying and largely unexpected behaviour
+                     Never hijack the users scroll, it's annoying, and largely an unexpected behaviour.
                    </p>
                  </div>
                  
@@ -415,7 +415,7 @@ function App() {
                    <p className={`text-sm leading-relaxed ${
                      shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
                    }`}>
-                     You're causing the user to either generate or decay rhodopsin pigments in their eyes and it takes time to adjust
+                     This makes a user's eyes to either generate or decay rhodopsin pigments and it takes time to adjust while they find it hard to consume the content.
                    </p>
                  </div>
                  
@@ -426,7 +426,7 @@ function App() {
                    <p className={`text-sm leading-relaxed ${
                      shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
                    }`}>
-                     Pure white on pure black or vice versa causes halation, which is a glow behind the text making it harder to read:
+                     Pure white on pure black or vice versa causes halation, which is a glow behind the text making it hard to read.
                    </p>
                  </div>
                </div>
@@ -501,7 +501,7 @@ function App() {
                   <p className={`text-sm leading-relaxed ${
                     shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
                   }`}>
-                    You're causing the user to {currentSection === 'research' ? 'decay' : 'generate'} rhodopsin pigments in their eyes and it takes time to adjust
+                    This makes a user's eyes {currentSection === 'research' ? 'decay' : 'generate'} rhodopsin pigments and it takes time to adjust while they find it hard to consume the content.
                   </p>
                 </div>
               </div>
@@ -770,7 +770,7 @@ function App() {
                 )}
                 {item === 'Testing' && (
                   <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                    Testing isn't presenting a random product to a random person and asking what they think, though there are some uses for guerilla testing, it all starts with a carefully crafted test to rule out known biases and simulate as real world situations as possible, with well written testing scripts.
+                    UX testing ismore than presenting a product to a random person and asking what they think, though there are some uses for guerilla testing, it all starts with a carefully crafted test to rule out known biases and simulate as real world situations as possible, with well written testing scripts.
                   </p>
                 )}
                 {item === 'Ergonomics' && (
