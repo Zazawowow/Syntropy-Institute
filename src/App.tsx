@@ -786,92 +786,90 @@ function App() {
                 </div>
               </div>
               
-              {/* Rhodopsin Progress Bar Container - Bottom of Section */}
-              {rhodopsinMessage && (
-                <div className="pb-8 flex justify-center">
-                  <div className="h-24 flex items-center">
-                    {!dismissedLoaders.includes(targetId) ? (
-                      rhodopsinProgress >= 0 ? (
-                        <motion.button
-                          onClick={() => setRhodopsinModalOpen(true)}
-                          className={`px-6 py-4 rounded-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer ${
-                            isEven ? 'bg-white/3 hover:bg-white/5' : 'bg-black/3 hover:bg-black/5'
-                          }`}
-                          initial={{ opacity: 1 }}
-                          animate={{ opacity: rhodopsinProgress === -1 ? 0 : 1 }}
-                          transition={{ duration: 0.5 }}
-                        >
-                          <div className="flex flex-col items-center">
-                            <motion.div 
-                              className={`text-sm mb-2 ${
-                                isEven ? 'text-gray-600' : 'text-gray-300'
+                            {/* Bottom Container - For consistent spacing across all sections */}
+              <div className="pb-8 flex justify-center">
+                <div className="h-24 flex items-center">
+                  {rhodopsinMessage && !dismissedLoaders.includes(targetId) ? (
+                    rhodopsinProgress >= 0 ? (
+                      <motion.button
+                        onClick={() => setRhodopsinModalOpen(true)}
+                        className={`px-6 py-4 rounded-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer ${
+                          isEven ? 'bg-white/3 hover:bg-white/5' : 'bg-black/3 hover:bg-black/5'
+                        }`}
+                        initial={{ opacity: 1 }}
+                        animate={{ opacity: rhodopsinProgress === -1 ? 0 : 1 }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        <div className="flex flex-col items-center">
+                          <motion.div 
+                            className={`text-sm mb-2 ${
+                              isEven ? 'text-gray-600' : 'text-gray-300'
+                            }`}
+                            animate={{ 
+                              opacity: [1, 0.6, 1]
+                            }}
+                            transition={{ 
+                              duration: 2,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                          >
+                            {rhodopsinMessage}
+                          </motion.div>
+                          <div className={`w-32 h-2 rounded-full overflow-hidden ${
+                            isEven ? 'bg-gray-900' : 'bg-gray-100'
+                          }`}>
+                            <motion.div
+                              className={`h-full rounded-full ${
+                                isEven ? 'bg-gray-700' : 'bg-gray-300'
                               }`}
-                              animate={{ 
-                                opacity: [1, 0.6, 1]
-                              }}
-                              transition={{ 
-                                duration: 2,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                              }}
-                            >
-                              {rhodopsinMessage}
-                            </motion.div>
-                            <div className={`w-32 h-2 rounded-full overflow-hidden ${
-                              isEven ? 'bg-gray-900' : 'bg-gray-100'
-                            }`}>
-                              <motion.div
-                                className={`h-full rounded-full ${
-                                  isEven ? 'bg-gray-700' : 'bg-gray-300'
-                                }`}
-                                initial={{ width: '0%' }}
-                                animate={{ width: `${Math.max(0, rhodopsinProgress)}%` }}
-                                transition={{ duration: 0.1, ease: 'linear' }}
-                              />
-                            </div>
-                            <motion.div 
-                              className={`text-xs mt-1 ${
-                                isEven ? 'text-gray-600' : 'text-gray-300'
-                              }`}
-                              animate={{ 
-                                opacity: [1, 0.7, 1]
-                              }}
-                              transition={{ 
-                                duration: 1.5,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                              }}
-                            >
-                              {Math.round(Math.max(0, rhodopsinProgress))}% Complete
-                            </motion.div>
+                              initial={{ width: '0%' }}
+                              animate={{ width: `${Math.max(0, rhodopsinProgress)}%` }}
+                              transition={{ duration: 0.1, ease: 'linear' }}
+                            />
                           </div>
-                        </motion.button>
-                      ) : (
-                                  <motion.button
-            onClick={() => setRhodopsinModalOpen(true)}
-            className={`px-6 py-4 rounded-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer ${
-              isEven ? 'bg-white/5 hover:bg-white/8' : 'bg-black/5 hover:bg-black/8'
-            }`}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-          >
-            <div className="flex flex-col items-center">
-              <span className={`text-sm underline transition-colors hover:opacity-70 ${
-                isEven ? 'text-gray-400' : 'text-gray-500'
-              }`}>
-                What?
-              </span>
-            </div>
-          </motion.button>
-                      )
+                          <motion.div 
+                            className={`text-xs mt-1 ${
+                              isEven ? 'text-gray-600' : 'text-gray-300'
+                            }`}
+                            animate={{ 
+                              opacity: [1, 0.7, 1]
+                            }}
+                            transition={{ 
+                              duration: 1.5,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                          >
+                            {Math.round(Math.max(0, rhodopsinProgress))}% Complete
+                          </motion.div>
+                        </div>
+                      </motion.button>
                     ) : (
-                      // Empty space to maintain layout when dismissed
-                      <div className="h-full w-full"></div>
-                    )}
-                  </div>
+                      <motion.button
+                        onClick={() => setRhodopsinModalOpen(true)}
+                        className={`px-6 py-4 rounded-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer ${
+                          isEven ? 'bg-white/5 hover:bg-white/8' : 'bg-black/5 hover:bg-black/8'
+                        }`}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.5 }}
+                      >
+                        <div className="flex flex-col items-center">
+                          <span className={`text-sm underline transition-colors hover:opacity-70 ${
+                            isEven ? 'text-gray-400' : 'text-gray-500'
+                          }`}>
+                            What?
+                          </span>
+                        </div>
+                      </motion.button>
+                    )
+                  ) : (
+                    // Empty space to maintain consistent layout across all sections
+                    <div className="h-full w-full"></div>
+                  )}
                 </div>
-              )}
+              </div>
             </section>
           );
         })}
