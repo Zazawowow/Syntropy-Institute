@@ -54,7 +54,7 @@ function App() {
     return 0;
   });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [currentSection, setCurrentSection] = useState('app-anatomy');
+  const [currentSection, setCurrentSection] = useState('anatomy');
   const [modalOpen, setModalOpen] = useState(false);
   const [rhodopsinProgress, setRhodopsinProgress] = useState(0);
   const [footnoteVisible, setFootnoteVisible] = useState(false);
@@ -98,7 +98,7 @@ function App() {
     1000, 1000, 2000, 1000, 1500, 1000, 500, 500, 500, 500, 500, 500,
   ];
 
-  const navItems = ['App Anatomy', 'Hey', 'Research', 'Testing', 'Ergonomics', 'Predict Efficacy'];
+  const navItems = ['Anatomy', 'Hey', 'Research', 'Testing', 'Ergonomics', 'Prediction'];
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, targetId: string) => {
     e.preventDefault();
@@ -117,7 +117,7 @@ function App() {
 
   // Determine if current section should have inverted nav colors
   const shouldInvertNav = () => {
-    const blackSections = ['hey', 'testing', 'predict-efficacy']; // These are the black sections (even indexed sections from navItems.slice(1))
+    const blackSections = ['hey', 'testing', 'prediction']; // These are the black sections (even indexed sections from navItems.slice(1))
     return blackSections.includes(currentSection);
   };
 
@@ -160,7 +160,7 @@ function App() {
   // Scroll listener to detect current section
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['app-anatomy', 'hey', 'research', 'testing', 'ergonomics', 'predict-efficacy'];
+      const sections = ['anatomy', 'hey', 'research', 'testing', 'ergonomics', 'prediction'];
       const scrollPosition = window.scrollY + window.innerHeight / 2;
 
       for (const sectionId of sections) {
@@ -176,7 +176,7 @@ function App() {
             // Update theme color for mobile status bar
             const metaThemeColor = document.getElementById('theme-color-meta') as HTMLMetaElement;
             if (metaThemeColor) {
-              const blackSections = ['hey', 'testing', 'predict-efficacy'];
+              const blackSections = ['hey', 'testing', 'prediction'];
               const isBlackSection = blackSections.includes(sectionId);
               metaThemeColor.setAttribute('content', isBlackSection ? '#000000' : '#ffffff');
             }
@@ -201,11 +201,7 @@ function App() {
         setRhodopsinProgress(prev => {
           if (prev >= 100) {
             clearInterval(interval);
-            // Hide progress bar 1 second after completion
-            setTimeout(() => {
-              setRhodopsinProgress(-1); // Use -1 to indicate hidden state
-            }, 1000);
-            return 100;
+            return 100; // Keep at 100% instead of hiding
           }
           return prev + (100 / (20 * 10)); // 20 seconds, 10 updates per second
         });
@@ -251,7 +247,7 @@ function App() {
         shouldInvertNav() ? 'bg-black' : 'bg-white'
       }`}>
         <div className="relative flex h-16 items-center justify-between px-4 sm:h-24 sm:block sm:px-0">
-          <a href="#app-anatomy" onClick={(e) => handleLinkClick(e, 'app-anatomy')}>
+          <a href="#anatomy" onClick={(e) => handleLinkClick(e, 'anatomy')}>
             <motion.div
               className={`text-lg font-bold sm:absolute sm:top-8 sm:left-8 sm:text-2xl transition-colors duration-300 ${
                 shouldInvertNav() ? 'text-white' : 'text-black'
@@ -348,7 +344,7 @@ function App() {
 
       {/* --- Sad Face Modal Button --- */}
       <AnimatePresence>
-        {currentSection !== 'app-anatomy' && (
+        {currentSection !== 'anatomy' && (
           <motion.button
             onClick={() => setModalOpen(true)}
             className={`fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-all duration-300 hover:scale-110 hover:rotate-12 ${
@@ -425,7 +421,7 @@ function App() {
                  <div>
                    <h3 className={`text-lg font-bold mb-2 ${
                      shouldInvertNav() ? 'text-white' : 'text-black'
-                   }`}>Halation:</h3>
+                   }`}>Halation</h3>
                    <p className={`text-sm leading-relaxed ${
                      shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
                    }`}>
@@ -528,7 +524,7 @@ function App() {
 
       <main className="-mt-16 sm:-mt-24">
         {/* --- App Anatomy Section (First Fold) --- */}
-        <section id="app-anatomy" className="snap-section flex items-center justify-center overflow-hidden relative px-4 sm:px-0 bg-white snap-start">
+        <section id="anatomy" className="snap-section flex items-center justify-center overflow-hidden relative px-4 sm:px-0 bg-white snap-start">
           <div className="absolute inset-0 flex items-center justify-center">
             <LayoutGroup>
               <AnimatePresence mode="wait">
@@ -781,7 +777,7 @@ function App() {
                     Utilise habituated interactions, thumb flow, and best practices to make sure that your app is performant and isn't causing fatigue due to bad, unvalidated interface choices.
                   </p>
                 )}
-                {item === 'Predict Efficacy' && (
+                {item === 'Prediction' && (
                   <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
                     Use Baysian like theory to estimate the efficacy of user interface changes, new features, and more, with a better accuracy between concept to real world results. Start a database of insights and provenance of decision making that can work based on value to you and your users.
                   </p>
@@ -793,80 +789,86 @@ function App() {
               <div className="pb-8 flex justify-center">
                 <div className="h-24 flex items-center">
                   {rhodopsinMessage && !dismissedLoaders.includes(targetId) ? (
-                    rhodopsinProgress >= 0 ? (
-                      <motion.button
-                        onClick={() => setRhodopsinModalOpen(true)}
-                        className={`px-6 py-4 rounded-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer ${
-                          isEven ? 'bg-white/3 hover:bg-white/5' : 'bg-black/3 hover:bg-black/5'
-                        }`}
-                        initial={{ opacity: 1 }}
-                        animate={{ opacity: rhodopsinProgress === -1 ? 0 : 1 }}
-                        transition={{ duration: 0.5 }}
-                      >
-                        <div className="flex flex-col items-center">
-                          <motion.div 
-                            className={`text-sm mb-2 ${
-                              isEven ? 'text-gray-600' : 'text-gray-300'
-                            }`}
-                            animate={{ 
-                              opacity: [1, 0.6, 1]
+                    <motion.button
+                      onClick={() => setRhodopsinModalOpen(true)}
+                      className={`px-6 py-4 rounded-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer`}
+                      style={{
+                        backgroundColor: isEven 
+                          ? `rgba(255, 255, 255, ${0.03 + (rhodopsinProgress / 100) * 0.15})` 
+                          : `rgba(0, 0, 0, ${0.03 + (rhodopsinProgress / 100) * 0.15})`,
+                      }}
+                      initial={{ opacity: 0.3, scale: 0.9 }}
+                      animate={{ 
+                        opacity: 0.4 + (rhodopsinProgress / 100) * 0.6,
+                        scale: 0.9 + (rhodopsinProgress / 100) * 0.1,
+                      }}
+                      transition={{ duration: 0.3 }}
+                      whileHover={{
+                        backgroundColor: isEven 
+                          ? `rgba(255, 255, 255, ${0.05 + (rhodopsinProgress / 100) * 0.2})` 
+                          : `rgba(0, 0, 0, ${0.05 + (rhodopsinProgress / 100) * 0.2})`,
+                        scale: (0.9 + (rhodopsinProgress / 100) * 0.1) * 1.05,
+                      }}
+                    >
+                      <div className="flex flex-col items-center">
+                        <motion.div 
+                          className={`text-sm mb-2`}
+                          style={{
+                            color: isEven 
+                              ? `rgba(156, 163, 175, ${0.4 + (rhodopsinProgress / 100) * 0.6})` 
+                              : `rgba(55, 65, 81, ${0.6 + (rhodopsinProgress / 100) * 0.4})`
+                          }}
+                          animate={{ 
+                            opacity: [1, 0.6, 1]
+                          }}
+                          transition={{ 
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                        >
+                          {rhodopsinMessage}
+                        </motion.div>
+                        <div 
+                          className={`w-32 h-2 rounded-full overflow-hidden`}
+                          style={{
+                            backgroundColor: isEven 
+                              ? `rgba(17, 24, 39, ${0.5 + (rhodopsinProgress / 100) * 0.5})` 
+                              : `rgba(229, 231, 235, ${0.7 + (rhodopsinProgress / 100) * 0.3})`
+                          }}
+                        >
+                          <motion.div
+                            className={`h-full rounded-full`}
+                            style={{
+                              backgroundColor: isEven 
+                                ? `rgba(75, 85, 99, ${0.6 + (rhodopsinProgress / 100) * 0.4})` 
+                                : `rgba(75, 85, 99, ${0.7 + (rhodopsinProgress / 100) * 0.3})`
                             }}
-                            transition={{ 
-                              duration: 2,
-                              repeat: Infinity,
-                              ease: "easeInOut"
-                            }}
-                          >
-                            {rhodopsinMessage}
-                          </motion.div>
-                          <div className={`w-32 h-2 rounded-full overflow-hidden ${
-                            isEven ? 'bg-gray-900' : 'bg-gray-100'
-                          }`}>
-                            <motion.div
-                              className={`h-full rounded-full ${
-                                isEven ? 'bg-gray-700' : 'bg-gray-300'
-                              }`}
-                              initial={{ width: '0%' }}
-                              animate={{ width: `${Math.max(0, rhodopsinProgress)}%` }}
-                              transition={{ duration: 0.1, ease: 'linear' }}
-                            />
-                          </div>
-                          <motion.div 
-                            className={`text-xs mt-1 ${
-                              isEven ? 'text-gray-600' : 'text-gray-300'
-                            }`}
-                            animate={{ 
-                              opacity: [1, 0.7, 1]
-                            }}
-                            transition={{ 
-                              duration: 1.5,
-                              repeat: Infinity,
-                              ease: "easeInOut"
-                            }}
-                          >
-                            {Math.round(Math.max(0, rhodopsinProgress))}% Complete
-                          </motion.div>
+                            initial={{ width: '0%' }}
+                            animate={{ width: `${Math.max(0, rhodopsinProgress)}%` }}
+                            transition={{ duration: 0.1, ease: 'linear' }}
+                          />
                         </div>
-                      </motion.button>
-                    ) : (
-                      <motion.button
-                        onClick={() => setRhodopsinModalOpen(true)}
-                        className={`px-6 py-4 rounded-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer ${
-                          isEven ? 'bg-white/5 hover:bg-white/8' : 'bg-black/5 hover:bg-black/8'
-                        }`}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.5 }}
-                      >
-                        <div className="flex flex-col items-center">
-                          <span className={`text-sm underline transition-colors hover:opacity-70 ${
-                            isEven ? 'text-gray-400' : 'text-gray-500'
-                          }`}>
-                            What?
-                          </span>
-                        </div>
-                      </motion.button>
-                    )
+                        <motion.div 
+                          className={`text-xs mt-1`}
+                          style={{
+                            color: isEven 
+                              ? `rgba(156, 163, 175, ${0.4 + (rhodopsinProgress / 100) * 0.6})` 
+                              : `rgba(55, 65, 81, ${0.6 + (rhodopsinProgress / 100) * 0.4})`
+                          }}
+                          animate={{ 
+                            opacity: [1, 0.7, 1]
+                          }}
+                          transition={{ 
+                            duration: 1.5,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                        >
+                          {Math.round(Math.max(0, rhodopsinProgress))}% Complete
+                        </motion.div>
+                      </div>
+                    </motion.button>
                   ) : (
                     // Empty space to maintain consistent layout across all sections
                     <div className="h-full w-full"></div>

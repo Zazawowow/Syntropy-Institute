@@ -34,7 +34,7 @@
       "name": "App Anatomy",
       "short_name": "Anatomy",
       "description": "View the app anatomy section",
-      "url": "/#app-anatomy",
+      "url": "/#anatomy",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
     {
