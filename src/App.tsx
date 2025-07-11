@@ -542,7 +542,7 @@ function App() {
                      </div>
                      <div className="flex items-center space-x-3">
                        <div className="w-4 h-4 rounded-full" style={{ backgroundColor: 'rgba(239, 68, 68, 0.8)' }}></div>
-                       <span className={`text-sm ${shouldInvertNav() ? 'text-white' : 'text-black'}`}>Micro Pains</span>
+                       <span className={`text-sm ${shouldInvertNav() ? 'text-white' : 'text-black'}`}>Fatiguing</span>
                      </div>
                      <div className="mt-4 pt-4 border-t border-gray-300">
                        <h4 className={`text-sm font-bold mb-2 ${
