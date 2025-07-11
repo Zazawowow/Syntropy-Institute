@@ -57,6 +57,8 @@ function App() {
   const [currentSection, setCurrentSection] = useState('app-anatomy');
   const [modalOpen, setModalOpen] = useState(false);
   const [rhodopsinProgress, setRhodopsinProgress] = useState(0);
+  const [footnoteVisible, setFootnoteVisible] = useState(false);
+  const [footnoteTextChanged, setFootnoteTextChanged] = useState(false);
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
@@ -200,6 +202,33 @@ function App() {
       setRhodopsinProgress(0);
     }
   }, [currentSection]);
+
+  // Footnote timing for first quote
+  useEffect(() => {
+    if (step >= 6 && slideIndex === 1) {
+      // Reset states when entering first quote
+      setFootnoteVisible(false);
+      setFootnoteTextChanged(false);
+      
+      // Show footnote after 2 seconds
+      const showTimer = setTimeout(() => {
+        setFootnoteVisible(true);
+      }, 2000);
+      
+      // Change text after 4 seconds total (2s + 2s)
+      const changeTimer = setTimeout(() => {
+        setFootnoteTextChanged(true);
+      }, 4000);
+      
+      return () => {
+        clearTimeout(showTimer);
+        clearTimeout(changeTimer);
+      };
+    } else {
+      setFootnoteVisible(false);
+      setFootnoteTextChanged(false);
+    }
+  }, [step, slideIndex]);
 
   return (
     <div className="bg-white font-orbitron">
@@ -584,17 +613,25 @@ function App() {
             </AnimatePresence>
           </motion.div>
 
-          {/* --- Footnote for first quote --- */}
+                    {/* --- Footnote for first quote --- */}
           <motion.div
             className="absolute inset-x-0 bottom-48 sm:bottom-32 z-10 flex justify-center px-4"
             initial={{ opacity: 0 }}
-            animate={{ opacity: step >= 6 && slideIndex === 1 ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
+            animate={{ opacity: footnoteVisible ? 1 : 0 }}
+            transition={{ duration: 0.5 }}
           >
-                         <p className="text-xs sm:text-sm text-gray-600 italic text-center max-w-md">
-               It's a successful app, so, does it matter?<br />
-               (is this text too small?)
-             </p>
+            <p className="text-xs sm:text-sm text-gray-600 italic text-center max-w-md">
+              It's a successful app, so, does it matter?<br />
+              <motion.span
+                key={footnoteTextChanged ? 'changed' : 'original'}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 4, ease: "easeInOut" }}
+              >
+                {footnoteTextChanged ? '(is this distracting?)' : '(is this text too small?)'}
+              </motion.span>
+            </p>
           </motion.div>
 
           {/* --- Carousel Controls --- */}
