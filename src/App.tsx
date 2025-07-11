@@ -558,7 +558,23 @@ function App() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            {isLeftHanded ? 'Unbias your design' : 'Right Hand Bias'}
+            <div className="flex items-center space-x-2">
+              {!isLeftHanded && (
+                <motion.div
+                  className="w-2 h-2 bg-red-500 rounded-full"
+                  animate={{
+                    scale: [1, 1.3, 1],
+                    opacity: [0.7, 1, 0.7],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+              )}
+              <span>{isLeftHanded ? 'Unbias your design' : 'Right Hand Bias Detected'}</span>
+            </div>
           </motion.button>
         )}
       </AnimatePresence>
@@ -851,7 +867,7 @@ function App() {
                 <p className={`text-base leading-relaxed ${
                   shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
                 }`}>
-                  As a UX designer you have to learn about the many psychological biases that occur both for users and designers so that design is tackled in an unbiased way, it just makes the best design.
+                  As a UX designer you have to know about many psychological biases. Not only in user testing but in the designer themselves. Design is tackled best in an unbiased way, it just makes the best experience for all.
                 </p>
               </div>
               
