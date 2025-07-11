@@ -61,12 +61,16 @@ function App() {
   const [footnoteTextChanged, setFootnoteTextChanged] = useState(false);
   const [rhodopsinModalOpen, setRhodopsinModalOpen] = useState(false);
   const [dismissedLoaders, setDismissedLoaders] = useState<string[]>([]);
+  const [questionAnswer, setQuestionAnswer] = useState<'yes' | 'no' | null>(null);
+  const [show404, setShow404] = useState(false);
+  const [show404Button, setShow404Button] = useState(false);
+  const [ergonomicsState, setErgonomicsState] = useState<'button' | 'moved' | 'revealed'>('button');
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
     { type: 'quote', text: 'Utilise habituated patterns, basically the user’s unconscious behavior, to make app use easy' },
     { type: 'image', src: '/screen-2.png', alt: 'Proux application screenshot 2' },
-    { type: 'quote', text: 'Just like the doorway effect people forget information as they move screens. Don\'t make them think' },
+    { type: 'quote', text: 'Just like the doorway effect, people forget information as they move from screen to screen. Don\'t make them think' },
   ];
   const [[page, direction], setPage] = useState([0, 0]);
 
@@ -98,7 +102,7 @@ function App() {
     1000, 1000, 2000, 1000, 1500, 1000, 500, 500, 500, 500, 500, 500,
   ];
 
-  const navItems = ['Anatomy', 'Hey', 'Research', 'Testing', 'Ergonomics', 'Prediction'];
+  const navItems = ['Anatomy', 'Question', 'Research', 'Testing', 'Ergonomics', 'Prediction'];
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, targetId: string) => {
     e.preventDefault();
@@ -117,7 +121,7 @@ function App() {
 
   // Determine if current section should have inverted nav colors
   const shouldInvertNav = () => {
-    const blackSections = ['hey', 'testing', 'prediction']; // These are the black sections (even indexed sections from navItems.slice(1))
+    const blackSections = ['question', 'testing', 'prediction']; // These are the black sections (even indexed sections from navItems.slice(1))
     return blackSections.includes(currentSection);
   };
 
@@ -129,6 +133,37 @@ function App() {
       setDismissedLoaders(prev => [...prev, currentSection]);
     }
   };
+
+  // Handle question answer
+  const handleQuestionAnswer = (answer: 'yes' | 'no') => {
+    if (answer === 'no') {
+      setShow404(true);
+    } else {
+      setQuestionAnswer(answer);
+    }
+  };
+
+  // Handle return from 404
+  const handleReturnFrom404 = () => {
+    setShow404(false);
+    setQuestionAnswer(null);
+  };
+
+  // Handle ergonomics button interaction
+  const handleErgonomicsHover = () => {
+    if (ergonomicsState === 'button') {
+      setErgonomicsState('moved');
+    }
+  };
+
+  const handleErgonomicsClick = () => {
+    if (ergonomicsState === 'moved') {
+      setErgonomicsState('revealed');
+    }
+  };
+
+  // Detect if mobile for button text
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
 
   useEffect(() => {
     if (step === 0 && typeof window !== 'undefined') {
@@ -160,7 +195,7 @@ function App() {
   // Scroll listener to detect current section
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['anatomy', 'hey', 'research', 'testing', 'ergonomics', 'prediction'];
+      const sections = ['anatomy', 'question', 'research', 'testing', 'ergonomics', 'prediction'];
       const scrollPosition = window.scrollY + window.innerHeight / 2;
 
       for (const sectionId of sections) {
@@ -176,7 +211,7 @@ function App() {
             // Update theme color for mobile status bar
             const metaThemeColor = document.getElementById('theme-color-meta') as HTMLMetaElement;
             if (metaThemeColor) {
-              const blackSections = ['hey', 'testing', 'prediction'];
+              const blackSections = ['question', 'testing', 'prediction'];
               const isBlackSection = blackSections.includes(sectionId);
               metaThemeColor.setAttribute('content', isBlackSection ? '#000000' : '#ffffff');
             }
@@ -195,7 +230,7 @@ function App() {
 
   // Rhodopsin progress animation
   useEffect(() => {
-    if (currentSection === 'hey' || currentSection === 'research') {
+    if (currentSection === 'question' || currentSection === 'research') {
       setRhodopsinProgress(0);
       const interval = setInterval(() => {
         setRhodopsinProgress(prev => {
@@ -240,8 +275,54 @@ function App() {
     }
   }, [step, slideIndex]);
 
+  // 404 button timer
+  useEffect(() => {
+    if (show404) {
+      setShow404Button(false);
+      const timer = setTimeout(() => {
+        setShow404Button(true);
+      }, 4000);
+      
+      return () => clearTimeout(timer);
+    } else {
+      setShow404Button(false);
+    }
+  }, [show404]);
+
   return (
     <div className="bg-white font-orbitron">
+      {/* --- 404 Page --- */}
+      {show404 && (
+        <div className="fixed inset-0 bg-white z-[100]">
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center">
+              <h1 className="text-8xl sm:text-9xl font-bold text-black mb-8">404</h1>
+              <p className="text-xl sm:text-2xl text-gray-600 max-w-md mx-auto leading-relaxed">
+                You're reason to be here couldn't be found
+              </p>
+            </div>
+          </div>
+          <AnimatePresence>
+            {show404Button && (
+              <motion.div
+                className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ duration: 0.5 }}
+              >
+                <button
+                  onClick={handleReturnFrom404}
+                  className="px-8 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300"
+                >
+                  Ok, I'm Sorry
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
+      
       {/* --- Sticky Header --- */}
       <header className={`sticky top-0 z-50 transition-colors duration-300 ${
         shouldInvertNav() ? 'bg-black' : 'bg-white'
@@ -414,7 +495,7 @@ function App() {
                    <p className={`text-sm leading-relaxed ${
                      shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
                    }`}>
-                     This makes a user's eyes to either generate or decay rhodopsin pigments and it takes time to adjust while they find it hard to consume the content.
+                     This makes a user's eyes either generate or decay rhodopsin pigments and it takes time to adjust while they find it hard to consume your content.
                    </p>
                  </div>
                  
@@ -500,7 +581,7 @@ function App() {
                   <p className={`text-sm leading-relaxed ${
                     shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
                   }`}>
-                    This makes a user's eyes {currentSection === 'research' ? 'decay' : 'generate'} rhodopsin pigments and it takes time to adjust while they find it hard to consume the content.
+                    This makes a user's eyes {currentSection === 'research' ? 'decay' : 'generate'} rhodopsin pigments and it takes time to adjust while they find it hard to consume your content.
                   </p>
                 </div>
               </div>
@@ -743,8 +824,16 @@ function App() {
           
           // Determine rhodopsin message
           const getRhodopsinMessage = () => {
-            if (targetId === 'hey') return 'Rhodopsin Pigments Generating';
-            if (targetId === 'research') return 'Rhodopsin Pigments Decaying';
+            if (targetId === 'question') {
+              return rhodopsinProgress >= 100 
+                ? 'Rhodopsin Pigments Generated' 
+                : 'Rhodopsin Pigments Generating';
+            }
+            if (targetId === 'research') {
+              return rhodopsinProgress >= 100 
+                ? 'Rhodopsin Pigments Decayed' 
+                : 'Rhodopsin Pigments Decaying';
+            }
             return null;
           };
           
@@ -755,12 +844,33 @@ function App() {
               <div className={`flex-1 flex items-center justify-center min-h-0`}>
                 <div className={`text-center max-w-2xl px-4 ${textColor}`}>
                 <h2 className="text-3xl sm:text-4xl font-bold">
-                  {item === 'Hey' ? 'Does UX matter in Bitcoin and Nostr?' : item}
+                  {item === 'Question' ? 'Does UX matter in Bitcoin & Nostr?' : 
+                   item === 'Ergonomics' && ergonomicsState === 'revealed' ? 'That was annoying huh?' : 
+                   item}
                 </h2>
-                {item === 'Hey' && (
-                  <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                    I'm here for the people who answer yes and want to get a head start with the UX for their websites and applications rather than having to fix things retroactively. Though I'm more than happy to do that too.
-                  </p>
+                {item === 'Question' && (
+                  <>
+                    {questionAnswer === null ? (
+                      <div className="mt-6 flex flex-col sm:flex-row gap-4 items-center justify-center">
+                        <button
+                          onClick={() => handleQuestionAnswer('yes')}
+                          className="px-8 py-3 bg-white text-black rounded-lg font-medium hover:bg-gray-100 transition-colors duration-300 min-w-[100px]"
+                        >
+                          Yes
+                        </button>
+                        <button
+                          onClick={() => handleQuestionAnswer('no')}
+                          className="px-8 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300 min-w-[100px]"
+                        >
+                          No
+                        </button>
+                      </div>
+                    ) : questionAnswer === 'yes' ? (
+                      <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
+                        That's a lovely answer. I'm here for the people who answer yes and want to get a head start with the UX for their websites and applications rather than having to fix things retroactively. Though I'm more than happy to do that too.
+                      </p>
+                    ) : null}
+                  </>
                 )}
                 {item === 'Research' && (
                   <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
@@ -769,17 +879,48 @@ function App() {
                 )}
                 {item === 'Testing' && (
                   <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                    UX testing ismore than presenting a product to a random person and asking what they think, though there are some uses for guerilla testing, it all starts with a carefully crafted test to rule out known biases and simulate as real world situations as possible, with well written testing scripts.
+                    UX testing is more than presenting a product to a random person and asking what they think, though there are some uses for guerilla testing, it all starts with a carefully crafted test to rule out known biases and simulate as real world situations as possible, with well written testing scripts.
                   </p>
                 )}
                 {item === 'Ergonomics' && (
-                  <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                    Utilise habituated interactions, thumb flow, and best practices to make sure that your app is performant and isn't causing fatigue due to bad, unvalidated interface choices.
-                  </p>
+                  <>
+                    {ergonomicsState === 'revealed' ? (
+                      <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
+                        Utilise habituated interactions, thumb flow, and best practices to make sure that your app is performant and isn't causing fatigue due to bad, unvalidated interface choices.
+                      </p>
+                    ) : (
+                      <div className="mt-4 flex justify-center relative">
+                        <motion.button
+                          onMouseEnter={handleErgonomicsHover}
+                          onTouchStart={handleErgonomicsHover}
+                          onClick={handleErgonomicsClick}
+                          className={`px-8 py-3 rounded-lg font-medium transition-colors duration-300 ${
+                            isEven ? 'bg-white text-black hover:bg-gray-100' : 'bg-black text-white hover:bg-gray-800'
+                          }`}
+                          animate={{
+                            y: ergonomicsState === 'moved' ? -(typeof window !== 'undefined' ? window.innerHeight * 0.3 : 250) : 0
+                          }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 30
+                          }}
+                          style={{
+                            zIndex: ergonomicsState === 'moved' ? 60 : 'auto'
+                          }}
+                        >
+                          {ergonomicsState === 'moved' 
+                            ? (isMobile ? 'No Seriously, Tap Me' : 'No Seriously, Click Me')
+                            : (isMobile ? 'Tap me' : 'Click me')
+                          }
+                        </motion.button>
+                      </div>
+                    )}
+                  </>
                 )}
                 {item === 'Prediction' && (
                   <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                    Use Baysian like theory to estimate the efficacy of user interface changes, new features, and more, with a better accuracy between concept to real world results. Start a database of insights and provenance of decision making that can work based on value to you and your users.
+                    Use Baysian-like theory to more accurately estimate the real word effect of user interface changes, new features, and more. Start a database of insights and provenance of decision making that can work based on value to you and your users.
                   </p>
                 )}
                 </div>
