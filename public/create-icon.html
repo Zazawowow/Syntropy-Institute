@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { 
+            margin: 0; 
+            font-family: 'Arial', sans-serif; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f0f0f0;
+        }
+        .icon { 
+            width: 512px; 
+            height: 512px; 
+            background: #000000; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            color: #ffffff;
+            font-size: 80px;
+            font-weight: bold;
+            border: 2px solid #ccc;
+        }
+        .instructions {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-family: Arial;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="instructions">
+        <h3>PROUX Icon Generator</h3>
+        <p>Right-click the black square and "Save Image As" to create your icon files:</p>
+        <ul>
+            <li>Save as icon-192.png (resize to 192x192)</li>
+            <li>Save as icon-512.png (keep at 512x512)</li>
+            <li>Save as apple-touch-icon.png (resize to 180x180)</li>
+        </ul>
+        <p>Or take a screenshot of just the black square.</p>
+    </div>
+    <canvas id="iconCanvas" width="512" height="512" style="border: 2px solid #ccc;"></canvas>
+    
+    <script>
+        const canvas = document.getElementById('iconCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Fill black background
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, 512, 512);
+        
+        // Draw white text
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 80px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('PROUX', 256, 256);
+        
+        // Convert to downloadable image
+        canvas.toBlob(function(blob) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'proux-icon-512.png';
+            link.textContent = 'Download 512x512 Icon';
+            link.style.position = 'absolute';
+            link.style.bottom = '20px';
+            link.style.left = '20px';
+            link.style.padding = '10px';
+            link.style.background = '#007bff';
+            link.style.color = 'white';
+            link.style.textDecoration = 'none';
+            link.style.borderRadius = '5px';
+            document.body.appendChild(link);
+        });
+    </script>
+</body>
+</html> 

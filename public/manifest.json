@@ -1,0 +1,48 @@
+{
+  "name": "PROUX - Bitcoin & Nostr UX",
+  "short_name": "PROUX",
+  "description": "User Experience research and design for Bitcoin and Nostr protocols",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["business", "design", "productivity"],
+  "shortcuts": [
+    {
+      "name": "App Anatomy",
+      "short_name": "Anatomy",
+      "description": "View the app anatomy section",
+      "url": "/#app-anatomy",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "UX Research",
+      "short_name": "Research",
+      "description": "Learn about UX research methods",
+      "url": "/#research",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+} 

@@ -104,6 +104,15 @@ body {
   min-height: calc(100vh - env(safe-area-inset-bottom, 0px));
 }
 
+/* Mobile-specific first section height adjustment */
+@media (max-width: 639px) {
+  .snap-section:first-child {
+    height: calc(100vh - env(safe-area-inset-bottom, 20px)); /* Extra padding for mobile */
+    min-height: calc(100vh - env(safe-area-inset-bottom, 20px));
+    max-height: calc(100vh - env(safe-area-inset-bottom, 20px));
+  }
+}
+
 @media (min-width: 640px) { /* sm breakpoint */
   html {
     scroll-padding-top: 6rem; /* h-24, for desktop */

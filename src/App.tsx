@@ -56,6 +56,7 @@ function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentSection, setCurrentSection] = useState('app-anatomy');
   const [modalOpen, setModalOpen] = useState(false);
+  const [rhodopsinProgress, setRhodopsinProgress] = useState(0);
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
@@ -125,6 +126,21 @@ function App() {
     }
   }, [step]);
 
+  // Register service worker for PWA
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered: ', registration);
+          })
+          .catch((registrationError) => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+  }, []);
+
   // Scroll listener to detect current section
   useEffect(() => {
     const handleScroll = () => {
@@ -160,6 +176,30 @@ function App() {
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Rhodopsin progress animation
+  useEffect(() => {
+    if (currentSection === 'hey' || currentSection === 'research') {
+      setRhodopsinProgress(0);
+      const interval = setInterval(() => {
+        setRhodopsinProgress(prev => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            // Hide progress bar 1 second after completion
+            setTimeout(() => {
+              setRhodopsinProgress(-1); // Use -1 to indicate hidden state
+            }, 1000);
+            return 100;
+          }
+          return prev + (100 / (20 * 10)); // 20 seconds, 10 updates per second
+        });
+      }, 100);
+
+      return () => clearInterval(interval);
+    } else {
+      setRhodopsinProgress(0);
+    }
+  }, [currentSection]);
 
   return (
     <div className="bg-white font-orbitron">
@@ -312,14 +352,67 @@ function App() {
                  ×
                </button>
                
-               <h2 className={`text-2xl font-bold mb-4 ${
+               <h2 className={`text-2xl font-bold mb-6 ${
                  shouldInvertNav() ? 'text-white' : 'text-black'
                }`}>UX Mistakes</h2>
-               <p className={`leading-relaxed ${
-                 shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
-               }`}>
-                 I hijacked your scroll and transitioned from light to dark theme, so you're now decaying rhodopsin pigments in your eyes to acclimate.
-               </p>
+               
+               <div className="space-y-4 mb-6">
+                 <div>
+                   <h3 className={`text-lg font-bold mb-2 ${
+                     shouldInvertNav() ? 'text-white' : 'text-black'
+                   }`}>Hijacked Scroll</h3>
+                   <p className={`text-sm leading-relaxed ${
+                     shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                   }`}>
+                     Never hijack the users scroll, it's annoying and largely unexpected behaviour
+                   </p>
+                 </div>
+                 
+                 <div>
+                   <h3 className={`text-lg font-bold mb-2 ${
+                     shouldInvertNav() ? 'text-white' : 'text-black'
+                   }`}>Light & Dark</h3>
+                   <p className={`text-sm leading-relaxed ${
+                     shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                   }`}>
+                     You're causing the user to either generate or decay rhodopsin pigments in their eyes and it takes time to adjust
+                   </p>
+                 </div>
+                 
+                 <div>
+                   <h3 className={`text-lg font-bold mb-2 ${
+                     shouldInvertNav() ? 'text-white' : 'text-black'
+                   }`}>Halation:</h3>
+                   <p className={`text-sm leading-relaxed ${
+                     shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                   }`}>
+                     Pure white on pure black or vice versa causes halation, which is a glow behind the text making it harder to read:
+                   </p>
+                 </div>
+               </div>
+               
+               <div className="flex flex-col space-y-3">
+                 <button 
+                   onClick={() => setModalOpen(false)}
+                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                     shouldInvertNav() 
+                       ? 'bg-white text-black hover:bg-gray-200' 
+                       : 'bg-black text-white hover:bg-gray-800'
+                   }`}
+                 >
+                   Fix these issues
+                 </button>
+                 <button 
+                   onClick={() => setModalOpen(false)}
+                   className={`px-4 py-2 rounded-lg font-medium transition-colors border ${
+                     shouldInvertNav() 
+                       ? 'border-white text-white hover:bg-white hover:text-black' 
+                       : 'border-black text-black hover:bg-black hover:text-white'
+                   }`}
+                 >
+                   Nah I like them
+                 </button>
+               </div>
             </motion.div>
           </motion.div>
         )}
@@ -455,7 +548,7 @@ function App() {
 
           {/* --- Image Carousel --- */}
           <motion.div
-            className="absolute inset-0 w-full h-full flex items-center justify-center p-4 sm:p-8 md:p-12 lg:p-16 z-0"
+            className="absolute inset-0 w-full h-full flex items-center justify-center p-4 sm:p-8 md:p-12 lg:p-16 z-0 -translate-y-8 sm:-translate-y-0"
             initial={{ opacity: 0 }}
             animate={{ opacity: step >= 6 ? 1 : 0 }}
             transition={{ duration: 0.8 }}
@@ -478,7 +571,7 @@ function App() {
                   <img
                     src={(slides[slideIndex] as { src: string }).src}
                     alt={(slides[slideIndex] as { alt: string }).alt}
-                    className="w-full h-full object-contain scale-75"
+                    className="w-full h-full object-contain scale-[67.5%] sm:scale-75"
                   />
                 ) : (
                   <div className="w-full max-w-2xl text-center px-4">
@@ -491,9 +584,22 @@ function App() {
             </AnimatePresence>
           </motion.div>
 
+          {/* --- Footnote for first quote --- */}
+          <motion.div
+            className="absolute inset-x-0 bottom-48 sm:bottom-32 z-10 flex justify-center px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: step >= 6 && slideIndex === 1 ? 1 : 0 }}
+            transition={{ duration: 0.3 }}
+          >
+                         <p className="text-xs sm:text-sm text-gray-600 italic text-center max-w-md">
+               It's a successful app, so, does it matter?<br />
+               (is this text too small?)
+             </p>
+          </motion.div>
+
           {/* --- Carousel Controls --- */}
           <motion.div
-            className="absolute inset-x-0 bottom-4 sm:bottom-8 z-10 flex justify-center space-x-4"
+            className="absolute inset-x-0 bottom-24 sm:bottom-8 z-10 flex justify-center space-x-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: step >= 6 ? 1 : 0 }}
           >
@@ -519,6 +625,15 @@ function App() {
           const bgColor = isEven ? 'bg-black' : 'bg-white';
           const textColor = isEven ? 'text-white' : 'text-black';
           const subTextColor = isEven ? 'text-gray-300' : 'text-gray-700';
+          
+          // Determine rhodopsin message
+          const getRhodopsinMessage = () => {
+            if (targetId === 'hey') return 'Rhodopsin Pigments Generating';
+            if (targetId === 'research') return 'Rhodopsin Pigments Decaying';
+            return null;
+          };
+          
+          const rhodopsinMessage = getRhodopsinMessage();
           
           return (
             <section key={targetId} id={targetId} className={`snap-section flex items-center justify-center snap-start ${bgColor}`}>
@@ -550,6 +665,74 @@ function App() {
                   <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
                     Use Baysian like theory to estimate the efficacy of user interface changes, new features, and more, with a better accuracy between concept to real world results. Start a database of insights and provenance of decision making that can work based on value to you and your users.
                   </p>
+                )}
+                
+                {/* Rhodopsin Progress Bar */}
+                {rhodopsinMessage && rhodopsinProgress >= 0 && (
+                  <motion.div 
+                    className="mt-8 flex flex-col items-center"
+                    initial={{ opacity: 1 }}
+                    animate={{ opacity: rhodopsinProgress === -1 ? 0 : 1 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <motion.div 
+                      className={`text-sm mb-2 ${subTextColor}`}
+                      animate={{ 
+                        opacity: [1, 0.6, 1]
+                      }}
+                      transition={{ 
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    >
+                      {rhodopsinMessage}
+                    </motion.div>
+                    <div className={`w-1/2 h-2 rounded-full overflow-hidden ${
+                      isEven ? 'bg-gray-700' : 'bg-gray-300'
+                    }`}>
+                      <motion.div
+                        className={`h-full rounded-full ${
+                          isEven ? 'bg-white' : 'bg-black'
+                        }`}
+                        initial={{ width: '0%' }}
+                        animate={{ width: `${Math.max(0, rhodopsinProgress)}%` }}
+                        transition={{ duration: 0.1, ease: 'linear' }}
+                      />
+                    </div>
+                    <motion.div 
+                      className={`text-xs mt-1 ${subTextColor}`}
+                      animate={{ 
+                        opacity: [1, 0.7, 1]
+                      }}
+                      transition={{ 
+                        duration: 1.5,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    >
+                      {Math.round(Math.max(0, rhodopsinProgress))}% Complete
+                    </motion.div>
+                  </motion.div>
+                )}
+                
+                {/* "What?" link after progress bar disappears */}
+                {rhodopsinMessage && rhodopsinProgress === -1 && (
+                  <motion.div 
+                    className="mt-8 flex justify-center"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.5 }}
+                  >
+                    <button
+                      onClick={() => setModalOpen(true)}
+                      className={`text-sm underline transition-colors hover:opacity-70 ${
+                        isEven ? 'text-gray-300' : 'text-gray-600'
+                      }`}
+                    >
+                      What?
+                    </button>
+                  </motion.div>
                 )}
               </div>
             </section>
