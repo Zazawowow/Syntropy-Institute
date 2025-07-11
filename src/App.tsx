@@ -103,9 +103,12 @@ function App() {
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, targetId: string) => {
     e.preventDefault();
     
-    // Use smooth scrolling that works with our refined snap behavior
+    // Check if on mobile device
+    const isMobile = window.innerWidth < 640; // sm breakpoint
+    
+    // Use appropriate scroll behavior - auto on mobile for better snap behavior, smooth on desktop
     document.getElementById(targetId)?.scrollIntoView({ 
-      behavior: 'smooth',
+      behavior: isMobile ? 'auto' : 'smooth',
       block: 'start'
     });
     
