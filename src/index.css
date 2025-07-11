@@ -2,8 +2,106 @@
 @tailwind utilities;
 
 html {
-  scroll-behavior: smooth;
   scroll-padding-top: 4rem; /* h-16, mobile-first */
+  scroll-snap-type: y mandatory; /* Use mandatory for better mobile behavior */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  overscroll-behavior: none; /* Prevent bounce scrolling on mobile */
+  /* Fix for iPhone Safari dynamic viewport */
+  height: 100%;
+  height: -webkit-fill-available;
+}
+
+body {
+  overflow-x: hidden;
+  /* Optimize for mobile touch */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  /* Fix for iPhone Safari dynamic viewport */
+  height: 100%;
+  height: -webkit-fill-available;
+}
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Last section styling - mobile optimized */
+.snap-section:last-child {
+  scroll-snap-align: start; /* Use start instead of end for consistency */
+}
+
+/* Mobile-specific last section fix */
+@media (max-width: 639px) {
+  .snap-section:last-child {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    /* Ensure exact same height calculation as other sections */
+    height: calc(100vh - 4rem - env(safe-area-inset-bottom, 0px)) !important;
+    min-height: calc(100vh - 4rem - env(safe-area-inset-bottom, 0px)) !important;
+    max-height: calc(100vh - 4rem - env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* Refined snap behavior - optimized for mobile */
+.snap-section {
+  scroll-snap-align: start;
+  scroll-snap-stop: always; /* Force stops on mobile for better control */
+  height: calc(100vh - 4rem); /* Account for mobile header height (h-16) */
+  min-height: calc(100vh - 4rem);
+  max-height: calc(100vh - 4rem);
+  position: relative; /* Ensure proper stacking context */
+}
+
+/* Mobile-specific optimizations - iPhone Safari fix */
+@media (max-width: 639px) {
+  html {
+    scroll-behavior: auto; /* Disable smooth scroll on mobile for better snap */
+  }
+  
+  body {
+    touch-action: pan-y; /* Only allow vertical scrolling */
+  }
+  
+  .snap-section {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    /* Use stable viewport height that doesn't change with Safari UI */
+    height: calc(100vh - 4rem);
+    min-height: calc(100vh - 4rem);
+    max-height: calc(100vh - 4rem);
+    /* Alternative approach using CSS env() for safe areas */
+    height: calc(100vh - 4rem - env(safe-area-inset-bottom, 0px));
+    min-height: calc(100vh - 4rem - env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (min-width: 640px) {
+  .snap-section {
+    height: calc(100vh - 6rem); /* Account for desktop header height (h-24) */
+    min-height: calc(100vh - 6rem);
+    max-height: calc(100vh - 6rem);
+    scroll-snap-stop: normal; /* Allow more natural scrolling on desktop */
+  }
+}
+
+/* First section is special - it has negative margin to go under header */
+.snap-section:first-child {
+  height: 100vh; /* Use stable viewport height */
+  min-height: 100vh;
+  max-height: 100vh;
+  /* Account for iPhone Safari safe areas */
+  height: calc(100vh - env(safe-area-inset-bottom, 0px));
+  min-height: calc(100vh - env(safe-area-inset-bottom, 0px));
 }
 
 @media (min-width: 640px) { /* sm breakpoint */

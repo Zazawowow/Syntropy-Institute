@@ -54,6 +54,8 @@ function App() {
     return 0;
   });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [currentSection, setCurrentSection] = useState('app-anatomy');
+  const [modalOpen, setModalOpen] = useState(false);
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
@@ -95,8 +97,20 @@ function App() {
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, targetId: string) => {
     e.preventDefault();
-    document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
+    
+    // Use smooth scrolling that works with our refined snap behavior
+    document.getElementById(targetId)?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start'
+    });
+    
     setMobileMenuOpen(false);
+  };
+
+  // Determine if current section should have inverted nav colors
+  const shouldInvertNav = () => {
+    const blackSections = ['hey', 'testing', 'predict-efficacy']; // These are the black sections (even indexed sections from navItems.slice(1))
+    return blackSections.includes(currentSection);
   };
 
   useEffect(() => {
@@ -111,14 +125,54 @@ function App() {
     }
   }, [step]);
 
+  // Scroll listener to detect current section
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = ['app-anatomy', 'hey', 'research', 'testing', 'ergonomics', 'predict-efficacy'];
+      const scrollPosition = window.scrollY + window.innerHeight / 2;
+
+      for (const sectionId of sections) {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          const elementTop = rect.top + window.scrollY;
+          const elementBottom = elementTop + rect.height;
+
+          if (scrollPosition >= elementTop && scrollPosition <= elementBottom) {
+            setCurrentSection(sectionId);
+            
+            // Update theme color for mobile status bar
+            const metaThemeColor = document.getElementById('theme-color-meta') as HTMLMetaElement;
+            if (metaThemeColor) {
+              const blackSections = ['hey', 'testing', 'predict-efficacy'];
+              const isBlackSection = blackSections.includes(sectionId);
+              metaThemeColor.setAttribute('content', isBlackSection ? '#000000' : '#ffffff');
+            }
+            
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Call once to set initial state
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div className="bg-white font-orbitron">
       {/* --- Sticky Header --- */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm">
+      <header className={`sticky top-0 z-50 transition-colors duration-300 ${
+        shouldInvertNav() ? 'bg-black' : 'bg-white'
+      }`}>
         <div className="relative flex h-16 items-center justify-between px-4 sm:h-24 sm:block sm:px-0">
           <a href="#app-anatomy" onClick={(e) => handleLinkClick(e, 'app-anatomy')}>
             <motion.div
-              className="text-lg font-bold text-black sm:absolute sm:top-8 sm:left-8 sm:text-2xl"
+              className={`text-lg font-bold sm:absolute sm:top-8 sm:left-8 sm:text-2xl transition-colors duration-300 ${
+                shouldInvertNav() ? 'text-white' : 'text-black'
+              }`}
               initial={{ opacity: 0 }}
               animate={{ opacity: step >= 5 ? 1 : 0 }}
               transition={{ duration: 0.5 }}
@@ -128,7 +182,9 @@ function App() {
           </a>
 
           {/* Desktop Navigation */}
-          <nav className="hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium text-black">
+          <nav className={`hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 ${
+            shouldInvertNav() ? 'text-white' : 'text-black'
+          }`}>
             {navItems.map((item, index) => {
               const appearStep = 6 + index;
               const targetId = item.toLowerCase().replace(/\s+/g, '-');
@@ -140,7 +196,9 @@ function App() {
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: step >= appearStep ? 1 : 0, y: step >= appearStep ? 0 : -20 }}
                   transition={{ duration: 0.3 }}
-                  className="cursor-pointer hover:text-gray-600 transition-colors"
+                  className={`cursor-pointer transition-colors ${
+                    shouldInvertNav() ? 'hover:text-gray-300' : 'hover:text-gray-600'
+                  }`}
                 >
                   {item}
                 </motion.a>
@@ -156,9 +214,15 @@ function App() {
             animate={{ opacity: step >= 6 ? 1 : 0 }}
             transition={{ duration: 0.3 }}
           >
-            <motion.span className="mb-1 h-0.5 w-6 bg-black" animate={{ rotate: mobileMenuOpen ? 45 : 0, y: mobileMenuOpen ? 6 : 0 }} />
-            <motion.span className="mb-1 h-0.5 w-6 bg-black" animate={{ opacity: mobileMenuOpen ? 0 : 1 }} />
-            <motion.span className="h-0.5 w-6 bg-black" animate={{ rotate: mobileMenuOpen ? -45 : 0, y: mobileMenuOpen ? -6 : 0 }} />
+            <motion.span className={`mb-1 h-0.5 w-6 transition-colors duration-300 ${
+              shouldInvertNav() ? 'bg-white' : 'bg-black'
+            }`} animate={{ rotate: mobileMenuOpen ? 45 : 0, y: mobileMenuOpen ? 6 : 0 }} />
+            <motion.span className={`mb-1 h-0.5 w-6 transition-colors duration-300 ${
+              shouldInvertNav() ? 'bg-white' : 'bg-black'
+            }`} animate={{ opacity: mobileMenuOpen ? 0 : 1 }} />
+            <motion.span className={`h-0.5 w-6 transition-colors duration-300 ${
+              shouldInvertNav() ? 'bg-white' : 'bg-black'
+            }`} animate={{ rotate: mobileMenuOpen ? -45 : 0, y: mobileMenuOpen ? -6 : 0 }} />
           </motion.button>
         </div>
       </header>
@@ -167,7 +231,9 @@ function App() {
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            className="sm:hidden fixed inset-0 bg-white z-40 flex flex-col items-center justify-center"
+            className={`sm:hidden fixed inset-0 z-40 flex flex-col items-center justify-center transition-colors duration-300 ${
+              shouldInvertNav() ? 'bg-black' : 'bg-white'
+            }`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -179,7 +245,11 @@ function App() {
                   key={item}
                   href={`#${targetId}`}
                   onClick={(e) => handleLinkClick(e, targetId)}
-                  className="text-2xl font-medium text-black mb-8 cursor-pointer hover:text-gray-600 transition-colors"
+                  className={`text-2xl font-medium mb-8 cursor-pointer transition-colors ${
+                    shouldInvertNav() 
+                      ? 'text-white hover:text-gray-300' 
+                      : 'text-black hover:text-gray-600'
+                  }`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 20 }}
@@ -193,9 +263,71 @@ function App() {
         )}
       </AnimatePresence>
 
+      {/* --- Sad Face Modal Button --- */}
+      <AnimatePresence>
+        {currentSection !== 'app-anatomy' && (
+          <motion.button
+            onClick={() => setModalOpen(true)}
+            className={`fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-all duration-300 hover:scale-110 hover:rotate-12 ${
+              shouldInvertNav() ? 'bg-secondary-black text-white shadow-lg' : 'bg-white text-black shadow-lg'
+            }`}
+            initial={{ opacity: 0, scale: 0, rotate: -180 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            exit={{ opacity: 0, scale: 0, rotate: 180 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            whileHover={{ scale: 1.1, rotate: 12 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            ☹️
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* --- UX Mistakes Modal --- */}
+      <AnimatePresence>
+        {modalOpen && (
+                     <motion.div
+             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+             initial={{ opacity: 0 }}
+             animate={{ opacity: 1 }}
+             exit={{ opacity: 0 }}
+             onClick={() => setModalOpen(false)}
+           >
+                         <motion.div
+               className={`rounded-lg p-6 max-w-md w-full mx-4 relative ${
+                 shouldInvertNav() ? 'bg-secondary-black text-white' : 'bg-white text-black'
+               }`}
+               initial={{ scale: 0.8, opacity: 0, y: 50 }}
+               animate={{ scale: 1, opacity: 1, y: 0 }}
+               exit={{ scale: 0.8, opacity: 0, y: 50 }}
+               transition={{ type: "spring", stiffness: 300, damping: 25 }}
+               onClick={(e) => e.stopPropagation()}
+             >
+               <button
+                 onClick={() => setModalOpen(false)}
+                 className={`absolute top-4 right-4 text-xl transition-colors ${
+                   shouldInvertNav() ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+                 }`}
+               >
+                 ×
+               </button>
+               
+               <h2 className={`text-2xl font-bold mb-4 ${
+                 shouldInvertNav() ? 'text-white' : 'text-black'
+               }`}>UX Mistakes</h2>
+               <p className={`leading-relaxed ${
+                 shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+               }`}>
+                 I hijacked your scroll and transitioned from light to dark theme, so you're now decaying rhodopsin pigments in your eyes to acclimate.
+               </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <main className="-mt-16 sm:-mt-24">
         {/* --- App Anatomy Section (First Fold) --- */}
-        <section id="app-anatomy" className="h-dvh sm:h-screen flex items-center justify-center overflow-hidden relative px-4 sm:px-0">
+        <section id="app-anatomy" className="snap-section flex items-center justify-center overflow-hidden relative px-4 sm:px-0 bg-white snap-start">
           <div className="absolute inset-0 flex items-center justify-center">
             <LayoutGroup>
               <AnimatePresence mode="wait">
@@ -361,7 +493,7 @@ function App() {
 
           {/* --- Carousel Controls --- */}
           <motion.div
-            className="absolute inset-x-0 bottom-8 z-10 flex justify-center space-x-4"
+            className="absolute inset-x-0 bottom-4 sm:bottom-8 z-10 flex justify-center space-x-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: step >= 6 ? 1 : 0 }}
           >
@@ -381,36 +513,41 @@ function App() {
         </section>
 
         {/* --- Other Sections --- */}
-        {navItems.slice(1).map((item) => {
+        {navItems.slice(1).map((item, index) => {
           const targetId = item.toLowerCase().replace(/\s+/g, '-');
+          const isEven = index % 2 === 0;
+          const bgColor = isEven ? 'bg-black' : 'bg-white';
+          const textColor = isEven ? 'text-white' : 'text-black';
+          const subTextColor = isEven ? 'text-gray-300' : 'text-gray-700';
+          
           return (
-            <section key={targetId} id={targetId} className="h-dvh sm:h-screen flex items-center justify-center">
-              <div className="text-center max-w-2xl px-4 -translate-y-8 sm:-translate-y-12">
+            <section key={targetId} id={targetId} className={`snap-section flex items-center justify-center snap-start ${bgColor}`}>
+              <div className={`text-center max-w-2xl px-4 -translate-y-8 sm:-translate-y-16 ${textColor}`}>
                 <h2 className="text-3xl sm:text-4xl font-bold">
                   {item === 'Hey' ? 'Does UX matter in Bitcoin and Nostr?' : item}
                 </h2>
                 {item === 'Hey' && (
-                  <p className="mt-4 text-base sm:text-lg leading-relaxed text-gray-700">
+                  <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
                     I'm here for the people who answer yes and want to get a head start with the UX for their websites and applications rather than having to fix things retroactively. Though I'm more than happy to do that too.
                   </p>
                 )}
                 {item === 'Research' && (
-                  <p className="mt-4 text-base sm:text-lg leading-relaxed text-gray-700">
+                  <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
                     Deep interviews with target and non target archetypes. Day in the life and affinity mapping, and most simply, understanding the user before they even use your product so it's tuned to their habits, interface knowledge, and expectations.
                   </p>
                 )}
                 {item === 'Testing' && (
-                  <p className="mt-4 text-base sm:text-lg leading-relaxed text-gray-700">
+                  <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
                     Testing isn't presenting a random product to a random person and asking what they think, though there are some uses for guerilla testing, it all starts with a carefully crafted test to rule out known biases and simulate as real world situations as possible, with well written testing scripts.
                   </p>
                 )}
                 {item === 'Ergonomics' && (
-                  <p className="mt-4 text-base sm:text-lg leading-relaxed text-gray-700">
+                  <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
                     Utilise habituated interactions, thumb flow, and best practices to make sure that your app is performant and isn't causing fatigue due to bad, unvalidated interface choices.
                   </p>
                 )}
                 {item === 'Predict Efficacy' && (
-                  <p className="mt-4 text-base sm:text-lg leading-relaxed text-gray-700">
+                  <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
                     Use Baysian like theory to estimate the efficacy of user interface changes, new features, and more, with a better accuracy between concept to real world results. Start a database of insights and provenance of decision making that can work based on value to you and your users.
                   </p>
                 )}

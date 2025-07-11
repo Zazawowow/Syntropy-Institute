@@ -12,6 +12,7 @@ export default {
       colors: {
         'bitcoin-orange': '#F7931A',
         'nostr-purple': '#8E44AD',
+        'secondary-black': '#1D1D1D',
       },
       keyframes: {
         typing: {
