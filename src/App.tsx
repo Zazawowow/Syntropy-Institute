@@ -869,6 +869,15 @@ function App() {
                 }`}>
                   As a UX designer you have to know about many psychological biases. Not only in user testing but in the designer themselves. Design is tackled best in an unbiased way, it just makes the best experience for all.
                 </p>
+                
+                <h3 className={`text-lg font-bold mt-6 mb-3 ${
+                  shouldInvertNav() ? 'text-white' : 'text-black'
+                }`}>Cradling</h3>
+                <p className={`text-base leading-relaxed ${
+                  shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  People cradle their phone in many ways, and there are techniques to account for it. What you don't want are users changing their position because your design is unergonomic.
+                </p>
               </div>
               
                              <div className="flex flex-col space-y-3">
@@ -1232,7 +1241,7 @@ function App() {
                 <h2 className="text-3xl sm:text-4xl font-bold">
                       {item === 'Question' ? 
                         (returnedFrom404 ? 'Oh, so it does matter? 🙂' : 'Does UX matter for Bitcoin & Nostr?') : 
-                       item === 'Ergonomics' && ergonomicsState === 'revealed' ? 'That second onewas annoying huh?' : 
+                       item === 'Ergonomics' && ergonomicsState === 'revealed' ? 'That second one was annoying huh?' : 
                        item}
                 </h2>
                 )}
