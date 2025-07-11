@@ -64,13 +64,14 @@ function App() {
   const [questionAnswer, setQuestionAnswer] = useState<'yes' | 'no' | null>(null);
   const [show404, setShow404] = useState(false);
   const [show404Button, setShow404Button] = useState(false);
+  const [returnedFrom404, setReturnedFrom404] = useState(false);
   const [ergonomicsState, setErgonomicsState] = useState<'button' | 'moved' | 'revealed'>('button');
   const [thumbFlowStage, setThumbFlowStage] = useState(0); // 0 = none, 1-4 = layer by layer
   const [thumbFlowProgress, setThumbFlowProgress] = useState(0);
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
-    { type: 'quote', text: 'Utilise habituated patterns, basically the user’s unconscious behavior, to make app use easy' },
+    { type: 'quote', text: 'Utilise habituated patterns, basically the user’s unconscious behavior, to make the app a breeze to use' },
     { type: 'image', src: '/screen-2.png', alt: 'Proux application screenshot 2' },
     { type: 'quote', text: 'Just like the doorway effect, people forget information as they move from screen to screen. Don\'t make them think' },
   ];
@@ -106,11 +107,21 @@ function App() {
 
   const navItems = ['Anatomy', 'Question', 'Research', 'Testing', 'Ergonomics', 'Prediction'];
 
+  // Detect if mobile for button text  
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, targetId: string) => {
     e.preventDefault();
-    
-    // Check if on mobile device
-    const isMobile = window.innerWidth < 640; // sm breakpoint
     
     // Use appropriate scroll behavior - auto on mobile for better snap behavior, smooth on desktop
     document.getElementById(targetId)?.scrollIntoView({ 
@@ -149,6 +160,7 @@ function App() {
   const handleReturnFrom404 = () => {
     setShow404(false);
     setQuestionAnswer(null);
+    setReturnedFrom404(true);
   };
 
   // Handle ergonomics button interaction
@@ -165,25 +177,10 @@ function App() {
     } else if (ergonomicsState === 'moved') {
       // Second tap (or desktop click after hover), reveal content
       setErgonomicsState('revealed');
-      // Start thumb flow animation on mobile
-      if (isMobile) {
-        setTimeout(() => setThumbFlowStage(1), 1000);
-      }
+      // Start thumb flow animation on both mobile and desktop
+      setTimeout(() => setThumbFlowStage(1), 1000);
     }
   };
-
-  // Detect if mobile for button text  
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   useEffect(() => {
     if (step === 0 && typeof window !== 'undefined') {
@@ -554,45 +551,45 @@ function App() {
                        <p className={`text-sm leading-relaxed ${
                          shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
                        }`}>
-                         Prioritise primary and regular actions in comfortable areas where possible and relegate inferquent ones to the harder places.
+                         Prioritise primary and regular actions in comfortable areas where possible and relegate infrequent ones to the harder places.
                        </p>
                      </div>
                    </>
                  ) : (
                    // UX Mistakes
                    <>
-                     <div>
-                       <h3 className={`text-lg font-bold mb-2 ${
-                         shouldInvertNav() ? 'text-white' : 'text-black'
-                       }`}>Hijacked Scroll</h3>
-                       <p className={`text-sm leading-relaxed ${
-                         shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
-                       }`}>
-                         Never hijack the users scroll, it's annoying, and largely an unexpected behaviour.
-                       </p>
-                     </div>
-                     
-                     <div>
-                       <h3 className={`text-lg font-bold mb-2 ${
-                         shouldInvertNav() ? 'text-white' : 'text-black'
-                       }`}>Light to Dark Transitions</h3>
-                       <p className={`text-sm leading-relaxed ${
-                         shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
-                       }`}>
+                 <div>
+                   <h3 className={`text-lg font-bold mb-2 ${
+                     shouldInvertNav() ? 'text-white' : 'text-black'
+                   }`}>Hijacked Scroll</h3>
+                   <p className={`text-sm leading-relaxed ${
+                     shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                   }`}>
+                     Never hijack the users scroll, it's annoying, and largely an unexpected behaviour.
+                   </p>
+                 </div>
+                 
+                 <div>
+                   <h3 className={`text-lg font-bold mb-2 ${
+                     shouldInvertNav() ? 'text-white' : 'text-black'
+                   }`}>Light to Dark Transitions</h3>
+                   <p className={`text-sm leading-relaxed ${
+                     shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                   }`}>
                          This makes a user's eyes either generate or decay rhodopsin pigments and it takes time to adjust while they find it hard to consume your content.
-                       </p>
-                     </div>
-                     
-                     <div>
-                       <h3 className={`text-lg font-bold mb-2 ${
-                         shouldInvertNav() ? 'text-white' : 'text-black'
+                   </p>
+                 </div>
+                 
+                 <div>
+                   <h3 className={`text-lg font-bold mb-2 ${
+                     shouldInvertNav() ? 'text-white' : 'text-black'
                        }`}>Halation</h3>
-                       <p className={`text-sm leading-relaxed ${
-                         shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
-                       }`}>
-                         Pure white on pure black or vice versa causes halation, which is a glow behind the text making it hard to read.
-                       </p>
-                     </div>
+                   <p className={`text-sm leading-relaxed ${
+                     shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                   }`}>
+                     Pure white on pure black or vice versa causes halation, which is a glow behind the text making it hard to read.
+                   </p>
+                 </div>
                    </>
                  )}
                </div>
@@ -613,26 +610,26 @@ function App() {
                  ) : (
                    // UX Mistakes Modal Buttons
                    <>
-                     <button 
-                       onClick={() => setModalOpen(false)}
-                       className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                         shouldInvertNav() 
-                           ? 'bg-white text-black hover:bg-gray-200' 
-                           : 'bg-black text-white hover:bg-gray-800'
-                       }`}
-                     >
-                       Fix these issues
-                     </button>
-                     <button 
-                       onClick={() => setModalOpen(false)}
-                       className={`px-4 py-2 rounded-lg font-medium transition-colors border ${
-                         shouldInvertNav() 
-                           ? 'border-white text-white hover:bg-white hover:text-black' 
-                           : 'border-black text-black hover:bg-black hover:text-white'
-                       }`}
-                     >
-                       Nah I like them
-                     </button>
+                 <button 
+                   onClick={() => setModalOpen(false)}
+                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                     shouldInvertNav() 
+                       ? 'bg-white text-black hover:bg-gray-200' 
+                       : 'bg-black text-white hover:bg-gray-800'
+                   }`}
+                 >
+                   Fix these issues
+                 </button>
+                 <button 
+                   onClick={() => setModalOpen(false)}
+                   className={`px-4 py-2 rounded-lg font-medium transition-colors border ${
+                     shouldInvertNav() 
+                       ? 'border-white text-white hover:bg-white hover:text-black' 
+                       : 'border-black text-black hover:bg-black hover:text-white'
+                   }`}
+                 >
+                   Nah I like them
+                 </button>
                    </>
                  )}
                </div>
@@ -863,6 +860,9 @@ function App() {
                   />
                 ) : (
                   <div className="w-full max-w-2xl text-center px-4">
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
+                      Takeaway
+                    </h3>
                     <p className="text-xl sm:text-2xl italic text-gray-800 leading-relaxed">
                       "{(slides[slideIndex] as { text: string }).text}"
                     </p>
@@ -1029,11 +1029,15 @@ function App() {
 
               <div className={`flex-1 flex items-center justify-center min-h-0 relative z-10`}>
                 <div className={`text-center max-w-2xl px-4 ${textColor}`}>
+                {/* Hide title for Ergonomics on desktop since it's now on the left */}
+                {!(item === 'Ergonomics' && !isMobile) && (
                 <h2 className="text-3xl sm:text-4xl font-bold">
-                  {item === 'Question' ? 'Does UX matter in Bitcoin & Nostr?' : 
-                   item === 'Ergonomics' && ergonomicsState === 'revealed' ? 'That was annoying huh?' : 
-                   item}
+                      {item === 'Question' ? 
+                        (returnedFrom404 ? 'Oh, so it does matter? 🙂' : 'Does UX matter for Bitcoin & Nostr?') : 
+                       item === 'Ergonomics' && ergonomicsState === 'revealed' ? 'That second onewas annoying huh?' : 
+                       item}
                 </h2>
+                )}
                 {item === 'Question' && (
                   <>
                     {questionAnswer === null ? (
@@ -1052,9 +1056,9 @@ function App() {
                         </button>
                       </div>
                     ) : questionAnswer === 'yes' ? (
-                      <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
+                  <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
                         That's a lovely answer. I'm here for the people who answer yes and want to get a head start with the UX for their websites and applications rather than having to fix things retroactively. Though I'm more than happy to do that too.
-                      </p>
+                  </p>
                     ) : null}
                   </>
                 )}
@@ -1070,41 +1074,315 @@ function App() {
                 )}
                 {item === 'Ergonomics' && (
                   <>
-                    {/* Always show paragraph when revealed */}
-                    {ergonomicsState === 'revealed' && (
-                      <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                        Utilise thumb flow, habituated interactions, and best practices to make sure that your app is performant and isn't causing fatigue due to poor, unvalidated interface choices.
-                      </p>
-                    )}
-                    
-                    {/* Show button when not revealed, or when revealed on mobile */}
-                    {(ergonomicsState !== 'revealed' || isMobile) && (
-                      <div className="mt-4 flex justify-center relative">
-                        <motion.button
-                          onMouseEnter={handleErgonomicsHover}
-                          onClick={handleErgonomicsClick}
-                          className={`px-8 py-3 rounded-lg font-medium transition-colors duration-300 ${
-                            isEven ? 'bg-white text-black hover:bg-gray-100' : 'bg-black text-white hover:bg-gray-800'
-                          }`}
-                          animate={{
-                            y: ergonomicsState === 'moved' ? -(typeof window !== 'undefined' ? window.innerHeight * 0.3 : 250) : 0
-                          }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 300,
-                            damping: 30
-                          }}
-                          style={{
-                            zIndex: ergonomicsState === 'moved' ? 60 : 'auto'
-                          }}
-                        >
-                          {ergonomicsState === 'revealed' && isMobile
-                            ? 'Mmm, Comfortable 😊'
-                            : ergonomicsState === 'moved' 
-                              ? (isMobile ? 'No Seriously, Tap Me' : 'No Seriously, Click Me')
-                              : (isMobile ? 'Tap me' : 'Click me')
-                          }
-                        </motion.button>
+                    {isMobile ? (
+                      // Mobile Layout - Original behavior
+                      <>
+                        {/* Always show paragraph when revealed */}
+                        {ergonomicsState === 'revealed' && (
+                  <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
+                            Utilise thumb flow, habituated interactions, and best practices to make sure that your app is performant and isn't causing fatigue due to poor, unvalidated interface choices.
+                  </p>
+                )}
+                        
+                        {/* Show button when not revealed, or when revealed on mobile */}
+                        {(ergonomicsState !== 'revealed' || isMobile) && (
+                          <div className="mt-4 flex justify-center relative">
+                            <motion.button
+                              onMouseEnter={handleErgonomicsHover}
+                              onClick={handleErgonomicsClick}
+                              className={`px-8 py-3 rounded-lg font-medium transition-colors duration-300 ${
+                                isEven ? 'bg-white text-black hover:bg-gray-100' : 'bg-black text-white hover:bg-gray-800'
+                              }`}
+                              animate={{
+                                y: ergonomicsState === 'moved' ? -(typeof window !== 'undefined' ? window.innerHeight * 0.3 : 250) : 0
+                              }}
+                              transition={{
+                                type: "spring",
+                                stiffness: 300,
+                                damping: 30
+                              }}
+                              style={{
+                                zIndex: ergonomicsState === 'moved' ? 60 : 'auto'
+                              }}
+                            >
+                              {ergonomicsState === 'revealed' && isMobile
+                                ? 'Mmm, Comfortable 😊'
+                                : ergonomicsState === 'moved' 
+                                  ? 'Ok, Now Tap Me'
+                                  : 'Tap me'
+                              }
+                            </motion.button>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      // Desktop Layout - Side-by-side with phone mockup
+                      <div className="flex items-center justify-center gap-12 mt-8 w-full max-w-6xl mx-auto">
+                        <div className="flex-1 max-w-md">
+                          <h2 className={`text-3xl sm:text-4xl font-bold mb-6 text-left ${textColor}`}>
+                            Ergonomics
+                          </h2>
+                          {ergonomicsState === 'revealed' && (
+                            <p className={`text-base lg:text-lg leading-relaxed text-left ${subTextColor}`}>
+                              Utilise thumb flow, habituated interactions, and best practices to make sure that your app is performant and isn't causing fatigue due to poor, unvalidated interface choices.
+                            </p>
+                          )}
+                          {ergonomicsState !== 'revealed' && (
+                            <p className={`text-base lg:text-lg leading-relaxed text-left ${subTextColor}`}>
+                              Try clicking the button in the phone to experience mobile thumb flow mapping.
+                            </p>
+                          )}
+                          
+                          {/* Desktop Thumb Flow Loader */}
+                          {thumbFlowStage > 0 && thumbFlowStage <= 4 && (
+                            <div className="mt-6">
+                              <motion.div
+                                className={`px-6 py-4 rounded-lg backdrop-blur-sm transition-all duration-300`}
+                                style={{
+                                  backgroundColor: isEven 
+                                    ? `rgba(255, 255, 255, ${0.03 + (thumbFlowProgress / 100) * 0.15})` 
+                                    : `rgba(0, 0, 0, ${0.03 + (thumbFlowProgress / 100) * 0.15})`,
+                                }}
+                                initial={{ opacity: 0.3, scale: 0.9 }}
+                                animate={{ 
+                                  opacity: 0.4 + (thumbFlowProgress / 100) * 0.6,
+                                  scale: 0.9 + (thumbFlowProgress / 100) * 0.1,
+                                }}
+                                transition={{ duration: 0.3 }}
+                              >
+                                <div className="flex flex-col items-center">
+                                  <motion.div 
+                                    className={`text-sm mb-2`}
+                                    style={{
+                                      color: isEven 
+                                        ? `rgba(156, 163, 175, ${0.4 + (thumbFlowProgress / 100) * 0.6})` 
+                                        : `rgba(55, 65, 81, ${0.6 + (thumbFlowProgress / 100) * 0.4})`
+                                    }}
+                                    animate={{ 
+                                      opacity: [1, 0.6, 1]
+                                    }}
+                                    transition={{ 
+                                      duration: 2,
+                                      repeat: Infinity,
+                                      ease: "easeInOut"
+                                    }}
+                                  >
+                                    {thumbFlowStage === 1 ? 'Thumb Flow Map Loading'
+                                     : thumbFlowStage === 2 ? 'Loading easy'
+                                     : thumbFlowStage === 3 ? 'Loading hard'
+                                     : thumbFlowStage === 4 ? 'Loading Painful'
+                                     : 'Thumb Flow Map Loading'}
+                                  </motion.div>
+                                  <div 
+                                    className={`w-32 h-2 rounded-full overflow-hidden`}
+                                    style={{
+                                      backgroundColor: isEven 
+                                        ? `rgba(17, 24, 39, ${0.5 + (thumbFlowProgress / 100) * 0.5})` 
+                                        : `rgba(229, 231, 235, ${0.7 + (thumbFlowProgress / 100) * 0.3})`
+                                    }}
+                                  >
+                                    <motion.div
+                                      className={`h-full rounded-full`}
+                                      style={{
+                                        backgroundColor: isEven 
+                                          ? `rgba(75, 85, 99, ${0.6 + (thumbFlowProgress / 100) * 0.4})` 
+                                          : `rgba(75, 85, 99, ${0.7 + (thumbFlowProgress / 100) * 0.3})`
+                                      }}
+                                      initial={{ width: '0%' }}
+                                      animate={{ width: `${Math.max(0, thumbFlowProgress)}%` }}
+                                      transition={{ duration: 0.1, ease: 'linear' }}
+                                    />
+                                  </div>
+                                  <motion.div 
+                                    className={`text-xs mt-1`}
+                                    style={{
+                                      color: isEven 
+                                        ? `rgba(156, 163, 175, ${0.4 + (thumbFlowProgress / 100) * 0.6})` 
+                                        : `rgba(55, 65, 81, ${0.6 + (thumbFlowProgress / 100) * 0.4})`
+                                    }}
+                                    animate={{ 
+                                      opacity: [1, 0.7, 1]
+                                    }}
+                                    transition={{ 
+                                      duration: 1.5,
+                                      repeat: Infinity,
+                                      ease: "easeInOut"
+                                    }}
+                                  >
+                                    {Math.round(Math.max(0, thumbFlowProgress))}% Complete
+                                  </motion.div>
+                                </div>
+                              </motion.div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Phone Mockup */}
+                        <div className="relative">
+                          {/* Phone Frame */}
+                          <div className="relative w-64 h-[520px] bg-gray-900 rounded-[2.5rem] p-2 shadow-2xl">
+                            {/* Screen */}
+                            <div className="relative w-full h-full bg-white rounded-[2rem] overflow-hidden">
+                              {/* Phone Content */}
+                              <div className="relative w-full h-full flex flex-col items-center justify-center z-10">
+                                {/* Show paragraph when revealed */}
+                                {ergonomicsState === 'revealed' && (
+                                  <p className="text-sm text-gray-800 px-6 text-center mb-4 relative z-10">
+                                    That second one was annoying huh?
+                                  </p>
+                                )}
+                                
+                                {/* Phone Button */}
+                                <div className="relative z-10">
+                                  <motion.button
+                                    onMouseEnter={handleErgonomicsHover}
+                                    onClick={handleErgonomicsClick}
+                                    className="px-6 py-2 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300 text-sm relative z-10"
+                                    animate={{
+                                      y: ergonomicsState === 'moved' ? -180 : 0
+                                    }}
+                                    transition={{
+                                      type: "spring",
+                                      stiffness: 300,
+                                      damping: 30
+                                    }}
+                                    style={{
+                                      zIndex: ergonomicsState === 'moved' ? 60 : 10
+                                    }}
+                                  >
+                                    {ergonomicsState === 'revealed'
+                                      ? 'Mmm, Comfortable 😊'
+                                      : ergonomicsState === 'moved' 
+                                        ? 'Ok, Now Click Me'
+                                        : 'Click me'
+                                    }
+                                  </motion.button>
+                                </div>
+                              </div>
+                              
+                              {/* Thumb Flow Overlays in Phone */}
+                              {thumbFlowStage > 0 && (
+                                <div className="absolute inset-0 pointer-events-none">
+                                  {/* Green Zone - Easiest area (bottom right) */}
+                                  <AnimatePresence>
+                                    {thumbFlowStage >= 1 && (
+                                      <motion.div
+                                        className="absolute"
+                                        style={{
+                                          bottom: '10%',
+                                          right: '20%',
+                                          width: '45%',
+                                          height: '35%',
+                                          backgroundColor: 'rgba(34, 197, 94, 0.3)',
+                                          borderRadius: '60% 40% 50% 70%',
+                                          transform: 'rotate(-15deg)',
+                                        }}
+                                        initial={{ opacity: 0, scale: 0.5 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ duration: 0.8 }}
+                                      />
+                                    )}
+                                  </AnimatePresence>
+                                  
+                                  {/* Yellow Zone - Less easy (middle areas) */}
+                                  <AnimatePresence>
+                                    {thumbFlowStage >= 2 && (
+                                      <motion.div
+                                        className="absolute"
+                                        style={{
+                                          top: '40%',
+                                          right: '15%',
+                                          width: '55%',
+                                          height: '40%',
+                                          backgroundColor: 'rgba(234, 179, 8, 0.3)',
+                                          borderRadius: '50% 60% 40% 70%',
+                                          transform: 'rotate(-10deg)',
+                                        }}
+                                        initial={{ opacity: 0, scale: 0.5 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ duration: 0.8 }}
+                                      />
+                                    )}
+                                  </AnimatePresence>
+
+                                  {/* Orange Zone - Uncomfortable (upper areas) */}
+                                  <AnimatePresence>
+                                    {thumbFlowStage >= 3 && (
+                                      <motion.div
+                                        className="absolute"
+                                        style={{
+                                          top: '15%',
+                                          left: '10%',
+                                          width: '60%',
+                                          height: '35%',
+                                          backgroundColor: 'rgba(249, 115, 22, 0.3)',
+                                          borderRadius: '70% 50% 60% 40%',
+                                          transform: 'rotate(10deg)',
+                                        }}
+                                        initial={{ opacity: 0, scale: 0.5 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ duration: 0.8 }}
+                                      />
+                                    )}
+                                  </AnimatePresence>
+
+                                  {/* Red Zone - Hard (top corners and edges) */}
+                                  <AnimatePresence>
+                                    {thumbFlowStage >= 4 && (
+                                      <>
+                                        <motion.div
+                                          className="absolute"
+                                          style={{
+                                            top: '5%',
+                                            left: '5%',
+                                            width: '35%',
+                                            height: '25%',
+                                            backgroundColor: 'rgba(239, 68, 68, 0.4)',
+                                            borderRadius: '80% 60% 40% 70%',
+                                            transform: 'rotate(25deg)',
+                                          }}
+                                          initial={{ opacity: 0, scale: 0.5 }}
+                                          animate={{ opacity: 1, scale: 1 }}
+                                          transition={{ duration: 0.8 }}
+                                        />
+                                        <motion.div
+                                          className="absolute"
+                                          style={{
+                                            top: '5%',
+                                            right: '5%',
+                                            width: '30%',
+                                            height: '20%',
+                                            backgroundColor: 'rgba(239, 68, 68, 0.4)',
+                                            borderRadius: '60% 80% 70% 40%',
+                                            transform: 'rotate(-25deg)',
+                                          }}
+                                          initial={{ opacity: 0, scale: 0.5 }}
+                                          animate={{ opacity: 1, scale: 1 }}
+                                          transition={{ duration: 0.8, delay: 0.2 }}
+                                        />
+                                        <motion.div
+                                          className="absolute"
+                                          style={{
+                                            top: '40%',
+                                            left: '5%',
+                                            width: '25%',
+                                            height: '30%',
+                                            backgroundColor: 'rgba(239, 68, 68, 0.3)',
+                                            borderRadius: '40% 70% 80% 50%',
+                                            transform: 'rotate(35deg)',
+                                          }}
+                                          initial={{ opacity: 0, scale: 0.5 }}
+                                          animate={{ opacity: 1, scale: 1 }}
+                                          transition={{ duration: 0.8, delay: 0.4 }}
+                                        />
+                                      </>
+                                    )}
+                                  </AnimatePresence>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </>
@@ -1242,8 +1520,8 @@ function App() {
               <div className="pb-8 flex justify-center relative z-10">
                 <div className="h-24 flex items-center">
                   {rhodopsinMessage && !dismissedLoaders.includes(targetId) ? (
-                    <motion.button
-                      onClick={() => setRhodopsinModalOpen(true)}
+                      <motion.button
+                        onClick={() => setRhodopsinModalOpen(true)}
                       className={`px-6 py-4 rounded-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer`}
                       style={{
                         backgroundColor: isEven 
@@ -1262,26 +1540,26 @@ function App() {
                           : `rgba(0, 0, 0, ${0.05 + (rhodopsinProgress / 100) * 0.2})`,
                         scale: (0.9 + (rhodopsinProgress / 100) * 0.1) * 1.05,
                       }}
-                    >
-                      <div className="flex flex-col items-center">
-                        <motion.div 
+                      >
+                        <div className="flex flex-col items-center">
+                          <motion.div 
                           className={`text-sm mb-2`}
                           style={{
                             color: isEven 
                               ? `rgba(156, 163, 175, ${0.4 + (rhodopsinProgress / 100) * 0.6})` 
                               : `rgba(55, 65, 81, ${0.6 + (rhodopsinProgress / 100) * 0.4})`
                           }}
-                          animate={{ 
-                            opacity: [1, 0.6, 1]
-                          }}
-                          transition={{ 
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
-                        >
-                          {rhodopsinMessage}
-                        </motion.div>
+                            animate={{ 
+                              opacity: [1, 0.6, 1]
+                            }}
+                            transition={{ 
+                              duration: 2,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                          >
+                            {rhodopsinMessage}
+                          </motion.div>
                         <div 
                           className={`w-32 h-2 rounded-full overflow-hidden`}
                           style={{
@@ -1290,38 +1568,38 @@ function App() {
                               : `rgba(229, 231, 235, ${0.7 + (rhodopsinProgress / 100) * 0.3})`
                           }}
                         >
-                          <motion.div
+                            <motion.div
                             className={`h-full rounded-full`}
                             style={{
                               backgroundColor: isEven 
                                 ? `rgba(75, 85, 99, ${0.6 + (rhodopsinProgress / 100) * 0.4})` 
                                 : `rgba(75, 85, 99, ${0.7 + (rhodopsinProgress / 100) * 0.3})`
                             }}
-                            initial={{ width: '0%' }}
-                            animate={{ width: `${Math.max(0, rhodopsinProgress)}%` }}
-                            transition={{ duration: 0.1, ease: 'linear' }}
-                          />
-                        </div>
-                        <motion.div 
+                              initial={{ width: '0%' }}
+                              animate={{ width: `${Math.max(0, rhodopsinProgress)}%` }}
+                              transition={{ duration: 0.1, ease: 'linear' }}
+                            />
+                          </div>
+                          <motion.div 
                           className={`text-xs mt-1`}
                           style={{
                             color: isEven 
                               ? `rgba(156, 163, 175, ${0.4 + (rhodopsinProgress / 100) * 0.6})` 
                               : `rgba(55, 65, 81, ${0.6 + (rhodopsinProgress / 100) * 0.4})`
                           }}
-                          animate={{ 
-                            opacity: [1, 0.7, 1]
-                          }}
-                          transition={{ 
-                            duration: 1.5,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
-                        >
-                          {Math.round(Math.max(0, rhodopsinProgress))}% Complete
-                        </motion.div>
-                      </div>
-                    </motion.button>
+                            animate={{ 
+                              opacity: [1, 0.7, 1]
+                            }}
+                            transition={{ 
+                              duration: 1.5,
+                              repeat: Infinity,
+                              ease: "easeInOut"
+                            }}
+                          >
+                            {Math.round(Math.max(0, rhodopsinProgress))}% Complete
+                          </motion.div>
+                        </div>
+                      </motion.button>
                   ) : (
                     // Empty space to maintain consistent layout across all sections
                     <div className="h-full w-full"></div>
