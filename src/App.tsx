@@ -49,23 +49,49 @@ const letterExit = {
 function App() {
   const [step, setStep] = useState(() => {
     if (typeof window !== 'undefined' && localStorage.getItem('hasVisited')) {
-      return 12;
+      return 13; // Jump to the final step
     }
     return 0;
   });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const screens = ['/screen-1.png', '/screen-2.png'];
-  const [screenIndex, setScreenIndex] = useState(0);
+  
+  const slides = [
+    { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
+    { type: 'quote', text: 'Utilise habituated patterns, basically the user’s unconscious behavior, to make app use easy' },
+    { type: 'image', src: '/screen-2.png', alt: 'Proux application screenshot 2' },
+    { type: 'quote', text: 'Just like the doorway effect people forget information as they move screens. Don\'t make them think' },
+  ];
+  const [[page, direction], setPage] = useState([0, 0]);
+
+  const slideIndex = wrap(0, slides.length, page);
 
   const paginate = (newDirection: number) => {
-    setScreenIndex(wrap(0, screens.length, screenIndex + newDirection));
+    setPage([page + newDirection, newDirection]);
   };
 
+  const variants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 300 : -300,
+      opacity: 0,
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1,
+    },
+    exit: (direction: number) => ({
+      zIndex: 0,
+      x: direction < 0 ? 300 : -300,
+      opacity: 0,
+    }),
+  };
+
+  // Sequence timings (0.5x speed = half the original durations)
   const durations = [
-    1000, 1000, 2000, 1000, 1500, 1000, 500, 500, 500, 500, 500,
+    1000, 1000, 2000, 1000, 1500, 1000, 500, 500, 500, 500, 500, 500,
   ];
 
-  const navItems = ['App Anatomy', 'Research', 'Testing', 'Ergonomics', 'Product'];
+  const navItems = ['App Anatomy', 'Hey', 'Research', 'Testing', 'Ergonomics', 'Predict Efficacy'];
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, targetId: string) => {
     e.preventDefault();
@@ -90,14 +116,16 @@ function App() {
       {/* --- Sticky Header --- */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm">
         <div className="relative flex h-16 items-center justify-between px-4 sm:h-24 sm:block sm:px-0">
-          <motion.div
-            className="text-lg font-bold text-black sm:absolute sm:top-8 sm:left-8 sm:text-2xl"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: step >= 5 ? 1 : 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            PROUX
-          </motion.div>
+          <a href="#app-anatomy" onClick={(e) => handleLinkClick(e, 'app-anatomy')}>
+            <motion.div
+              className="text-lg font-bold text-black sm:absolute sm:top-8 sm:left-8 sm:text-2xl"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: step >= 5 ? 1 : 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              PROUX
+            </motion.div>
+          </a>
 
           {/* Desktop Navigation */}
           <nav className="hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium text-black">
@@ -167,7 +195,7 @@ function App() {
 
       <main className="-mt-16 sm:-mt-24">
         {/* --- App Anatomy Section (First Fold) --- */}
-        <section id="app-anatomy" className="h-dvh flex items-center justify-center overflow-hidden relative px-4 sm:px-0">
+        <section id="app-anatomy" className="h-dvh sm:h-screen flex items-center justify-center overflow-hidden relative px-4 sm:px-0">
           <div className="absolute inset-0 flex items-center justify-center">
             <LayoutGroup>
               <AnimatePresence mode="wait">
@@ -300,20 +328,34 @@ function App() {
             animate={{ opacity: step >= 6 ? 1 : 0 }}
             transition={{ duration: 0.8 }}
           >
-            <AnimatePresence initial={false}>
-              <motion.img
-                key={screenIndex}
-                src={screens[screenIndex]}
-                alt={`Proux application screenshot ${screenIndex + 1}`}
-                className="absolute w-full h-full object-contain scale-75"
-                initial={{ x: 300, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -300, opacity: 0 }}
+            <AnimatePresence initial={false} custom={direction}>
+              <motion.div
+                key={page}
+                custom={direction}
+                variants={variants}
+                initial="enter"
+                animate="center"
+                exit="exit"
                 transition={{
                   x: { type: 'spring', stiffness: 300, damping: 30 },
                   opacity: { duration: 0.2 },
                 }}
-              />
+                className="absolute w-full h-full flex items-center justify-center"
+              >
+                {slides[slideIndex].type === 'image' ? (
+                  <img
+                    src={(slides[slideIndex] as { src: string }).src}
+                    alt={(slides[slideIndex] as { alt: string }).alt}
+                    className="w-full h-full object-contain scale-75"
+                  />
+                ) : (
+                  <div className="w-full max-w-2xl text-center px-4">
+                    <p className="text-xl sm:text-2xl italic text-gray-800 leading-relaxed">
+                      "{(slides[slideIndex] as { text: string }).text}"
+                    </p>
+                  </div>
+                )}
+              </motion.div>
             </AnimatePresence>
           </motion.div>
 
@@ -342,8 +384,37 @@ function App() {
         {navItems.slice(1).map((item) => {
           const targetId = item.toLowerCase().replace(/\s+/g, '-');
           return (
-            <section key={targetId} id={targetId} className="h-dvh flex items-center justify-center">
-              <h2 className="text-4xl font-bold -translate-y-8 sm:-translate-y-12">{item}</h2>
+            <section key={targetId} id={targetId} className="h-dvh sm:h-screen flex items-center justify-center">
+              <div className="text-center max-w-2xl px-4 -translate-y-8 sm:-translate-y-12">
+                <h2 className="text-3xl sm:text-4xl font-bold">
+                  {item === 'Hey' ? 'Does UX matter in Bitcoin and Nostr?' : item}
+                </h2>
+                {item === 'Hey' && (
+                  <p className="mt-4 text-base sm:text-lg leading-relaxed text-gray-700">
+                    I'm here for the people who answer yes and want to get a head start with the UX for their websites and applications rather than having to fix things retroactively. Though I'm more than happy to do that too.
+                  </p>
+                )}
+                {item === 'Research' && (
+                  <p className="mt-4 text-base sm:text-lg leading-relaxed text-gray-700">
+                    Deep interviews with target and non target archetypes. Day in the life and affinity mapping, and most simply, understanding the user before they even use your product so it's tuned to their habits, interface knowledge, and expectations.
+                  </p>
+                )}
+                {item === 'Testing' && (
+                  <p className="mt-4 text-base sm:text-lg leading-relaxed text-gray-700">
+                    Testing isn't presenting a random product to a random person and asking what they think, though there are some uses for guerilla testing, it all starts with a carefully crafted test to rule out known biases and simulate as real world situations as possible, with well written testing scripts.
+                  </p>
+                )}
+                {item === 'Ergonomics' && (
+                  <p className="mt-4 text-base sm:text-lg leading-relaxed text-gray-700">
+                    Utilise habituated interactions, thumb flow, and best practices to make sure that your app is performant and isn't causing fatigue due to bad, unvalidated interface choices.
+                  </p>
+                )}
+                {item === 'Predict Efficacy' && (
+                  <p className="mt-4 text-base sm:text-lg leading-relaxed text-gray-700">
+                    Use Baysian like theory to estimate the efficacy of user interface changes, new features, and more, with a better accuracy between concept to real world results. Start a database of insights and provenance of decision making that can work based on value to you and your users.
+                  </p>
+                )}
+              </div>
             </section>
           );
         })}
