@@ -59,6 +59,8 @@ function App() {
   const [rhodopsinProgress, setRhodopsinProgress] = useState(0);
   const [footnoteVisible, setFootnoteVisible] = useState(false);
   const [footnoteTextChanged, setFootnoteTextChanged] = useState(false);
+  const [rhodopsinModalOpen, setRhodopsinModalOpen] = useState(false);
+  const [dismissedLoaders, setDismissedLoaders] = useState<string[]>([]);
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
@@ -114,6 +116,15 @@ function App() {
   const shouldInvertNav = () => {
     const blackSections = ['hey', 'testing', 'predict-efficacy']; // These are the black sections (even indexed sections from navItems.slice(1))
     return blackSections.includes(currentSection);
+  };
+
+  // Handle rhodopsin modal dismissal
+  const handleRhodopsinModalClose = () => {
+    setRhodopsinModalOpen(false);
+    // Add current section to dismissed loaders list
+    if (currentSection && !dismissedLoaders.includes(currentSection)) {
+      setDismissedLoaders(prev => [...prev, currentSection]);
+    }
   };
 
   useEffect(() => {
@@ -215,10 +226,10 @@ function App() {
         setFootnoteVisible(true);
       }, 2000);
       
-      // Change text after 4 seconds total (2s + 2s)
+      // Change text after 6 seconds total (2s + 4s)
       const changeTimer = setTimeout(() => {
         setFootnoteTextChanged(true);
-      }, 4000);
+      }, 6000);
       
       return () => {
         clearTimeout(showTimer);
@@ -400,7 +411,7 @@ function App() {
                  <div>
                    <h3 className={`text-lg font-bold mb-2 ${
                      shouldInvertNav() ? 'text-white' : 'text-black'
-                   }`}>Light & Dark</h3>
+                   }`}>Light to Dark Transitions</h3>
                    <p className={`text-sm leading-relaxed ${
                      shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
                    }`}>
@@ -442,6 +453,71 @@ function App() {
                    Nah I like them
                  </button>
                </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* --- Rhodopsin Modal --- */}
+      <AnimatePresence>
+        {rhodopsinModalOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={handleRhodopsinModalClose}
+          >
+            <motion.div
+              className={`rounded-lg p-6 max-w-md w-full mx-4 relative ${
+                shouldInvertNav() ? 'bg-secondary-black text-white' : 'bg-white text-black'
+              }`}
+              initial={{ scale: 0.8, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 50 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={handleRhodopsinModalClose}
+                className={`absolute top-4 right-4 text-xl transition-colors ${
+                  shouldInvertNav() ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                ×
+              </button>
+              
+              <h2 className={`text-2xl font-bold mb-6 ${
+                shouldInvertNav() ? 'text-white' : 'text-black'
+              }`}>Rhodopsin Effects</h2>
+              
+                            <div className="space-y-4 mb-6">
+                <div>
+                  <h3 className={`text-lg font-bold mb-2 ${
+                    shouldInvertNav() ? 'text-white' : 'text-black'
+                  }`}>
+                    {currentSection === 'research' ? 'Dark to Light Transitions' : 'Light to Dark Transitions'}
+                  </h3>
+                  <p className={`text-sm leading-relaxed ${
+                    shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                  }`}>
+                    You're causing the user to {currentSection === 'research' ? 'decay' : 'generate'} rhodopsin pigments in their eyes and it takes time to adjust
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex justify-center">
+                <button 
+                  onClick={handleRhodopsinModalClose}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    shouldInvertNav() 
+                      ? 'bg-white text-black hover:bg-gray-200' 
+                      : 'bg-black text-white hover:bg-gray-800'
+                  }`}
+                >
+                  Got it
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}
@@ -662,6 +738,9 @@ function App() {
           const bgColor = isEven ? 'bg-black' : 'bg-white';
           const textColor = isEven ? 'text-white' : 'text-black';
           const subTextColor = isEven ? 'text-gray-300' : 'text-gray-700';
+          const loaderTextColor = isEven ? 'text-gray-500' : 'text-gray-400';
+          const loaderBgColor = isEven ? 'bg-gray-800' : 'bg-gray-200';
+          const loaderFillColor = isEven ? 'bg-gray-600' : 'bg-gray-500';
           
           // Determine rhodopsin message
           const getRhodopsinMessage = () => {
@@ -673,8 +752,9 @@ function App() {
           const rhodopsinMessage = getRhodopsinMessage();
           
           return (
-            <section key={targetId} id={targetId} className={`snap-section flex items-center justify-center snap-start ${bgColor}`}>
-              <div className={`text-center max-w-2xl px-4 -translate-y-8 sm:-translate-y-16 ${textColor}`}>
+            <section key={targetId} id={targetId} className={`snap-section flex flex-col snap-start ${bgColor}`}>
+              <div className={`flex-1 flex items-center justify-center min-h-0`}>
+                <div className={`text-center max-w-2xl px-4 ${textColor}`}>
                 <h2 className="text-3xl sm:text-4xl font-bold">
                   {item === 'Hey' ? 'Does UX matter in Bitcoin and Nostr?' : item}
                 </h2>
@@ -685,7 +765,7 @@ function App() {
                 )}
                 {item === 'Research' && (
                   <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                    Deep interviews with target and non target archetypes. Day in the life and affinity mapping, and most simply, understanding the user before they even use your product so it's tuned to their habits, interface knowledge, and expectations.
+                    Deep interviews with target and non target archetypes. Day in the life and affinity mapping, and most simply, understanding the user before they even use your product so it's tuned to their habits, unconciouss interactions, interface knowledge, and expectations.
                   </p>
                 )}
                 {item === 'Testing' && (
@@ -703,75 +783,95 @@ function App() {
                     Use Baysian like theory to estimate the efficacy of user interface changes, new features, and more, with a better accuracy between concept to real world results. Start a database of insights and provenance of decision making that can work based on value to you and your users.
                   </p>
                 )}
-                
-                {/* Rhodopsin Progress Bar */}
-                {rhodopsinMessage && rhodopsinProgress >= 0 && (
-                  <motion.div 
-                    className="mt-8 flex flex-col items-center"
-                    initial={{ opacity: 1 }}
-                    animate={{ opacity: rhodopsinProgress === -1 ? 0 : 1 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <motion.div 
-                      className={`text-sm mb-2 ${subTextColor}`}
-                      animate={{ 
-                        opacity: [1, 0.6, 1]
-                      }}
-                      transition={{ 
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                    >
-                      {rhodopsinMessage}
-                    </motion.div>
-                    <div className={`w-1/2 h-2 rounded-full overflow-hidden ${
-                      isEven ? 'bg-gray-700' : 'bg-gray-300'
-                    }`}>
-                      <motion.div
-                        className={`h-full rounded-full ${
-                          isEven ? 'bg-white' : 'bg-black'
-                        }`}
-                        initial={{ width: '0%' }}
-                        animate={{ width: `${Math.max(0, rhodopsinProgress)}%` }}
-                        transition={{ duration: 0.1, ease: 'linear' }}
-                      />
-                    </div>
-                    <motion.div 
-                      className={`text-xs mt-1 ${subTextColor}`}
-                      animate={{ 
-                        opacity: [1, 0.7, 1]
-                      }}
-                      transition={{ 
-                        duration: 1.5,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                    >
-                      {Math.round(Math.max(0, rhodopsinProgress))}% Complete
-                    </motion.div>
-                  </motion.div>
-                )}
-                
-                {/* "What?" link after progress bar disappears */}
-                {rhodopsinMessage && rhodopsinProgress === -1 && (
-                  <motion.div 
-                    className="mt-8 flex justify-center"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.5 }}
-                  >
-                    <button
-                      onClick={() => setModalOpen(true)}
-                      className={`text-sm underline transition-colors hover:opacity-70 ${
-                        isEven ? 'text-gray-300' : 'text-gray-600'
-                      }`}
-                    >
-                      What?
-                    </button>
-                  </motion.div>
-                )}
+                </div>
               </div>
+              
+              {/* Rhodopsin Progress Bar Container - Bottom of Section */}
+              {rhodopsinMessage && (
+                <div className="pb-8 flex justify-center">
+                  <div className="h-24 flex items-center">
+                    {!dismissedLoaders.includes(targetId) ? (
+                      rhodopsinProgress >= 0 ? (
+                        <motion.button
+                          onClick={() => setRhodopsinModalOpen(true)}
+                          className={`px-6 py-4 rounded-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer ${
+                            isEven ? 'bg-white/3 hover:bg-white/5' : 'bg-black/3 hover:bg-black/5'
+                          }`}
+                          initial={{ opacity: 1 }}
+                          animate={{ opacity: rhodopsinProgress === -1 ? 0 : 1 }}
+                          transition={{ duration: 0.5 }}
+                        >
+                          <div className="flex flex-col items-center">
+                            <motion.div 
+                              className={`text-sm mb-2 ${
+                                isEven ? 'text-gray-600' : 'text-gray-300'
+                              }`}
+                              animate={{ 
+                                opacity: [1, 0.6, 1]
+                              }}
+                              transition={{ 
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                              }}
+                            >
+                              {rhodopsinMessage}
+                            </motion.div>
+                            <div className={`w-32 h-2 rounded-full overflow-hidden ${
+                              isEven ? 'bg-gray-900' : 'bg-gray-100'
+                            }`}>
+                              <motion.div
+                                className={`h-full rounded-full ${
+                                  isEven ? 'bg-gray-700' : 'bg-gray-300'
+                                }`}
+                                initial={{ width: '0%' }}
+                                animate={{ width: `${Math.max(0, rhodopsinProgress)}%` }}
+                                transition={{ duration: 0.1, ease: 'linear' }}
+                              />
+                            </div>
+                            <motion.div 
+                              className={`text-xs mt-1 ${
+                                isEven ? 'text-gray-600' : 'text-gray-300'
+                              }`}
+                              animate={{ 
+                                opacity: [1, 0.7, 1]
+                              }}
+                              transition={{ 
+                                duration: 1.5,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                              }}
+                            >
+                              {Math.round(Math.max(0, rhodopsinProgress))}% Complete
+                            </motion.div>
+                          </div>
+                        </motion.button>
+                      ) : (
+                                  <motion.button
+            onClick={() => setRhodopsinModalOpen(true)}
+            className={`px-6 py-4 rounded-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer ${
+              isEven ? 'bg-white/5 hover:bg-white/8' : 'bg-black/5 hover:bg-black/8'
+            }`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
+            <div className="flex flex-col items-center">
+              <span className={`text-sm underline transition-colors hover:opacity-70 ${
+                isEven ? 'text-gray-400' : 'text-gray-500'
+              }`}>
+                What?
+              </span>
+            </div>
+          </motion.button>
+                      )
+                    ) : (
+                      // Empty space to maintain layout when dismissed
+                      <div className="h-full w-full"></div>
+                    )}
+                  </div>
+                </div>
+              )}
             </section>
           );
         })}
