@@ -68,6 +68,10 @@ function App() {
   const [ergonomicsState, setErgonomicsState] = useState<'button' | 'moved' | 'revealed'>('button');
   const [thumbFlowStage, setThumbFlowStage] = useState(0); // 0 = none, 1-4 = layer by layer
   const [thumbFlowProgress, setThumbFlowProgress] = useState(0);
+  const [pathwayDiagramClicked, setPathwayDiagramClicked] = useState(false);
+  const [modalOpenedBy, setModalOpenedBy] = useState<'sad-face' | 'comfortable-button' | null>(null);
+  const [isLeftHanded, setIsLeftHanded] = useState(false);
+  const [biasModalOpen, setBiasModalOpen] = useState(false);
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
@@ -180,6 +184,45 @@ function App() {
       // Start thumb flow animation on both mobile and desktop
       setTimeout(() => setThumbFlowStage(1), 1000);
     }
+  };
+
+  // Helper function to close modal and reset tracking states
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setPathwayDiagramClicked(false);
+    setModalOpenedBy(null);
+  };
+
+  // Helper function to get thumb flow zone styles based on handedness
+  const getThumbFlowZoneStyle = (zone: 'green' | 'yellow' | 'orange' | 'red1' | 'red2' | 'red3') => {
+    const baseStyles = {
+      green: {
+        right: { bottom: '10%', right: '20%', width: '45%', height: '35%', transform: 'rotate(-15deg)' },
+        left: { bottom: '10%', left: '20%', width: '45%', height: '35%', transform: 'rotate(15deg)' }
+      },
+      yellow: {
+        right: { top: '40%', right: '15%', width: '55%', height: '40%', transform: 'rotate(-10deg)' },
+        left: { top: '40%', left: '15%', width: '55%', height: '40%', transform: 'rotate(10deg)' }
+      },
+      orange: {
+        right: { top: '15%', left: '10%', width: '60%', height: '35%', transform: 'rotate(10deg)' },
+        left: { top: '15%', right: '10%', width: '60%', height: '35%', transform: 'rotate(-10deg)' }
+      },
+      red1: {
+        right: { top: '5%', left: '5%', width: '35%', height: '25%', transform: 'rotate(25deg)' },
+        left: { top: '5%', right: '5%', width: '35%', height: '25%', transform: 'rotate(-25deg)' }
+      },
+      red2: {
+        right: { top: '5%', right: '5%', width: '30%', height: '20%', transform: 'rotate(-25deg)' },
+        left: { top: '5%', left: '5%', width: '30%', height: '20%', transform: 'rotate(25deg)' }
+      },
+      red3: {
+        right: { top: '40%', left: '5%', width: '25%', height: '30%', transform: 'rotate(35deg)' },
+        left: { top: '40%', right: '5%', width: '25%', height: '30%', transform: 'rotate(-35deg)' }
+      }
+    };
+    
+    return baseStyles[zone][isLeftHanded ? 'left' : 'right'];
   };
 
   useEffect(() => {
@@ -473,7 +516,10 @@ function App() {
       <AnimatePresence>
         {currentSection !== 'anatomy' && (
           <motion.button
-            onClick={() => setModalOpen(true)}
+            onClick={() => {
+              setModalOpenedBy('sad-face');
+              setModalOpen(true);
+            }}
             className={`fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-all duration-300 hover:scale-110 hover:rotate-12 ${
               shouldInvertNav() ? 'bg-secondary-black text-white shadow-lg' : 'bg-white text-black shadow-lg'
             }`}
@@ -489,6 +535,34 @@ function App() {
         )}
       </AnimatePresence>
 
+      {/* --- Right Hand Bias Button --- */}
+      <AnimatePresence>
+        {currentSection === 'ergonomics' && thumbFlowStage >= 5 && (
+          <motion.button
+            onClick={() => {
+              if (isLeftHanded) {
+                setBiasModalOpen(true);
+              } else {
+                setIsLeftHanded(true);
+              }
+            }}
+            className={`fixed bottom-6 left-6 z-40 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-110 hover:rotate-3 ${
+              shouldInvertNav() 
+                ? 'bg-secondary-black text-white shadow-lg hover:bg-gray-800' 
+                : 'bg-white text-black shadow-lg hover:bg-gray-50'
+            }`}
+            initial={{ opacity: 0, scale: 0, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0, y: 20 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {isLeftHanded ? 'Unbias your design' : 'Right Hand Bias'}
+          </motion.button>
+        )}
+      </AnimatePresence>
+
       {/* --- UX Mistakes Modal --- */}
       <AnimatePresence>
         {modalOpen && (
@@ -497,7 +571,7 @@ function App() {
              initial={{ opacity: 0 }}
              animate={{ opacity: 1 }}
              exit={{ opacity: 0 }}
-             onClick={() => setModalOpen(false)}
+             onClick={handleModalClose}
            >
                          <motion.div
                className={`rounded-lg p-6 max-w-md w-full mx-4 relative ${
@@ -510,7 +584,7 @@ function App() {
                onClick={(e) => e.stopPropagation()}
              >
                <button
-                 onClick={() => setModalOpen(false)}
+                 onClick={handleModalClose}
                  className={`absolute top-4 right-4 text-xl transition-colors ${
                    shouldInvertNav() ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
                  }`}
@@ -551,7 +625,7 @@ function App() {
                        <p className={`text-sm leading-relaxed ${
                          shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
                        }`}>
-                         Prioritise primary and regular actions in comfortable areas where possible and relegate infrequent ones to the harder places.
+                         Prioritise primary and regular actions in comfortable areas where possible and relegate infrequent ones to the uncomfortable areas.
                        </p>
                      </div>
                    </>
@@ -597,8 +671,9 @@ function App() {
                <div className="flex flex-col space-y-3">
                  {currentSection === 'ergonomics' && thumbFlowStage >= 5 ? (
                    // Thumb Flow Key Modal Button
+                   <>
                    <button 
-                     onClick={() => setModalOpen(false)}
+                     onClick={handleModalClose}
                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                        shouldInvertNav() 
                          ? 'bg-white text-black hover:bg-gray-200' 
@@ -607,11 +682,47 @@ function App() {
                    >
                      I will never forget this, or you
                    </button>
+                   
+                   {/* Pathway Diagram */}
+                   <div className="mt-4 pt-4 border-t border-opacity-20 border-gray-400">
+                     {!pathwayDiagramClicked ? (
+                       <button
+                         onClick={() => setPathwayDiagramClicked(true)}
+                         className={`text-xs leading-relaxed transition-colors hover:opacity-80 text-left w-full ${
+                           shouldInvertNav() ? 'text-gray-400' : 'text-gray-500'
+                         }`}
+                       >
+                         <div className="space-y-1">
+                           {modalOpenedBy === 'sad-face' && (
+                             <div className="flex items-center justify-center">
+                               <span>Sad Face Button</span>
+                               <span className="mx-2">→</span>
+                               <span>Thumbflow Key Modal</span>
+                             </div>
+                           )}
+                           {modalOpenedBy === 'comfortable-button' && (
+                             <div className="flex items-center justify-center">
+                               <span>Mmm, Comfortable Button</span>
+                               <span className="mx-2">→</span>
+                               <span>Thumbflow Key Modal</span>
+                             </div>
+                           )}
+                         </div>
+                       </button>
+                     ) : (
+                       <p className={`text-xs text-center italic transition-opacity ${
+                         shouldInvertNav() ? 'text-gray-400' : 'text-gray-500'
+                       }`}>
+                         You can get here two ways, which isn't best practice, but sometimes two pathways are ok to cover all bases
+                       </p>
+                     )}
+                   </div>
+                   </>
                  ) : (
                    // UX Mistakes Modal Buttons
                    <>
                  <button 
-                   onClick={() => setModalOpen(false)}
+                   onClick={handleModalClose}
                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                      shouldInvertNav() 
                        ? 'bg-white text-black hover:bg-gray-200' 
@@ -621,7 +732,7 @@ function App() {
                    Fix these issues
                  </button>
                  <button 
-                   onClick={() => setModalOpen(false)}
+                   onClick={handleModalClose}
                    className={`px-4 py-2 rounded-lg font-medium transition-colors border ${
                      shouldInvertNav() 
                        ? 'border-white text-white hover:bg-white hover:text-black' 
@@ -698,6 +809,77 @@ function App() {
                   Got it
                 </button>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* --- Bias Modal --- */}
+      <AnimatePresence>
+        {biasModalOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setBiasModalOpen(false)}
+          >
+            <motion.div
+              className={`rounded-lg p-6 max-w-md w-full mx-4 relative ${
+                shouldInvertNav() ? 'bg-secondary-black text-white' : 'bg-white text-black'
+              }`}
+              initial={{ scale: 0.8, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 50 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setBiasModalOpen(false)}
+                className={`absolute top-4 right-4 text-xl transition-colors ${
+                  shouldInvertNav() ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                ×
+              </button>
+              
+              <h2 className={`text-2xl font-bold mb-6 ${
+                shouldInvertNav() ? 'text-white' : 'text-black'
+              }`}>Biases in Design</h2>
+              
+              <div className="mb-6">
+                <p className={`text-base leading-relaxed ${
+                  shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  As a UX designer you have to learn about the many psychological biases that occur both for users and designers so that design is tackled in an unbiased way, it just makes the best design.
+                </p>
+              </div>
+              
+                             <div className="flex flex-col space-y-3">
+                 <button 
+                   onClick={() => setBiasModalOpen(false)}
+                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                     shouldInvertNav() 
+                       ? 'bg-white text-black hover:bg-gray-200' 
+                       : 'bg-black text-white hover:bg-gray-800'
+                   }`}
+                 >
+                   Got it
+                 </button>
+                 <button 
+                   onClick={() => {
+                     setIsLeftHanded(false);
+                     setBiasModalOpen(false);
+                   }}
+                   className={`px-4 py-2 rounded-lg font-medium transition-colors border ${
+                     shouldInvertNav() 
+                       ? 'border-white text-white hover:bg-white hover:text-black' 
+                       : 'border-black text-black hover:bg-black hover:text-white'
+                   }`}
+                 >
+                   Reset to right-handed
+                 </button>
+               </div>
             </motion.div>
           </motion.div>
         )}
@@ -1064,7 +1246,7 @@ function App() {
                 )}
                 {item === 'Research' && (
                   <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                    Deep interviews with target and non target archetypes. Day in the life and affinity mapping, and most simply, understanding the user before they even use your product so it's tuned to their habits, unconciouss interactions, interface knowledge, and expectations.
+                    Deep interviews with target and non target archetypes. Day in the life and affinity mapping, and most simply, understanding the user before they even use your product so it's tuned to their habits, unconciouss interactions, and expectations.
                   </p>
                 )}
                 {item === 'Testing' && (
@@ -1089,7 +1271,10 @@ function App() {
                           <div className="mt-4 flex justify-center relative">
                             <motion.button
                               onMouseEnter={handleErgonomicsHover}
-                              onClick={handleErgonomicsClick}
+                              onClick={ergonomicsState === 'revealed' && isMobile ? () => {
+                                setModalOpenedBy('comfortable-button');
+                                setModalOpen(true);
+                              } : handleErgonomicsClick}
                               className={`px-8 py-3 rounded-lg font-medium transition-colors duration-300 ${
                                 isEven ? 'bg-white text-black hover:bg-gray-100' : 'bg-black text-white hover:bg-gray-800'
                               }`}
@@ -1236,7 +1421,10 @@ function App() {
                                 <div className="relative z-10">
                                   <motion.button
                                     onMouseEnter={handleErgonomicsHover}
-                                    onClick={handleErgonomicsClick}
+                                    onClick={ergonomicsState === 'revealed' ? () => {
+                                      setModalOpenedBy('comfortable-button');
+                                      setModalOpen(true);
+                                    } : handleErgonomicsClick}
                                     className="px-6 py-2 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300 text-sm relative z-10"
                                     animate={{
                                       y: ergonomicsState === 'moved' ? -180 : 0
@@ -1269,13 +1457,9 @@ function App() {
                                       <motion.div
                                         className="absolute"
                                         style={{
-                                          bottom: '10%',
-                                          right: '20%',
-                                          width: '45%',
-                                          height: '35%',
+                                          ...getThumbFlowZoneStyle('green'),
                                           backgroundColor: 'rgba(34, 197, 94, 0.3)',
                                           borderRadius: '60% 40% 50% 70%',
-                                          transform: 'rotate(-15deg)',
                                         }}
                                         initial={{ opacity: 0, scale: 0.5 }}
                                         animate={{ opacity: 1, scale: 1 }}
@@ -1290,13 +1474,9 @@ function App() {
                                       <motion.div
                                         className="absolute"
                                         style={{
-                                          top: '40%',
-                                          right: '15%',
-                                          width: '55%',
-                                          height: '40%',
+                                          ...getThumbFlowZoneStyle('yellow'),
                                           backgroundColor: 'rgba(234, 179, 8, 0.3)',
                                           borderRadius: '50% 60% 40% 70%',
-                                          transform: 'rotate(-10deg)',
                                         }}
                                         initial={{ opacity: 0, scale: 0.5 }}
                                         animate={{ opacity: 1, scale: 1 }}
@@ -1311,13 +1491,9 @@ function App() {
                                       <motion.div
                                         className="absolute"
                                         style={{
-                                          top: '15%',
-                                          left: '10%',
-                                          width: '60%',
-                                          height: '35%',
+                                          ...getThumbFlowZoneStyle('orange'),
                                           backgroundColor: 'rgba(249, 115, 22, 0.3)',
                                           borderRadius: '70% 50% 60% 40%',
-                                          transform: 'rotate(10deg)',
                                         }}
                                         initial={{ opacity: 0, scale: 0.5 }}
                                         animate={{ opacity: 1, scale: 1 }}
@@ -1333,13 +1509,9 @@ function App() {
                                         <motion.div
                                           className="absolute"
                                           style={{
-                                            top: '5%',
-                                            left: '5%',
-                                            width: '35%',
-                                            height: '25%',
+                                            ...getThumbFlowZoneStyle('red1'),
                                             backgroundColor: 'rgba(239, 68, 68, 0.4)',
                                             borderRadius: '80% 60% 40% 70%',
-                                            transform: 'rotate(25deg)',
                                           }}
                                           initial={{ opacity: 0, scale: 0.5 }}
                                           animate={{ opacity: 1, scale: 1 }}
@@ -1348,13 +1520,9 @@ function App() {
                                         <motion.div
                                           className="absolute"
                                           style={{
-                                            top: '5%',
-                                            right: '5%',
-                                            width: '30%',
-                                            height: '20%',
+                                            ...getThumbFlowZoneStyle('red2'),
                                             backgroundColor: 'rgba(239, 68, 68, 0.4)',
                                             borderRadius: '60% 80% 70% 40%',
-                                            transform: 'rotate(-25deg)',
                                           }}
                                           initial={{ opacity: 0, scale: 0.5 }}
                                           animate={{ opacity: 1, scale: 1 }}
@@ -1363,13 +1531,9 @@ function App() {
                                         <motion.div
                                           className="absolute"
                                           style={{
-                                            top: '40%',
-                                            left: '5%',
-                                            width: '25%',
-                                            height: '30%',
+                                            ...getThumbFlowZoneStyle('red3'),
                                             backgroundColor: 'rgba(239, 68, 68, 0.3)',
                                             borderRadius: '40% 70% 80% 50%',
-                                            transform: 'rotate(35deg)',
                                           }}
                                           initial={{ opacity: 0, scale: 0.5 }}
                                           animate={{ opacity: 1, scale: 1 }}
@@ -1404,13 +1568,9 @@ function App() {
                       <motion.div
                         className="absolute"
                         style={{
-                          bottom: '10%',
-                          right: '20%',
-                          width: '45%',
-                          height: '35%',
+                          ...getThumbFlowZoneStyle('green'),
                           backgroundColor: 'rgba(34, 197, 94, 0.3)',
                           borderRadius: '60% 40% 50% 70%',
-                          transform: 'rotate(-15deg)',
                         }}
                         initial={{ opacity: 0, scale: 0.5 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -1425,13 +1585,9 @@ function App() {
                       <motion.div
                         className="absolute"
                         style={{
-                          top: '40%',
-                          right: '15%',
-                          width: '55%',
-                          height: '40%',
+                          ...getThumbFlowZoneStyle('yellow'),
                           backgroundColor: 'rgba(234, 179, 8, 0.3)',
                           borderRadius: '50% 60% 40% 70%',
-                          transform: 'rotate(-10deg)',
                         }}
                         initial={{ opacity: 0, scale: 0.5 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -1446,13 +1602,9 @@ function App() {
                       <motion.div
                         className="absolute"
                         style={{
-                          top: '15%',
-                          left: '10%',
-                          width: '60%',
-                          height: '35%',
+                          ...getThumbFlowZoneStyle('orange'),
                           backgroundColor: 'rgba(249, 115, 22, 0.3)',
                           borderRadius: '70% 50% 60% 40%',
-                          transform: 'rotate(10deg)',
                         }}
                         initial={{ opacity: 0, scale: 0.5 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -1468,13 +1620,9 @@ function App() {
                         <motion.div
                           className="absolute"
                           style={{
-                            top: '5%',
-                            left: '5%',
-                            width: '35%',
-                            height: '25%',
+                            ...getThumbFlowZoneStyle('red1'),
                             backgroundColor: 'rgba(239, 68, 68, 0.4)',
                             borderRadius: '80% 60% 40% 70%',
-                            transform: 'rotate(25deg)',
                           }}
                           initial={{ opacity: 0, scale: 0.5 }}
                           animate={{ opacity: 1, scale: 1 }}
@@ -1483,13 +1631,9 @@ function App() {
                         <motion.div
                           className="absolute"
                           style={{
-                            top: '5%',
-                            right: '5%',
-                            width: '30%',
-                            height: '20%',
+                            ...getThumbFlowZoneStyle('red2'),
                             backgroundColor: 'rgba(239, 68, 68, 0.4)',
                             borderRadius: '60% 80% 70% 40%',
-                            transform: 'rotate(-25deg)',
                           }}
                           initial={{ opacity: 0, scale: 0.5 }}
                           animate={{ opacity: 1, scale: 1 }}
@@ -1498,13 +1642,9 @@ function App() {
                         <motion.div
                           className="absolute"
                           style={{
-                            top: '40%',
-                            left: '5%',
-                            width: '25%',
-                            height: '30%',
+                            ...getThumbFlowZoneStyle('red3'),
                             backgroundColor: 'rgba(239, 68, 68, 0.3)',
                             borderRadius: '40% 70% 80% 50%',
-                            transform: 'rotate(35deg)',
                           }}
                           initial={{ opacity: 0, scale: 0.5 }}
                           animate={{ opacity: 1, scale: 1 }}
