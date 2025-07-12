@@ -63,7 +63,8 @@ jobs:
         script: |
           # Set proper permissions
           chown -R www-data:www-data /var/www/html
-          chmod -R 755 /var/www/html
+          find /var/www/html -type d -exec chmod 755 {} \;
+          find /var/www/html -type f -exec chmod 644 {} \;
           
           # Test nginx configuration and reload
           nginx -t && systemctl reload nginx
