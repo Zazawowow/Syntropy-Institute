@@ -73,6 +73,7 @@ function App() {
   const [isLeftHanded, setIsLeftHanded] = useState(false);
   const [biasModalOpen, setBiasModalOpen] = useState(false);
   const [breakdownModalIdentifier, setBreakdownModalIdentifier] = useState<number | null>(null);
+  const [appSelectorModalOpen, setAppSelectorModalOpen] = useState(false);
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
@@ -111,11 +112,11 @@ function App() {
       title: 'Breakdown: Screen 3',
       content: [
         {
-          subheading: 'Desktop Pattern',
+          subheading: 'Desktop Patterns',
           text: 'The top right account icon is really a desktop pattern, or mobile web pattern where a tab bar is more problematic.'
         },
         {
-          subheading: 'Underutilizes Tab Bar',
+          subheading: 'Tab Bar',
           text: 'The tab bar is underutilized as well, meaning there is no reason for the account icon to be top right, very unergonomic, it can adhere to best practive and be in the tab bar.'
         }
       ]
@@ -128,6 +129,37 @@ function App() {
 
   const paginate = (newDirection: number) => {
     setPage([page + newDirection, newDirection]);
+  };
+
+  const navigateToApp = (appName: string) => {
+    let targetIndex = 0;
+    switch (appName) {
+      case 'Whitenoise':
+        targetIndex = 0;
+        break;
+      case 'Primal':
+        targetIndex = 2;
+        break;
+      case 'Strike':
+        targetIndex = 4;
+        break;
+    }
+    const newDirection = targetIndex > page ? 1 : -1;
+    setPage([targetIndex, newDirection]);
+    setAppSelectorModalOpen(false);
+  };
+
+  const getCurrentAppIcon = () => {
+    const apps = [
+      { name: 'Whitenoise', icon: 'whitenoise-icon.png' },
+      { name: 'Primal', icon: 'primal-icon.png' },
+      { name: 'Strike', icon: 'strike-icon.png' }
+    ];
+    
+    if (slideIndex === 0) return apps[0];
+    if (slideIndex === 2) return apps[1];
+    if (slideIndex === 4) return apps[2];
+    return apps[0]; // default to Whitenoise
   };
 
   const variants = {
@@ -1046,6 +1078,71 @@ function App() {
         )}
       </AnimatePresence>
 
+      {/* --- App Selector Modal --- */}
+      <AnimatePresence>
+        {appSelectorModalOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setAppSelectorModalOpen(false)}
+          >
+            <motion.div
+              className={`rounded-lg p-6 max-w-sm w-full mx-4 relative ${
+                shouldInvertNav() ? 'bg-black text-white' : 'bg-white text-black'
+              }`}
+              initial={{ scale: 0.8, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 50 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setAppSelectorModalOpen(false)}
+                className={`absolute top-4 right-4 text-xl transition-colors ${
+                  shouldInvertNav() ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                ×
+              </button>
+              
+              <h2 className={`text-xl font-bold mb-6 text-center ${
+                shouldInvertNav() ? 'text-white' : 'text-black'
+              }`}>Select App</h2>
+              
+              <div className="space-y-4">
+                {[
+                  { name: 'Whitenoise', icon: 'whitenoise-icon.png' },
+                  { name: 'Primal', icon: 'primal-icon.png' },
+                  { name: 'Strike', icon: 'strike-icon.png' }
+                ].map((app) => (
+                  <button
+                    key={app.name}
+                    onClick={() => navigateToApp(app.name)}
+                    className={`w-full flex items-center space-x-4 p-3 rounded-lg transition-colors ${
+                      shouldInvertNav() 
+                        ? 'hover:bg-gray-800 text-white' 
+                        : 'hover:bg-gray-100 text-black'
+                    }`}
+                  >
+                    <img 
+                      src={`/${app.icon}`} 
+                      alt={`${app.name} icon`}
+                      className="w-8 h-8"
+                      style={{
+                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3)) drop-shadow(0 1px 2px rgba(255,255,255,0.1))'
+                      }}
+                    />
+                    <span className="text-lg font-medium">{app.name}</span>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <main className="-mt-16 sm:-mt-24">
         {/* --- App Anatomy Section (First Fold) --- */}
         <section id="anatomy" className="snap-section flex items-center justify-center overflow-hidden relative px-4 sm:px-0 bg-white snap-start">
@@ -1217,7 +1314,7 @@ function App() {
               </AnimatePresence>
 
               {/* --- Animated Arrow (Right) --- */}
-              <AnimatePresence>
+              <AnimatePresence key={`annotations-${slideIndex}`}>
                 {showAnnotations && (
                   <motion.div
                     className="absolute z-20 pointer-events-none"
@@ -1328,7 +1425,7 @@ function App() {
               </AnimatePresence>
 
               {/* --- Mirrored Arrow (Left) --- */}
-              <AnimatePresence>
+              <AnimatePresence key={`left-annotation-${slideIndex}`}>
                 {showAnnotations && (
                   <motion.div
                     className="absolute z-20 pointer-events-none"
@@ -1368,10 +1465,10 @@ function App() {
                         className="w-full h-full drop-shadow-lg"
                         style={{
                           filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
-                          transform: `rotate(${slideIndex === 4 ? -90 : -135}deg)`,
+                          transform: `rotate(${slideIndex === 4 ? 45 : -135}deg)`,
                         }}
                         animate={{
-                          y: [0, -6, 0],
+                          y: slideIndex === 4 ? [0, 6, 0] : [0, -6, 0],
                           x: slideIndex === 4 ? 0 : [0, -6, 0],
                         }}
                         transition={{
@@ -1386,7 +1483,7 @@ function App() {
                           viewBox="0 0 120 120"
                           fill="none"
                           xmlns="http://www.w3.org/2000/svg"
-                          style={{ transform: 'scaleX(-1)' }}
+                          style={{ transform: slideIndex === 4 ? 'scaleY(-1) scaleX(-1)' : 'scaleX(-1)' }}
                         >
                           <g clipPath="url(#clip0_409_495_left)">
                            <path d="M92 104L92 44C92 39.5817 88.4183 36 84 36L19 36" stroke="#DC2626" strokeWidth="4"/>
@@ -1443,7 +1540,7 @@ function App() {
               </AnimatePresence>
 
               {/* --- New Top-Left Annotation (Screen 3) --- */}
-              <AnimatePresence>
+              <AnimatePresence key={`top-left-annotation-${slideIndex}`}>
                 {showAnnotations && slideIndex === 4 && (
                   <motion.div
                     className="absolute z-20 pointer-events-none"
@@ -1541,7 +1638,7 @@ function App() {
               </AnimatePresence>
 
               {/* --- Breakdown Button --- */}
-              <AnimatePresence>
+              <AnimatePresence key={`breakdown-button-${slideIndex}`}>
                 {showAnnotations && (
                 <motion.button
                     onClick={() => setBreakdownModalIdentifier(slideIndex)}
@@ -1597,7 +1694,7 @@ function App() {
 
           {/* --- Carousel Controls --- */}
           <motion.div
-            className="absolute inset-x-0 bottom-24 sm:bottom-8 z-10 flex justify-center space-x-4"
+            className="absolute inset-x-0 bottom-24 sm:bottom-8 z-10 flex justify-center items-center space-x-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: step >= 6 ? 1 : 0 }}
           >
@@ -1607,6 +1704,24 @@ function App() {
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
             </button>
+            
+            {/* App Selector Dropdown */}
+            <button
+              onClick={() => setAppSelectorModalOpen(true)}
+              className={`p-2 rounded-full transition-all duration-300 hover:scale-110 ${
+                shouldInvertNav() ? 'bg-secondary-black text-white shadow-lg' : 'bg-white text-black shadow-lg'
+              }`}
+            >
+              <img 
+                src={`/${getCurrentAppIcon().icon}`} 
+                alt={`${getCurrentAppIcon().name} icon`}
+                className="h-6 w-6"
+                style={{
+                  filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.2)) drop-shadow(0 0.5px 1px rgba(255,255,255,0.1))'
+                }}
+              />
+            </button>
+            
             <button
               onClick={() => paginate(1)}
               className="p-2 bg-white/50 rounded-full hover:bg-white/80 transition-colors"
