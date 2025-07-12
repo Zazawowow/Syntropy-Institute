@@ -535,9 +535,9 @@ function App() {
         )}
       </AnimatePresence>
 
-      {/* --- Right Hand Bias Button --- */}
+      {/* --- Right Hand Bias Button (Mobile Only) --- */}
       <AnimatePresence>
-        {currentSection === 'ergonomics' && thumbFlowStage >= 5 && (
+        {currentSection === 'ergonomics' && thumbFlowStage >= 5 && isMobile && (
           <motion.button
             onClick={() => {
               if (isLeftHanded) {
@@ -591,7 +591,7 @@ function App() {
            >
                          <motion.div
                className={`rounded-lg p-6 max-w-md w-full mx-4 relative ${
-                 shouldInvertNav() ? 'bg-secondary-black text-white' : 'bg-white text-black'
+                 shouldInvertNav() ? 'bg-black text-white' : 'bg-white text-black'
                }`}
                initial={{ scale: 0.8, opacity: 0, y: 50 }}
                animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -711,14 +711,14 @@ function App() {
                          <div className="space-y-1">
                            {modalOpenedBy === 'sad-face' && (
                              <div className="flex items-center justify-center">
-                               <span>Sad Face Button</span>
+                               <span>Flow: Angry Face Button</span>
                                <span className="mx-2">→</span>
                                <span>Thumbflow Key Modal</span>
                              </div>
                            )}
                            {modalOpenedBy === 'comfortable-button' && (
                              <div className="flex items-center justify-center">
-                               <span>Mmm, Comfortable Button</span>
+                               <span>Flow: Mmm, Comfortable Button</span>
                                <span className="mx-2">→</span>
                                <span>Thumbflow Key Modal</span>
                              </div>
@@ -726,11 +726,23 @@ function App() {
                          </div>
                        </button>
                      ) : (
-                       <p className={`text-xs text-center italic transition-opacity ${
+                       <div className={`text-xs text-center italic transition-opacity ${
                          shouldInvertNav() ? 'text-gray-400' : 'text-gray-500'
                        }`}>
-                         You can get here two ways, which isn't best practice, but sometimes two pathways are ok to cover all bases
-                       </p>
+                         <p className="mb-2">
+                           You can get here two ways, which isn't best practice, but sometimes two pathways are ok to cover all bases
+                         </p>
+                         <div className={`inline-block px-3 py-1.5 rounded-lg border text-xs ${
+                           shouldInvertNav() 
+                             ? 'bg-gray-800/30 border-gray-600/50 text-gray-300' 
+                             : 'bg-gray-50/80 border-gray-200/60 text-gray-600'
+                         }`}>
+                           {modalOpenedBy === 'sad-face' 
+                             ? 'Other path = Mmm, Comfortable Button'
+                             : 'Other path = Angry Face Button'
+                           }
+                         </div>
+                       </div>
                      )}
                    </div>
                    </>
@@ -777,7 +789,7 @@ function App() {
           >
             <motion.div
               className={`rounded-lg p-6 max-w-md w-full mx-4 relative ${
-                shouldInvertNav() ? 'bg-secondary-black text-white' : 'bg-white text-black'
+                shouldInvertNav() ? 'bg-black text-white' : 'bg-white text-black'
               }`}
               initial={{ scale: 0.8, opacity: 0, y: 50 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -842,7 +854,7 @@ function App() {
           >
             <motion.div
               className={`rounded-lg p-6 max-w-md w-full mx-4 relative ${
-                shouldInvertNav() ? 'bg-secondary-black text-white' : 'bg-white text-black'
+                shouldInvertNav() ? 'bg-black text-white' : 'bg-white text-black'
               }`}
               initial={{ scale: 0.8, opacity: 0, y: 50 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -1471,6 +1483,46 @@ function App() {
                                     }
                                   </motion.button>
                                 </div>
+                                
+                                {/* Right Hand Bias Button in Phone */}
+                                <AnimatePresence>
+                                  {thumbFlowStage >= 5 && (
+                                    <motion.button
+                                      onClick={() => {
+                                        if (isLeftHanded) {
+                                          setBiasModalOpen(true);
+                                        } else {
+                                          setIsLeftHanded(true);
+                                        }
+                                      }}
+                                      className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-white text-black rounded-lg text-xs font-medium shadow-md hover:bg-gray-50 transition-all duration-300 hover:scale-105 z-20 whitespace-nowrap"
+                                      initial={{ opacity: 0, scale: 0, y: 20 }}
+                                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                                      exit={{ opacity: 0, scale: 0, y: 20 }}
+                                      transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.5 }}
+                                      whileHover={{ scale: 1.05 }}
+                                      whileTap={{ scale: 0.95 }}
+                                    >
+                                      <div className="flex items-center space-x-1.5">
+                                        {!isLeftHanded && (
+                                          <motion.div
+                                            className="w-1.5 h-1.5 bg-red-500 rounded-full"
+                                            animate={{
+                                              scale: [1, 1.3, 1],
+                                              opacity: [0.7, 1, 0.7],
+                                            }}
+                                            transition={{
+                                              duration: 1.5,
+                                              repeat: Infinity,
+                                              ease: "easeInOut"
+                                            }}
+                                          />
+                                        )}
+                                        <span className="text-xs">{isLeftHanded ? 'Unbias your design' : 'Right Hand Bias Detected'}</span>
+                                      </div>
+                                    </motion.button>
+                                  )}
+                                </AnimatePresence>
                               </div>
                               
                               {/* Thumb Flow Overlays in Phone */}
