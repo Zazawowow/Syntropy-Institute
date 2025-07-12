@@ -97,10 +97,10 @@ function App() {
           subheading: 'Platform Guidelines',
           text: "Ignored Apple's ubiquitous use of a navigation bar"
         },
-        {
-          subheading: 'Historical Mistakes',
-          text: "A lot of apps have made historical mistakes that take a while to be corrected, any new app is a good time to fix those, such as putting any actions at the top of a screen since screens moved past 3.5\""
-        },
+        // {
+        //   subheading: 'Historical Mistakes',
+        //   text: "A lot of apps have made historical mistakes that take a while to be corrected, any new app is a good time to fix those, such as putting any actions at the top of a screen since screens moved past 3.5\""
+        // },
         {
           subheading: 'App Journey',
           text: "Uses established patterns that work well for apps with content but not a new app with no content."
@@ -1297,6 +1297,27 @@ function App() {
                     opacity: { duration: 0.2 },
                   }}
                   className="absolute w-full h-full flex items-center justify-center"
+                  // Add swipe functionality for mobile
+                  drag={isMobile ? "x" : false}
+                  dragConstraints={{ left: -100, right: 100 }}
+                  dragElastic={0.2}
+                  whileDrag={isMobile ? { scale: 0.95 } : {}}
+                  onDragEnd={(e, { offset, velocity }) => {
+                    if (!isMobile) return;
+                    
+                    const swipeThreshold = 30;
+                    const swipeVelocityThreshold = 300;
+                    
+                    if (Math.abs(offset.x) > swipeThreshold || Math.abs(velocity.x) > swipeVelocityThreshold) {
+                      if (offset.x > 0 || velocity.x > 0) {
+                        // Swiped right, go to previous slide
+                        paginate(-1);
+                      } else {
+                        // Swiped left, go to next slide
+                        paginate(1);
+                      }
+                    }
+                  }}
                 >
                   {slides[slideIndex].type === 'image' ? (
                     <img

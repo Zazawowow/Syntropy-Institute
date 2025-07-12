@@ -22,6 +22,19 @@ body {
   height: -webkit-fill-available;
 }
 
+/* Allow horizontal pan for carousel interactions on mobile */
+@media (max-width: 639px) {
+  /* Override touch-action for carousel container */
+  #anatomy .relative.w-full.h-full.max-w-screen-lg {
+    touch-action: pan-x pan-y pinch-zoom;
+  }
+  
+  /* Ensure carousel items can be dragged horizontally */
+  #anatomy [data-framer-motion-drag-x] {
+    touch-action: pan-x pan-y pinch-zoom;
+  }
+}
+
 /* Respect user motion preferences */
 @media (prefers-reduced-motion: no-preference) {
   html {
