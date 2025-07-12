@@ -1350,7 +1350,7 @@ function App() {
                           animate={{ opacity: 1 }}
                           transition={{ duration: 0.5, delay: 3 }}
                         >
-                          Getting bored? Scroll Up (Or Down)
+                          Getting bored? Start scrolling or continue right
                         </motion.p>
                       )}
                     </div>
@@ -1708,7 +1708,7 @@ function App() {
                         ease: "easeInOut"
                         }}
                     />
-                    <span className="text-xs">Breakdown</span>
+                    <span className="text-xs">UX Breakdown</span>
                     </div>
                 </motion.button>
                 )}
