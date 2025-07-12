@@ -1302,7 +1302,7 @@ function App() {
                   dragConstraints={{ left: -100, right: 100 }}
                   dragElastic={0.2}
                   whileDrag={isMobile ? { scale: 0.95 } : {}}
-                  onDragEnd={(e, { offset, velocity }) => {
+                  onDragEnd={(_, { offset, velocity }) => {
                     if (!isMobile) return;
                     
                     const swipeThreshold = 30;
