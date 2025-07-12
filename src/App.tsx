@@ -2328,93 +2328,96 @@ function App() {
                             {/* Bottom Container - For consistent spacing across all sections */}
               <div className="pb-8 flex justify-center relative z-10">
                 <div className="h-24 flex items-center">
-                  {rhodopsinMessage && !dismissedLoaders.includes(targetId) ? (
-                      <motion.button
-                        onClick={() => setRhodopsinModalOpen(true)}
-                      className={`px-6 py-4 rounded-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer`}
-                      style={{
-                        backgroundColor: isEven 
-                          ? `rgba(255, 255, 255, ${0.03 + (rhodopsinProgress / 100) * 0.15})` 
-                          : `rgba(0, 0, 0, ${0.03 + (rhodopsinProgress / 100) * 0.15})`,
-                      }}
-                      initial={{ opacity: 0.3, scale: 0.9 }}
-                      animate={{ 
-                        opacity: 0.4 + (rhodopsinProgress / 100) * 0.6,
-                        scale: 0.9 + (rhodopsinProgress / 100) * 0.1,
-                      }}
-                      transition={{ duration: 0.3 }}
-                      whileHover={{
-                        backgroundColor: isEven 
-                          ? `rgba(255, 255, 255, ${0.05 + (rhodopsinProgress / 100) * 0.2})` 
-                          : `rgba(0, 0, 0, ${0.05 + (rhodopsinProgress / 100) * 0.2})`,
-                        scale: (0.9 + (rhodopsinProgress / 100) * 0.1) * 1.05,
-                      }}
-                      >
-                        <div className="flex flex-col items-center">
-                          <motion.div 
-                          className={`text-sm mb-2`}
-                          style={{
-                            color: isEven 
-                              ? `rgba(156, 163, 175, ${0.4 + (rhodopsinProgress / 100) * 0.6})` 
-                              : `rgba(55, 65, 81, ${0.6 + (rhodopsinProgress / 100) * 0.4})`
-                          }}
-                            animate={{ 
-                              opacity: [1, 0.6, 1]
-                            }}
-                            transition={{ 
-                              duration: 2,
-                              repeat: Infinity,
-                              ease: "easeInOut"
-                            }}
-                          >
-                            {rhodopsinMessage}
-                          </motion.div>
-                        <div 
-                          className={`w-32 h-2 rounded-full overflow-hidden`}
-                          style={{
-                            backgroundColor: isEven 
-                              ? `rgba(17, 24, 39, ${0.5 + (rhodopsinProgress / 100) * 0.5})` 
-                              : `rgba(229, 231, 235, ${0.7 + (rhodopsinProgress / 100) * 0.3})`
-                          }}
-                        >
-                            <motion.div
-                            className={`h-full rounded-full`}
-                            style={{
-                              backgroundColor: isEven 
-                                ? `rgba(75, 85, 99, ${0.6 + (rhodopsinProgress / 100) * 0.4})` 
-                                : `rgba(75, 85, 99, ${0.7 + (rhodopsinProgress / 100) * 0.3})`
-                            }}
-                              initial={{ width: '0%' }}
-                              animate={{ width: `${Math.max(0, rhodopsinProgress)}%` }}
-                              transition={{ duration: 0.1, ease: 'linear' }}
-                            />
-                          </div>
-                          <motion.div 
-                          className={`text-xs mt-1`}
-                          style={{
-                            color: isEven 
-                              ? `rgba(156, 163, 175, ${0.4 + (rhodopsinProgress / 100) * 0.6})` 
-                              : `rgba(55, 65, 81, ${0.6 + (rhodopsinProgress / 100) * 0.4})`
-                          }}
-                            animate={{ 
-                              opacity: [1, 0.7, 1]
-                            }}
-                            transition={{ 
-                              duration: 1.5,
-                              repeat: Infinity,
-                              ease: "easeInOut"
-                            }}
-                          >
-                            {Math.round(Math.max(0, rhodopsinProgress))}% Complete
-                          </motion.div>
-                        </div>
-                      </motion.button>
-                  ) : (
-                    // Empty space to maintain consistent layout across all sections
-                    <div className="h-full w-full"></div>
-                  )}
+                  {/* Empty space to maintain consistent layout across all sections */}
+                  <div className="h-full w-full"></div>
                 </div>
               </div>
+
+              {/* Rhodopsin Loader - Fixed position 100px from bottom - Only show on current section */}
+              {rhodopsinMessage && !dismissedLoaders.includes(targetId) && currentSection === targetId && (
+                <div className="fixed left-0 right-0 flex justify-center z-20" style={{ bottom: '100px' }}>
+                  <motion.button
+                    onClick={() => setRhodopsinModalOpen(true)}
+                    className={`px-6 py-4 rounded-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer`}
+                    style={{
+                      backgroundColor: isEven 
+                        ? `rgba(255, 255, 255, ${0.03 + (rhodopsinProgress / 100) * 0.15})` 
+                        : `rgba(0, 0, 0, ${0.03 + (rhodopsinProgress / 100) * 0.15})`,
+                    }}
+                    initial={{ opacity: 0.3, scale: 0.9 }}
+                    animate={{ 
+                      opacity: 0.4 + (rhodopsinProgress / 100) * 0.6,
+                      scale: 0.9 + (rhodopsinProgress / 100) * 0.1,
+                    }}
+                    transition={{ duration: 0.3 }}
+                    whileHover={{
+                      backgroundColor: isEven 
+                        ? `rgba(255, 255, 255, ${0.05 + (rhodopsinProgress / 100) * 0.2})` 
+                        : `rgba(0, 0, 0, ${0.05 + (rhodopsinProgress / 100) * 0.2})`,
+                      scale: (0.9 + (rhodopsinProgress / 100) * 0.1) * 1.05,
+                    }}
+                  >
+                    <div className="flex flex-col items-center">
+                      <motion.div 
+                        className={`text-sm mb-2`}
+                        style={{
+                          color: isEven 
+                            ? `rgba(156, 163, 175, ${0.4 + (rhodopsinProgress / 100) * 0.6})` 
+                            : `rgba(55, 65, 81, ${0.6 + (rhodopsinProgress / 100) * 0.4})`
+                        }}
+                        animate={{ 
+                          opacity: [1, 0.6, 1]
+                        }}
+                        transition={{ 
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        {rhodopsinMessage}
+                      </motion.div>
+                      <div 
+                        className={`w-32 h-2 rounded-full overflow-hidden`}
+                        style={{
+                          backgroundColor: isEven 
+                            ? `rgba(17, 24, 39, ${0.5 + (rhodopsinProgress / 100) * 0.5})` 
+                            : `rgba(229, 231, 235, ${0.7 + (rhodopsinProgress / 100) * 0.3})`
+                        }}
+                      >
+                        <motion.div
+                          className={`h-full rounded-full`}
+                          style={{
+                            backgroundColor: isEven 
+                              ? `rgba(75, 85, 99, ${0.6 + (rhodopsinProgress / 100) * 0.4})` 
+                              : `rgba(75, 85, 99, ${0.7 + (rhodopsinProgress / 100) * 0.3})`
+                          }}
+                          initial={{ width: '0%' }}
+                          animate={{ width: `${Math.max(0, rhodopsinProgress)}%` }}
+                          transition={{ duration: 0.1, ease: 'linear' }}
+                        />
+                      </div>
+                      <motion.div 
+                        className={`text-xs mt-1`}
+                        style={{
+                          color: isEven 
+                            ? `rgba(156, 163, 175, ${0.4 + (rhodopsinProgress / 100) * 0.6})` 
+                            : `rgba(55, 65, 81, ${0.6 + (rhodopsinProgress / 100) * 0.4})`
+                        }}
+                        animate={{ 
+                          opacity: [1, 0.7, 1]
+                        }}
+                        transition={{ 
+                          duration: 1.5,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        {Math.round(Math.max(0, rhodopsinProgress))}% Complete
+                      </motion.div>
+                    </div>
+                  </motion.button>
+                </div>
+              )}
             </section>
           );
         })}
