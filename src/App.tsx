@@ -90,7 +90,15 @@ function App() {
       content: [
         {
           subheading: 'Ergonomics',
-          text: "Utilises most uncomfortable areas for primary actions and ignores platform guidelines, existing and ratified patterns for navigation and ease of use. Especially for a chat app that if succeeds in its goals will be used very regularly"
+          text: "Utilises most uncomfortable areas for primary actions during an onboarding phase where people are adding many contacts and chats they don't have access to."
+        },
+        {
+          subheading: 'Platform Guidelines',
+          text: "Ignored Apple's ubiquitous use of a navigation bar"
+        },
+        {
+          subheading: 'Historical Mistakes',
+          text: "A lot of apps have made historical mistakes that take a while to be corrected, any new app is a good time to fix those, such as putting any actions at the top of a screen since screens moved past 3.5\""
         }
       ]
     },
@@ -982,6 +990,20 @@ function App() {
             }`}>{tearDownModalContent[tearDownModalIdentifier].title}</h2>
             
             <div className="space-y-4">
+                {isMobile && tearDownModalIdentifier === 0 && (
+                  <div>
+                    <h3 className={`text-lg font-bold mb-2 ${
+                        shouldInvertNav() ? 'text-white' : 'text-black'
+                    }`}>
+                      Notice how easy that was to tap
+                    </h3>
+                    <p className={`text-sm leading-relaxed ${
+                        shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                    }`}>
+                      Well Whitenoise hasn't utilised the standard bottom navigation bar for iOS at all.
+                    </p>
+                  </div>
+                )}
                 {tearDownModalContent[tearDownModalIdentifier].content.map((item, index) => (
                 <div key={index}>
                     <h3 className={`text-lg font-bold mb-2 ${
@@ -1186,190 +1208,232 @@ function App() {
               </AnimatePresence>
 
               {/* --- Animated Arrow (Right) --- */}
-              <motion.div
-                className="absolute z-20 pointer-events-none"
-                style={isMobile ? {
-                  top: '23%',
-                  right: '5%',
-                  width: '12vw',
-                  height: '12vw',
-                  maxWidth: '80px',
-                  maxHeight: '80px',
-                } : {
-                  top: '18%',
-                  right: '25%',
-                  width: '8vw',
-                  height: '8vw',
-                  maxWidth: '80px',
-                  maxHeight: '80px',
-                }}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{
-                  opacity: showAnnotations ? 1 : 0,
-                  scale: showAnnotations ? 1 : 0,
-                }}
-                transition={{
-                  duration: 0.8,
-                  delay: 0.5,
-                  type: "spring",
-                  stiffness: 200,
-                  damping: 20
-                }}
-              >
-                <div className="flex flex-col items-center">
+              <AnimatePresence>
+                {showAnnotations && (
                   <motion.div
-                    className="w-full h-full drop-shadow-lg"
-                    style={{
-                      filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
-                      transform: 'rotate(-135deg)'
+                    className="absolute z-20 pointer-events-none"
+                    style={isMobile ? {
+                      top: '23%',
+                      right: '5%',
+                      width: '12vw',
+                      height: '12vw',
+                      maxWidth: '80px',
+                      maxHeight: '80px',
+                    } : {
+                      top: '18%',
+                      right: '25%',
+                      width: '8vw',
+                      height: '8vw',
+                      maxWidth: '80px',
+                      maxHeight: '80px',
                     }}
+                    initial={{ opacity: 0, scale: 0 }}
                     animate={{
-                      y: [0, -6, 0],
-                      x: [0, 6, 0],
+                      opacity: 1,
+                      scale: 1,
                     }}
+                    exit={{ opacity: 0, scale: 0, transition: { duration: 0.2 } }}
                     transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut"
+                      duration: 0.8,
+                      delay: 0.5,
+                      type: "spring",
+                      stiffness: 200,
+                      damping: 20
                     }}
                   >
-                    <svg
-                      width="100%"
-                      height="100%"
-                      viewBox="0 0 120 120"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <g clipPath="url(#clip0_409_495)">
-                        <path d="M92 104L92 44C92 39.5817 88.4183 36 84 36L19 36" stroke="#DC2626" strokeWidth="4"/>
-                        <path fillRule="evenodd" clipRule="evenodd" d="M90 122L90 80L94 80L94 122L90 122Z" fill="#DC2626"/>
-                        <path d="M36 19L19 36L36 53" stroke="#DC2626" strokeWidth="4"/>
-                      </g>
-                      <defs>
-                        <clipPath id="clip0_409_495">
-                          <rect width="120" height="120" fill="white"/>
-                        </clipPath>
-                      </defs>
-                    </svg>
-                  </motion.div>
+                    <div className="flex flex-col items-center">
+                      <motion.div
+                        className="w-full h-full drop-shadow-lg"
+                        style={{
+                          filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
+                          transform: 'rotate(-135deg)'
+                        }}
+                        animate={{
+                          y: [0, -6, 0],
+                          x: [0, 6, 0],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        <svg
+                          width="100%"
+                          height="100%"
+                          viewBox="0 0 120 120"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <g clipPath="url(#clip0_409_495)">
+                            <path d="M92 104L92 44C92 39.5817 88.4183 36 84 36L19 36" stroke="#DC2626" strokeWidth="4"/>
+                            <path fillRule="evenodd" clipRule="evenodd" d="M90 122L90 80L94 80L94 122L90 122Z" fill="#DC2626"/>
+                            <path d="M36 19L19 36L36 53" stroke="#DC2626" strokeWidth="4"/>
+                          </g>
+                          <defs>
+                            <clipPath id="clip0_409_495">
+                              <rect width="120" height="120" fill="white"/>
+                            </clipPath>
+                          </defs>
+                        </svg>
+                      </motion.div>
 
-                  <motion.div
-                    className="mt-2 text-red-600 text-center leading-tight"
-                    style={{
-                      fontFamily: 'Caveat, cursive',
-                      fontSize: 'clamp(16px, 1.8vw, 24px)',
-                      transform: 'rotate(-8deg) translateX(1vw)',
-                      fontWeight: '600'
-                    }}
-                    animate={{
-                      y: [0, -2, 0],
-                      rotate: [-8, -6, -8],
-                    }}
-                    transition={{
-                      duration: 2.5,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    <div>Not</div>
-                    <div>Ergonomic</div>
+                      <motion.div
+                        className="mt-2 text-red-600 text-center leading-tight"
+                        style={{
+                          fontFamily: 'Caveat, cursive',
+                          fontSize: 'clamp(16px, 1.8vw, 24px)',
+                          transform: 'rotate(-8deg) translateX(1vw)',
+                          fontWeight: '600'
+                        }}
+                        animate={{
+                          y: [0, -2, 0],
+                          rotate: [-8, -6, -8],
+                        }}
+                        transition={{
+                          duration: 2.5,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        <div>Not</div>
+                        <div>Ergonomic</div>
+                      </motion.div>
+                    </div>
                   </motion.div>
-                </div>
-              </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* --- Mirrored Arrow (Left) --- */}
-              <motion.div
-                className="absolute z-20 pointer-events-none"
-                style={isMobile ? {
-                  top: '23%',
-                  left: '5%',
-                  width: '12vw',
-                  height: '12vw',
-                  maxWidth: '80px',
-                  maxHeight: '80px',
-                } : {
-                  top: '18%',
-                  left: '25%',
-                  width: '8vw',
-                  height: '8vw',
-                  maxWidth: '80px',
-                  maxHeight: '80px',
-                }}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{
-                  opacity: showAnnotations ? 1 : 0,
-                  scale: showAnnotations ? 1 : 0,
-                }}
-                transition={{
-                  duration: 0.8,
-                  delay: 1.2,
-                  type: "spring",
-                  stiffness: 200,
-                  damping: 20
-                }}
-              >
-                <div className="flex flex-col items-center">
+              <AnimatePresence>
+                {showAnnotations && (
                   <motion.div
-                    className="w-full h-full drop-shadow-lg"
-                    style={{
-                      filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
-                      transform: 'rotate(-135deg)'
+                    className="absolute z-20 pointer-events-none"
+                    style={isMobile ? {
+                      top: '23%',
+                      left: '5%',
+                      width: '12vw',
+                      height: '12vw',
+                      maxWidth: '80px',
+                      maxHeight: '80px',
+                    } : {
+                      top: '18%',
+                      left: '25%',
+                      width: '8vw',
+                      height: '8vw',
+                      maxWidth: '80px',
+                      maxHeight: '80px',
                     }}
+                    initial={{ opacity: 0, scale: 0 }}
                     animate={{
-                      y: [0, -6, 0],
-                      x: [0, -6, 0],
+                      opacity: 1,
+                      scale: 1,
                     }}
+                    exit={{ opacity: 0, scale: 0, transition: { duration: 0.2 } }}
                     transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut"
+                      duration: 0.8,
+                      delay: 1.2,
+                      type: "spring",
+                      stiffness: 200,
+                      damping: 20
                     }}
                   >
-                    <svg
-                      width="100%"
-                      height="100%"
-                      viewBox="0 0 120 120"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      style={{ transform: 'scaleX(-1)' }}
-                    >
-                      <g clipPath="url(#clip0_409_495_left)">
-                       <path d="M92 104L92 44C92 39.5817 88.4183 36 84 36L19 36" stroke="#DC2626" strokeWidth="4"/>
-                       <path fillRule="evenodd" clipRule="evenodd" d="M90 122L90 80L94 80L94 122L90 122Z" fill="#DC2626"/>
-                       <path d="M36 19L19 36L36 53" stroke="#DC2626" strokeWidth="4"/>
-                     </g>
-                     <defs>
-                       <clipPath id="clip0_409_495_left">
-                         <rect width="120" height="120" fill="white"/>
-                       </clipPath>
-                     </defs>
-                   </svg>
+                    <div className="flex flex-col items-center">
+                      <motion.div
+                        className="w-full h-full drop-shadow-lg"
+                        style={{
+                          filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
+                          transform: 'rotate(-135deg)'
+                        }}
+                        animate={{
+                          y: [0, -6, 0],
+                          x: [0, -6, 0],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        <svg
+                          width="100%"
+                          height="100%"
+                          viewBox="0 0 120 120"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          style={{ transform: 'scaleX(-1)' }}
+                        >
+                          <g clipPath="url(#clip0_409_495_left)">
+                           <path d="M92 104L92 44C92 39.5817 88.4183 36 84 36L19 36" stroke="#DC2626" strokeWidth="4"/>
+                           <path fillRule="evenodd" clipRule="evenodd" d="M90 122L90 80L94 80L94 122L90 122Z" fill="#DC2626"/>
+                           <path d="M36 19L19 36L36 53" stroke="#DC2626" strokeWidth="4"/>
+                         </g>
+                         <defs>
+                           <clipPath id="clip0_409_495_left">
+                             <rect width="120" height="120" fill="white"/>
+                           </clipPath>
+                         </defs>
+                       </svg>
+                      </motion.div>
+                      
+                      <motion.div
+                        className="mt-2 text-red-600 text-center leading-tight"
+                        style={{
+                          fontFamily: 'Caveat, cursive',
+                          fontSize: 'clamp(16px, 1.8vw, 24px)',
+                          transform: 'rotate(8deg) translateX(-1vw)',
+                          fontWeight: '600'
+                        }}
+                        animate={{
+                          y: [0, -2, 0],
+                          rotate: [8, 6, 8],
+                        }}
+                        transition={{
+                          duration: 2.5,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        <div>Really</div>
+                        <div>Not</div>
+                        <div>Ergonomic</div>
+                      </motion.div>
+                    </div>
                   </motion.div>
-                  
-                  <motion.div
-                    className="mt-2 text-red-600 text-center leading-tight"
-                    style={{
-                      fontFamily: 'Caveat, cursive',
-                      fontSize: 'clamp(16px, 1.8vw, 24px)',
-                      transform: 'rotate(8deg) translateX(-1vw)',
-                      fontWeight: '600'
-                    }}
-                    animate={{
-                      y: [0, -2, 0],
-                      rotate: [8, 6, 8],
-                    }}
-                    transition={{
-                      duration: 2.5,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  >
-                    <div>Really</div>
-                    <div>Not</div>
-                    <div>Ergonomic</div>
-                  </motion.div>
-                </div>
-              </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* --- Tear Down Button --- */}
+              <AnimatePresence>
+                {showAnnotations && (
+                <motion.button
+                    onClick={() => setTearDownModalIdentifier(slideIndex)}
+                    className="absolute bottom-[22%] sm:bottom-[18%] left-1/2 transform -translate-x-1/2 -translate-y-6 px-4 py-2 bg-white text-black rounded-lg text-xs font-medium shadow-md hover:bg-gray-50 transition-all duration-300 hover:scale-105 z-20 whitespace-nowrap"
+                    initial={{ opacity: 0, scale: 0, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0, y: 20, transition: { duration: 0.2 } }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20, delay: 1.5 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                >
+                    <div className="flex items-center space-x-1.5">
+                    <motion.div
+                        className="w-1.5 h-1.5 bg-red-500 rounded-full"
+                        animate={{
+                        scale: [1, 1.3, 1],
+                        opacity: [0.7, 1, 0.7],
+                        }}
+                        transition={{
+                        duration: 1.5,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                        }}
+                    />
+                    <span className="text-xs">Tear Down</span>
+                    </div>
+                </motion.button>
+                )}
+              </AnimatePresence>
             </div>
           </motion.div>
 
@@ -1413,38 +1477,6 @@ function App() {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             </button>
           </motion.div>
-
-          {/* --- Tear Down Button --- */}
-          <AnimatePresence>
-            {showAnnotations && (
-            <motion.button
-                onClick={() => setTearDownModalIdentifier(slideIndex)}
-                className="absolute bottom-[18%] sm:bottom-[14%] left-1/2 transform -translate-x-1/2 px-4 py-2 bg-white text-black rounded-lg text-xs font-medium shadow-md hover:bg-gray-50 transition-all duration-300 hover:scale-105 z-20 whitespace-nowrap"
-                initial={{ opacity: 0, scale: 0, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0, y: 20 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20, delay: 1.5 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-            >
-                <div className="flex items-center space-x-1.5">
-                <motion.div
-                    className="w-1.5 h-1.5 bg-red-500 rounded-full"
-                    animate={{
-                    scale: [1, 1.3, 1],
-                    opacity: [0.7, 1, 0.7],
-                    }}
-                    transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                    }}
-                />
-                <span className="text-xs">Tear Down</span>
-                </div>
-            </motion.button>
-            )}
-          </AnimatePresence>
         </section>
 
         {/* --- Other Sections --- */}
