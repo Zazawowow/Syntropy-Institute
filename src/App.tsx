@@ -1308,6 +1308,11 @@ function App() {
                       <p className="text-xl sm:text-2xl italic text-gray-800 leading-relaxed">
                         "{(slides[slideIndex] as { text: string }).text}"
                       </p>
+                      {slideIndex === 3 && (
+                        <p className="text-lg sm:text-xl font-bold text-gray-900 mt-6">
+                          This probably happened just now, right?
+                        </p>
+                      )}
                     </div>
                   )}
                 </motion.div>
