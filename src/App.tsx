@@ -72,7 +72,7 @@ function App() {
   const [modalOpenedBy, setModalOpenedBy] = useState<'sad-face' | 'comfortable-button' | null>(null);
   const [isLeftHanded, setIsLeftHanded] = useState(false);
   const [biasModalOpen, setBiasModalOpen] = useState(false);
-  const [tearDownModalIdentifier, setTearDownModalIdentifier] = useState<number | null>(null);
+  const [breakdownModalIdentifier, setBreakdownModalIdentifier] = useState<number | null>(null);
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
@@ -84,9 +84,9 @@ function App() {
   ];
   const [[page, direction], setPage] = useState([0, 0]);
 
-  const tearDownModalContent: { [key: number]: { title: string; content: { subheading: string; text: string }[] } } = {
+  const breakdownModalContent: { [key: number]: { title: string; content: { subheading: string; text: string }[] } } = {
     0: {
-      title: 'Tear Down',
+      title: 'Breakdown',
       content: [
         {
           subheading: 'Ergonomics',
@@ -104,11 +104,11 @@ function App() {
     },
     // Placeholders for other screens
     2: {
-      title: 'Tear Down: Screen 2',
+      title: 'Breakdown: Screen 2',
       content: [{ subheading: 'Placeholder', text: 'Content for the second screen modal goes here.' }]
     },
     4: {
-      title: 'Tear Down: Screen 3',
+      title: 'Breakdown: Screen 3',
       content: [{ subheading: 'Placeholder', text: 'Content for the third screen modal goes here.' }]
     }
   };
@@ -956,15 +956,15 @@ function App() {
         )}
       </AnimatePresence>
 
-      {/* --- Tear Down Modal --- */}
+      {/* --- Breakdown Modal --- */}
       <AnimatePresence>
-        {tearDownModalIdentifier !== null && tearDownModalContent[tearDownModalIdentifier] && (
+        {breakdownModalIdentifier !== null && breakdownModalContent[breakdownModalIdentifier] && (
         <motion.div
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setTearDownModalIdentifier(null)}
+            onClick={() => setBreakdownModalIdentifier(null)}
         >
             <motion.div
             className={`rounded-lg p-6 max-w-md w-full mx-4 relative ${
@@ -977,7 +977,7 @@ function App() {
             onClick={(e) => e.stopPropagation()}
             >
             <button
-                onClick={() => setTearDownModalIdentifier(null)}
+                onClick={() => setBreakdownModalIdentifier(null)}
                 className={`absolute top-4 right-4 text-xl transition-colors ${
                 shouldInvertNav() ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
                 }`}
@@ -987,10 +987,10 @@ function App() {
             
             <h2 className={`text-2xl font-bold mb-6 ${
                 shouldInvertNav() ? 'text-white' : 'text-black'
-            }`}>{tearDownModalContent[tearDownModalIdentifier].title}</h2>
+            }`}>{breakdownModalContent[breakdownModalIdentifier].title}</h2>
             
             <div className="space-y-4">
-                {isMobile && tearDownModalIdentifier === 0 && (
+                {isMobile && breakdownModalIdentifier === 0 && (
                   <div>
                     <h3 className={`text-lg font-bold mb-2 ${
                         shouldInvertNav() ? 'text-white' : 'text-black'
@@ -1004,7 +1004,7 @@ function App() {
                     </p>
                   </div>
                 )}
-                {tearDownModalContent[tearDownModalIdentifier].content.map((item, index) => (
+                {breakdownModalContent[breakdownModalIdentifier].content.map((item, index) => (
                 <div key={index}>
                     <h3 className={`text-lg font-bold mb-2 ${
                         shouldInvertNav() ? 'text-white' : 'text-black'
@@ -1022,7 +1022,7 @@ function App() {
             
             <div className="flex justify-center mt-6">
                 <button 
-                onClick={() => setTearDownModalIdentifier(null)}
+                onClick={() => setBreakdownModalIdentifier(null)}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                     shouldInvertNav() 
                     ? 'bg-white text-black hover:bg-gray-200' 
@@ -1213,14 +1213,14 @@ function App() {
                   <motion.div
                     className="absolute z-20 pointer-events-none"
                     style={isMobile ? {
-                      top: '23%',
+                      top: slideIndex === 2 ? '50%' : '23%',
                       right: '5%',
                       width: '12vw',
                       height: '12vw',
                       maxWidth: '80px',
                       maxHeight: '80px',
                     } : {
-                      top: '18%',
+                      top: slideIndex === 2 ? '50%' : '18%',
                       right: '25%',
                       width: '8vw',
                       height: '8vw',
@@ -1310,14 +1310,14 @@ function App() {
                   <motion.div
                     className="absolute z-20 pointer-events-none"
                     style={isMobile ? {
-                      top: '23%',
+                      top: slideIndex === 2 ? '50%' : '23%',
                       left: '5%',
                       width: '12vw',
                       height: '12vw',
                       maxWidth: '80px',
                       maxHeight: '80px',
                     } : {
-                      top: '18%',
+                      top: slideIndex === 2 ? '50%' : '18%',
                       left: '25%',
                       width: '8vw',
                       height: '8vw',
@@ -1403,11 +1403,11 @@ function App() {
                 )}
               </AnimatePresence>
 
-              {/* --- Tear Down Button --- */}
+              {/* --- Breakdown Button --- */}
               <AnimatePresence>
                 {showAnnotations && (
                 <motion.button
-                    onClick={() => setTearDownModalIdentifier(slideIndex)}
+                    onClick={() => setBreakdownModalIdentifier(slideIndex)}
                     className="absolute bottom-[22%] sm:bottom-[18%] left-1/2 transform -translate-x-1/2 -translate-y-6 px-4 py-2 bg-white text-black rounded-lg text-xs font-medium shadow-md hover:bg-gray-50 transition-all duration-300 hover:scale-105 z-20 whitespace-nowrap"
                     initial={{ opacity: 0, scale: 0, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -1429,7 +1429,7 @@ function App() {
                         ease: "easeInOut"
                         }}
                     />
-                    <span className="text-xs">Tear Down</span>
+                    <span className="text-xs">Breakdown</span>
                     </div>
                 </motion.button>
                 )}
