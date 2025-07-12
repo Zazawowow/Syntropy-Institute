@@ -2326,8 +2326,8 @@ function App() {
               )}
               
                             {/* Bottom Container - For consistent spacing across all sections */}
-              <div className="pb-8 flex justify-center relative z-10">
-                <div className="h-24 flex items-center">
+              <div className="absolute bottom-0 left-0 right-0 pb-60 flex justify-center relative z-10">
+                <div className="flex items-center">
                   {rhodopsinMessage && !dismissedLoaders.includes(targetId) ? (
                       <motion.button
                         onClick={() => setRhodopsinModalOpen(true)}
@@ -2409,10 +2409,7 @@ function App() {
                           </motion.div>
                         </div>
                       </motion.button>
-                  ) : (
-                    // Empty space to maintain consistent layout across all sections
-                    <div className="h-full w-full"></div>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </section>
