@@ -100,6 +100,10 @@ function App() {
         {
           subheading: 'Historical Mistakes',
           text: "A lot of apps have made historical mistakes that take a while to be corrected, any new app is a good time to fix those, such as putting any actions at the top of a screen since screens moved past 3.5\""
+        },
+        {
+          subheading: 'App Journey',
+          text: "It's using existing patterns that work well for apps with content for an new app onboarding without content."
         }
       ]
     },

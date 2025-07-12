@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Icon Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .icon-preview { margin: 10px; display: inline-block; }
+        canvas { border: 1px solid #ccc; margin: 5px; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .download-link { display: inline-block; margin: 5px; padding: 8px 12px; background: #28a745; color: white; text-decoration: none; border-radius: 4px; }
+        .download-link:hover { background: #1e7e34; }
+    </style>
+</head>
+<body>
+    <h1>PWA Icon Generator</h1>
+    <p>This tool will generate properly sized PNG icons from the SVG for iOS PWA support.</p>
+    
+    <button onclick="generateIcons()">Generate All Icons</button>
+    
+    <div id="iconContainer"></div>
+    
+    <script>
+        function generateIcons() {
+            const sizes = [
+                { size: 180, name: 'apple-touch-icon.png' },
+                { size: 192, name: 'icon-192.png' },
+                { size: 512, name: 'icon-512.png' },
+                { size: 152, name: 'apple-touch-icon-152x152.png' },
+                { size: 120, name: 'apple-touch-icon-120x120.png' },
+                { size: 76, name: 'apple-touch-icon-76x76.png' }
+            ];
+            
+            const container = document.getElementById('iconContainer');
+            container.innerHTML = '';
+            
+            sizes.forEach(iconInfo => {
+                createIcon(iconInfo.size, iconInfo.name, container);
+            });
+        }
+        
+        function createIcon(size, filename, container) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Fill with black background
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, size, size);
+            
+            // Add white PROUX text
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `bold ${size * 0.15}px Arial, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('PROUX', size / 2, size / 2);
+            
+            // Create preview container
+            const previewDiv = document.createElement('div');
+            previewDiv.className = 'icon-preview';
+            
+            const label = document.createElement('div');
+            label.textContent = `${filename} (${size}×${size})`;
+            
+            const downloadLink = document.createElement('a');
+            downloadLink.href = canvas.toDataURL('image/png');
+            downloadLink.download = filename;
+            downloadLink.textContent = 'Download';
+            downloadLink.className = 'download-link';
+            
+            previewDiv.appendChild(label);
+            previewDiv.appendChild(canvas);
+            previewDiv.appendChild(document.createElement('br'));
+            previewDiv.appendChild(downloadLink);
+            
+            container.appendChild(previewDiv);
+        }
+        
+        // Auto-generate on page load
+        window.onload = generateIcons;
+    </script>
+</body>
+</html> 
