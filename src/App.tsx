@@ -72,6 +72,7 @@ function App() {
   const [modalOpenedBy, setModalOpenedBy] = useState<'sad-face' | 'comfortable-button' | null>(null);
   const [isLeftHanded, setIsLeftHanded] = useState(false);
   const [biasModalOpen, setBiasModalOpen] = useState(false);
+  const [tearDownModalIdentifier, setTearDownModalIdentifier] = useState<number | null>(null);
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
@@ -83,7 +84,30 @@ function App() {
   ];
   const [[page, direction], setPage] = useState([0, 0]);
 
+  const tearDownModalContent: { [key: number]: { title: string; content: { subheading: string; text: string }[] } } = {
+    0: {
+      title: 'Tear Down',
+      content: [
+        {
+          subheading: 'Ergonomics',
+          text: "Utilises most uncomfortable areas for primary actions and ignores platform guidelines, existing and ratified patterns for navigation and ease of use. Especially for a chat app that if succeeds in its goals will be used very regularly"
+        }
+      ]
+    },
+    // Placeholders for other screens
+    2: {
+      title: 'Tear Down: Screen 2',
+      content: [{ subheading: 'Placeholder', text: 'Content for the second screen modal goes here.' }]
+    },
+    4: {
+      title: 'Tear Down: Screen 3',
+      content: [{ subheading: 'Placeholder', text: 'Content for the third screen modal goes here.' }]
+    }
+  };
+
   const slideIndex = wrap(0, slides.length, page);
+
+  const showAnnotations = step >= 6 && slides[slideIndex].type === 'image';
 
   const paginate = (newDirection: number) => {
     setPage([page + newDirection, newDirection]);
@@ -924,6 +948,73 @@ function App() {
         )}
       </AnimatePresence>
 
+      {/* --- Tear Down Modal --- */}
+      <AnimatePresence>
+        {tearDownModalIdentifier !== null && tearDownModalContent[tearDownModalIdentifier] && (
+        <motion.div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setTearDownModalIdentifier(null)}
+        >
+            <motion.div
+            className={`rounded-lg p-6 max-w-md w-full mx-4 relative ${
+                shouldInvertNav() ? 'bg-black text-white' : 'bg-white text-black'
+            }`}
+            initial={{ scale: 0.8, opacity: 0, y: 50 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.8, opacity: 0, y: 50 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            onClick={(e) => e.stopPropagation()}
+            >
+            <button
+                onClick={() => setTearDownModalIdentifier(null)}
+                className={`absolute top-4 right-4 text-xl transition-colors ${
+                shouldInvertNav() ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+                }`}
+            >
+                ×
+            </button>
+            
+            <h2 className={`text-2xl font-bold mb-6 ${
+                shouldInvertNav() ? 'text-white' : 'text-black'
+            }`}>{tearDownModalContent[tearDownModalIdentifier].title}</h2>
+            
+            <div className="space-y-4">
+                {tearDownModalContent[tearDownModalIdentifier].content.map((item, index) => (
+                <div key={index}>
+                    <h3 className={`text-lg font-bold mb-2 ${
+                        shouldInvertNav() ? 'text-white' : 'text-black'
+                    }`}>
+                    {item.subheading}
+                    </h3>
+                    <p className={`text-sm leading-relaxed ${
+                        shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                    }`}>
+                    {item.text}
+                    </p>
+                </div>
+                ))}
+            </div>
+            
+            <div className="flex justify-center mt-6">
+                <button 
+                onClick={() => setTearDownModalIdentifier(null)}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    shouldInvertNav() 
+                    ? 'bg-white text-black hover:bg-gray-200' 
+                    : 'bg-black text-white hover:bg-gray-800'
+                }`}
+                >
+                Got it
+                </button>
+            </div>
+            </motion.div>
+        </motion.div>
+        )}
+      </AnimatePresence>
+
       <main className="-mt-16 sm:-mt-24">
         {/* --- App Anatomy Section (First Fold) --- */}
         <section id="anatomy" className="snap-section flex items-center justify-center overflow-hidden relative px-4 sm:px-0 bg-white snap-start">
@@ -1052,48 +1143,237 @@ function App() {
             </LayoutGroup>
           </div>
 
-          {/* --- Image Carousel --- */}
+          {/* --- Image Carousel & Annotations Container --- */}
           <motion.div
-            className="absolute inset-0 w-full h-full flex items-center justify-center p-4 sm:p-8 md:p-12 lg:p-16 z-0 -translate-y-8 sm:-translate-y-0"
+            className="absolute inset-0 w-full h-full flex items-center justify-center p-4 sm:p-8 md:p-12 lg:p-16 -translate-y-8 sm:translate-y-0"
             initial={{ opacity: 0 }}
             animate={{ opacity: step >= 6 ? 1 : 0 }}
             transition={{ duration: 0.8 }}
           >
-            <AnimatePresence initial={false} custom={direction}>
+            <div className="relative w-full h-full max-w-screen-lg aspect-[16/9] mx-auto">
+              {/* Carousel is now inside the aspect-ratio container */}
+              <AnimatePresence initial={false} custom={direction}>
+                <motion.div
+                  key={page}
+                  custom={direction}
+                  variants={variants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{
+                    x: { type: 'spring', stiffness: 300, damping: 30 },
+                    opacity: { duration: 0.2 },
+                  }}
+                  className="absolute w-full h-full flex items-center justify-center"
+                >
+                  {slides[slideIndex].type === 'image' ? (
+                    <img
+                      src={(slides[slideIndex] as { src: string }).src}
+                      alt={(slides[slideIndex] as { alt: string }).alt}
+                      className="w-full h-full object-contain scale-[67.5%] sm:scale-75"
+                    />
+                  ) : (
+                    <div className="w-full max-w-2xl text-center px-4">
+                      <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
+                        Takeaway
+                      </h3>
+                      <p className="text-xl sm:text-2xl italic text-gray-800 leading-relaxed">
+                        "{(slides[slideIndex] as { text: string }).text}"
+                      </p>
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+
+              {/* --- Animated Arrow (Right) --- */}
               <motion.div
-                key={page}
-                custom={direction}
-                variants={variants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{
-                  x: { type: 'spring', stiffness: 300, damping: 30 },
-                  opacity: { duration: 0.2 },
+                className="absolute z-20 pointer-events-none"
+                style={isMobile ? {
+                  top: '23%',
+                  right: '5%',
+                  width: '12vw',
+                  height: '12vw',
+                  maxWidth: '80px',
+                  maxHeight: '80px',
+                } : {
+                  top: '18%',
+                  right: '25%',
+                  width: '8vw',
+                  height: '8vw',
+                  maxWidth: '80px',
+                  maxHeight: '80px',
                 }}
-                className="absolute w-full h-full flex items-center justify-center"
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{
+                  opacity: showAnnotations ? 1 : 0,
+                  scale: showAnnotations ? 1 : 0,
+                }}
+                transition={{
+                  duration: 0.8,
+                  delay: 0.5,
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 20
+                }}
               >
-                {slides[slideIndex].type === 'image' ? (
-                  <img
-                    src={(slides[slideIndex] as { src: string }).src}
-                    alt={(slides[slideIndex] as { alt: string }).alt}
-                    className="w-full h-full object-contain scale-[67.5%] sm:scale-75"
-                  />
-                ) : (
-                  <div className="w-full max-w-2xl text-center px-4">
-                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
-                      Takeaway
-                    </h3>
-                    <p className="text-xl sm:text-2xl italic text-gray-800 leading-relaxed">
-                      "{(slides[slideIndex] as { text: string }).text}"
-                    </p>
-                  </div>
-                )}
+                <div className="flex flex-col items-center">
+                  <motion.div
+                    className="w-full h-full drop-shadow-lg"
+                    style={{
+                      filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
+                      transform: 'rotate(-135deg)'
+                    }}
+                    animate={{
+                      y: [0, -6, 0],
+                      x: [0, 6, 0],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    <svg
+                      width="100%"
+                      height="100%"
+                      viewBox="0 0 120 120"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <g clipPath="url(#clip0_409_495)">
+                        <path d="M92 104L92 44C92 39.5817 88.4183 36 84 36L19 36" stroke="#DC2626" strokeWidth="4"/>
+                        <path fillRule="evenodd" clipRule="evenodd" d="M90 122L90 80L94 80L94 122L90 122Z" fill="#DC2626"/>
+                        <path d="M36 19L19 36L36 53" stroke="#DC2626" strokeWidth="4"/>
+                      </g>
+                      <defs>
+                        <clipPath id="clip0_409_495">
+                          <rect width="120" height="120" fill="white"/>
+                        </clipPath>
+                      </defs>
+                    </svg>
+                  </motion.div>
+
+                  <motion.div
+                    className="mt-2 text-red-600 text-center leading-tight"
+                    style={{
+                      fontFamily: 'Caveat, cursive',
+                      fontSize: 'clamp(16px, 1.8vw, 24px)',
+                      transform: 'rotate(-8deg) translateX(1vw)',
+                      fontWeight: '600'
+                    }}
+                    animate={{
+                      y: [0, -2, 0],
+                      rotate: [-8, -6, -8],
+                    }}
+                    transition={{
+                      duration: 2.5,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    <div>Not</div>
+                    <div>Ergonomic</div>
+                  </motion.div>
+                </div>
               </motion.div>
-            </AnimatePresence>
+
+              {/* --- Mirrored Arrow (Left) --- */}
+              <motion.div
+                className="absolute z-20 pointer-events-none"
+                style={isMobile ? {
+                  top: '23%',
+                  left: '5%',
+                  width: '12vw',
+                  height: '12vw',
+                  maxWidth: '80px',
+                  maxHeight: '80px',
+                } : {
+                  top: '18%',
+                  left: '25%',
+                  width: '8vw',
+                  height: '8vw',
+                  maxWidth: '80px',
+                  maxHeight: '80px',
+                }}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{
+                  opacity: showAnnotations ? 1 : 0,
+                  scale: showAnnotations ? 1 : 0,
+                }}
+                transition={{
+                  duration: 0.8,
+                  delay: 1.2,
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 20
+                }}
+              >
+                <div className="flex flex-col items-center">
+                  <motion.div
+                    className="w-full h-full drop-shadow-lg"
+                    style={{
+                      filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
+                      transform: 'rotate(-135deg)'
+                    }}
+                    animate={{
+                      y: [0, -6, 0],
+                      x: [0, -6, 0],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    <svg
+                      width="100%"
+                      height="100%"
+                      viewBox="0 0 120 120"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      style={{ transform: 'scaleX(-1)' }}
+                    >
+                      <g clipPath="url(#clip0_409_495_left)">
+                       <path d="M92 104L92 44C92 39.5817 88.4183 36 84 36L19 36" stroke="#DC2626" strokeWidth="4"/>
+                       <path fillRule="evenodd" clipRule="evenodd" d="M90 122L90 80L94 80L94 122L90 122Z" fill="#DC2626"/>
+                       <path d="M36 19L19 36L36 53" stroke="#DC2626" strokeWidth="4"/>
+                     </g>
+                     <defs>
+                       <clipPath id="clip0_409_495_left">
+                         <rect width="120" height="120" fill="white"/>
+                       </clipPath>
+                     </defs>
+                   </svg>
+                  </motion.div>
+                  
+                  <motion.div
+                    className="mt-2 text-red-600 text-center leading-tight"
+                    style={{
+                      fontFamily: 'Caveat, cursive',
+                      fontSize: 'clamp(16px, 1.8vw, 24px)',
+                      transform: 'rotate(8deg) translateX(-1vw)',
+                      fontWeight: '600'
+                    }}
+                    animate={{
+                      y: [0, -2, 0],
+                      rotate: [8, 6, 8],
+                    }}
+                    transition={{
+                      duration: 2.5,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  >
+                    <div>Really</div>
+                    <div>Not</div>
+                    <div>Ergonomic</div>
+                  </motion.div>
+                </div>
+              </motion.div>
+            </div>
           </motion.div>
 
-                    {/* --- Footnote for first quote --- */}
+          {/* --- Footnote for first quote --- */}
           <motion.div
             className="absolute inset-x-0 bottom-48 sm:bottom-32 z-10 flex justify-center px-4"
             initial={{ opacity: 0 }}
@@ -1134,171 +1414,37 @@ function App() {
             </button>
           </motion.div>
 
-          {/* --- Animated Arrow --- */}
-          <motion.div
-            className="absolute z-20 pointer-events-none"
-            style={{
-              top: isMobile ? '152px' : '150px',
-              right: isMobile ? '42px' : '500px'
-            }}
-            initial={{ opacity: 0, scale: 0, rotate: 0 }}
-            animate={{ 
-              opacity: step >= 6 && slideIndex === 0 ? 1 : 0,
-              scale: step >= 6 && slideIndex === 0 ? 1 : 0,
-              rotate: step >= 6 && slideIndex === 0 ? 0 : 0
-            }}
-            transition={{ 
-              duration: 0.8,
-              delay: 0.5,
-              type: "spring",
-              stiffness: 200,
-              damping: 20
-            }}
-          >
-            <div className="flex flex-col items-center">
-              <motion.div
-                className="w-16 h-16 sm:w-20 sm:h-20 drop-shadow-lg"
-                style={{
-                  filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
-                  transform: 'rotate(-135deg)'
-                }}
-                animate={{
-                  y: [0, -6, 0],
-                  x: [0, 6, 0],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              >
-                <svg 
-                  width="100%" 
-                  height="100%" 
-                  viewBox="0 0 120 120" 
-                  fill="none" 
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <g clipPath="url(#clip0_409_495)">
-                    <path d="M92 104L92 44C92 39.5817 88.4183 36 84 36L19 36" stroke="#DC2626" strokeWidth="4"/>
-                    <path fillRule="evenodd" clipRule="evenodd" d="M90 122L90 80L94 80L94 122L90 122Z" fill="#DC2626"/>
-                    <path d="M36 19L19 36L36 53" stroke="#DC2626" strokeWidth="4"/>
-                  </g>
-                  <defs>
-                    <clipPath id="clip0_409_495">
-                      <rect width="120" height="120" fill="white"/>
-                    </clipPath>
-                  </defs>
-                </svg>
-              </motion.div>
-              
-              <motion.div
-                className="mt-2 text-red-600 text-center leading-tight"
-                style={{
-                  fontFamily: 'Caveat, cursive',
-                  fontSize: isMobile ? '22px' : '24px',
-                  transform: isMobile ? 'rotate(-8deg)' : 'rotate(-8deg) translateX(20px)',
-                  fontWeight: '600'
-                }}
-                animate={{
-                  y: [0, -2, 0],
-                  rotate: [-8, -6, -8],
-                }}
-                transition={{
-                  duration: 2.5,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              >
-                <div>Not</div>
-                <div>Ergonomic</div>
-              </motion.div>
-            </div>
-          </motion.div>
-
-          {/* --- Left Side Mirrored Arrow --- */}
-          <motion.div
-            className="absolute z-20 pointer-events-none"
-            style={{
-              top: isMobile ? '152px' : '150px',
-              left: isMobile ? '42px' : '500px'
-            }}
-            initial={{ opacity: 0, scale: 0, rotate: 0 }}
-            animate={{ 
-              opacity: step >= 6 && slideIndex === 0 ? 1 : 0,
-              scale: step >= 6 && slideIndex === 0 ? 1 : 0,
-              rotate: step >= 6 && slideIndex === 0 ? 0 : 0
-            }}
-            transition={{ 
-              duration: 0.8,
-              delay: 1.2,
-              type: "spring",
-              stiffness: 200,
-              damping: 20
-            }}
-          >
-            <div className="flex flex-col items-center">
-                             <motion.div
-                 className="w-16 h-16 sm:w-20 sm:h-20 drop-shadow-lg"
-                 style={{
-                   filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
-                   transform: 'rotate(-135deg)'
-                 }}
-                animate={{
-                  y: [0, -6, 0],
-                  x: [0, -6, 0],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              >
-                                 <svg 
-                   width="100%" 
-                   height="100%" 
-                   viewBox="0 0 120 120" 
-                   fill="none" 
-                   xmlns="http://www.w3.org/2000/svg"
-                   style={{ transform: 'scaleX(-1)' }}
-                 >
-                   <g clipPath="url(#clip0_409_495_left)">
-                    <path d="M92 104L92 44C92 39.5817 88.4183 36 84 36L19 36" stroke="#DC2626" strokeWidth="4"/>
-                    <path fillRule="evenodd" clipRule="evenodd" d="M90 122L90 80L94 80L94 122L90 122Z" fill="#DC2626"/>
-                    <path d="M36 19L19 36L36 53" stroke="#DC2626" strokeWidth="4"/>
-                  </g>
-                  <defs>
-                    <clipPath id="clip0_409_495_left">
-                      <rect width="120" height="120" fill="white"/>
-                    </clipPath>
-                  </defs>
-                </svg>
-              </motion.div>
-              
-                             <motion.div
-                 className="mt-2 text-red-600 text-center leading-tight"
-                 style={{
-                   fontFamily: 'Caveat, cursive',
-                   fontSize: isMobile ? '22px' : '24px',
-                   transform: isMobile ? 'rotate(8deg)' : 'rotate(8deg) translateX(-20px)',
-                   fontWeight: '600'
-                 }}
-                animate={{
-                  y: [0, -2, 0],
-                  rotate: [8, 6, 8],
-                }}
-                transition={{
-                  duration: 2.5,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              >
-                <div>Really</div>
-                <div>Not</div>
-                <div>Ergonomic</div>
-              </motion.div>
-            </div>
-          </motion.div>
+          {/* --- Tear Down Button --- */}
+          <AnimatePresence>
+            {showAnnotations && (
+            <motion.button
+                onClick={() => setTearDownModalIdentifier(slideIndex)}
+                className="absolute bottom-[18%] sm:bottom-[14%] left-1/2 transform -translate-x-1/2 px-4 py-2 bg-white text-black rounded-lg text-xs font-medium shadow-md hover:bg-gray-50 transition-all duration-300 hover:scale-105 z-20 whitespace-nowrap"
+                initial={{ opacity: 0, scale: 0, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0, y: 20 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20, delay: 1.5 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+            >
+                <div className="flex items-center space-x-1.5">
+                <motion.div
+                    className="w-1.5 h-1.5 bg-red-500 rounded-full"
+                    animate={{
+                    scale: [1, 1.3, 1],
+                    opacity: [0.7, 1, 0.7],
+                    }}
+                    transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                    }}
+                />
+                <span className="text-xs">Tear Down</span>
+                </div>
+            </motion.button>
+            )}
+          </AnimatePresence>
         </section>
 
         {/* --- Other Sections --- */}
