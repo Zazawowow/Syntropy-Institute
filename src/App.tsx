@@ -156,9 +156,12 @@ function App() {
       { name: 'Strike', icon: 'strike-icon.png' }
     ];
     
-    if (slideIndex === 0) return apps[0];
-    if (slideIndex === 2) return apps[1];
-    if (slideIndex === 4) return apps[2];
+    // Whitenoise: slides 0 and 1 (image and quote)
+    if (slideIndex === 0 || slideIndex === 1) return apps[0];
+    // Primal: slides 2 and 3 (image and quote)
+    if (slideIndex === 2 || slideIndex === 3) return apps[1];
+    // Strike: slides 4 and 5 (image and quote)
+    if (slideIndex === 4 || slideIndex === 5) return apps[2];
     return apps[0]; // default to Whitenoise
   };
 
@@ -490,7 +493,7 @@ function App() {
       {/* --- Sticky Header --- */}
       <header className={`sticky top-0 z-50 transition-colors duration-300 ${
         shouldInvertNav() ? 'bg-black' : 'bg-white'
-      }`}>
+      }`} style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="relative flex h-16 items-center justify-between px-4 sm:h-24 sm:block sm:px-0">
           <a href="#anatomy" onClick={(e) => handleLinkClick(e, 'anatomy')}>
             <motion.div

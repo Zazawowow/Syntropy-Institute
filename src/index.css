@@ -46,9 +46,9 @@ body {
     scroll-snap-align: start;
     scroll-snap-stop: always;
     /* Ensure exact same height calculation as other sections */
-    height: calc(100vh - 4rem - env(safe-area-inset-bottom, 0px)) !important;
-    min-height: calc(100vh - 4rem - env(safe-area-inset-bottom, 0px)) !important;
-    max-height: calc(100vh - 4rem - env(safe-area-inset-bottom, 0px)) !important;
+    height: calc(100vh - 4rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+    min-height: calc(100vh - 4rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+    max-height: calc(100vh - 4rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
   }
 }
 
@@ -66,6 +66,7 @@ body {
 @media (max-width: 639px) {
   html {
     scroll-behavior: auto; /* Disable smooth scroll on mobile for better snap */
+    scroll-padding-top: calc(4rem + env(safe-area-inset-top, 0px)); /* Account for status bar */
   }
   
   body {
@@ -76,12 +77,9 @@ body {
     scroll-snap-align: start;
     scroll-snap-stop: always;
     /* Use stable viewport height that doesn't change with Safari UI */
-    height: calc(100vh - 4rem);
-    min-height: calc(100vh - 4rem);
-    max-height: calc(100vh - 4rem);
-    /* Alternative approach using CSS env() for safe areas */
-    height: calc(100vh - 4rem - env(safe-area-inset-bottom, 0px));
-    min-height: calc(100vh - 4rem - env(safe-area-inset-bottom, 0px));
+    height: calc(100vh - 4rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    min-height: calc(100vh - 4rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    max-height: calc(100vh - 4rem - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -107,9 +105,9 @@ body {
 /* Mobile-specific first section height adjustment */
 @media (max-width: 639px) {
   .snap-section:first-child {
-    height: calc(100vh - env(safe-area-inset-bottom, 20px)); /* Extra padding for mobile */
-    min-height: calc(100vh - env(safe-area-inset-bottom, 20px));
-    max-height: calc(100vh - env(safe-area-inset-bottom, 20px));
+    height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 20px)); /* Account for status bar and home indicator */
+    min-height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 20px));
+    max-height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 20px));
   }
 }
 
