@@ -109,7 +109,16 @@ function App() {
     },
     4: {
       title: 'Breakdown: Screen 3',
-      content: [{ subheading: 'Placeholder', text: 'Content for the third screen modal goes here.' }]
+      content: [
+        {
+          subheading: 'Desktop Pattern',
+          text: 'The top right account icon is really a desktop pattern, or mobile web pattern where a tab bar is more problematic.'
+        },
+        {
+          subheading: 'Underutilizes Tab Bar',
+          text: 'The tab bar is underutilized as well, meaning there is no reason for the account icon to be top right, very unergonomic, it can adhere to best practive and be in the tab bar.'
+        }
+      ]
     }
   };
 
@@ -1213,14 +1222,14 @@ function App() {
                   <motion.div
                     className="absolute z-20 pointer-events-none"
                     style={isMobile ? {
-                      top: slideIndex === 2 ? '50%' : '23%',
+                      top: slideIndex === 2 ? 'calc(50% - 50px)' : '23%',
                       right: '5%',
                       width: '12vw',
                       height: '12vw',
                       maxWidth: '80px',
                       maxHeight: '80px',
                     } : {
-                      top: slideIndex === 2 ? '50%' : '18%',
+                      top: slideIndex === 2 ? 'calc(50% - 50px)' : '18%',
                       right: '25%',
                       width: '8vw',
                       height: '8vw',
@@ -1296,8 +1305,22 @@ function App() {
                           ease: "easeInOut"
                         }}
                       >
-                        <div>Not</div>
-                        <div>Ergonomic</div>
+                        {slideIndex === 2 ? (
+                          <>
+                            <div>No Balance</div>
+                            <div>Reminder</div>
+                          </>
+                        ) : slideIndex === 4 ? (
+                          <>
+                            <div>Desktop</div>
+                            <div>Pattern</div>
+                          </>
+                        ) : (
+                          <>
+                            <div>Not</div>
+                            <div>Ergonomic</div>
+                          </>
+                        )}
                       </motion.div>
                     </div>
                   </motion.div>
@@ -1310,14 +1333,16 @@ function App() {
                   <motion.div
                     className="absolute z-20 pointer-events-none"
                     style={isMobile ? {
-                      top: slideIndex === 2 ? '50%' : '23%',
+                      top: slideIndex === 4 ? 'auto' : (slideIndex === 2 ? 'calc(50% - 50px)' : '23%'),
+                      bottom: slideIndex === 4 ? '20%' : 'auto',
                       left: '5%',
                       width: '12vw',
                       height: '12vw',
                       maxWidth: '80px',
                       maxHeight: '80px',
                     } : {
-                      top: slideIndex === 2 ? '50%' : '18%',
+                      top: slideIndex === 4 ? 'auto' : (slideIndex === 2 ? 'calc(50% - 50px)' : '18%'),
+                      bottom: slideIndex === 4 ? '20%' : 'auto',
                       left: '25%',
                       width: '8vw',
                       height: '8vw',
@@ -1333,6 +1358,119 @@ function App() {
                     transition={{
                       duration: 0.8,
                       delay: 1.2,
+                      type: "spring",
+                      stiffness: 200,
+                      damping: 20
+                    }}
+                  >
+                    <div className={`flex items-center ${slideIndex === 4 ? 'flex-col-reverse' : 'flex-col'}`}>
+                      <motion.div
+                        className="w-full h-full drop-shadow-lg"
+                        style={{
+                          filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
+                          transform: `rotate(${slideIndex === 4 ? -90 : -135}deg)`,
+                        }}
+                        animate={{
+                          y: [0, -6, 0],
+                          x: slideIndex === 4 ? 0 : [0, -6, 0],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        <svg
+                          width="100%"
+                          height="100%"
+                          viewBox="0 0 120 120"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          style={{ transform: 'scaleX(-1)' }}
+                        >
+                          <g clipPath="url(#clip0_409_495_left)">
+                           <path d="M92 104L92 44C92 39.5817 88.4183 36 84 36L19 36" stroke="#DC2626" strokeWidth="4"/>
+                           <path fillRule="evenodd" clipRule="evenodd" d="M90 122L90 80L94 80L94 122L90 122Z" fill="#DC2626"/>
+                           <path d="M36 19L19 36L36 53" stroke="#DC2626" strokeWidth="4"/>
+                         </g>
+                         <defs>
+                           <clipPath id="clip0_409_495_left">
+                             <rect width="120" height="120" fill="white"/>
+                           </clipPath>
+                         </defs>
+                       </svg>
+                      </motion.div>
+                      
+                      <motion.div
+                        className={`${slideIndex === 4 ? 'mb-2' : 'mt-2'} text-red-600 text-center leading-tight`}
+                        style={{
+                          fontFamily: 'Caveat, cursive',
+                          fontSize: 'clamp(16px, 1.8vw, 24px)',
+                          transform: slideIndex === 4 ? 'none' : 'rotate(8deg) translateX(-1vw)',
+                          fontWeight: '600'
+                        }}
+                        animate={{
+                          y: [0, -2, 0],
+                          rotate: slideIndex === 4 ? 0 : [8, 6, 8],
+                        }}
+                        transition={{
+                          duration: 2.5,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        {slideIndex === 2 ? (
+                          <>
+                            <div>Prefilled</div>
+                            <div>amounts</div>
+                          </>
+                        ) : slideIndex === 4 ? (
+                          <>
+                            <div>Underutilizes</div>
+                            <div>tab bar</div>
+                          </>
+                        ) : (
+                          <>
+                            <div>Really</div>
+                            <div>Not</div>
+                            <div>Ergonomic</div>
+                          </>
+                        )}
+                      </motion.div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* --- New Top-Left Annotation (Screen 3) --- */}
+              <AnimatePresence>
+                {showAnnotations && slideIndex === 4 && (
+                  <motion.div
+                    className="absolute z-20 pointer-events-none"
+                    style={isMobile ? {
+                      top: '23%',
+                      left: '5%',
+                      width: '12vw',
+                      height: '12vw',
+                      maxWidth: '80px',
+                      maxHeight: '80px',
+                    } : {
+                      top: '18%',
+                      left: '25%',
+                      width: '8vw',
+                      height: '8vw',
+                      maxWidth: '80px',
+                      maxHeight: '80px',
+                    }}
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{
+                      opacity: 1,
+                      scale: 1,
+                    }}
+                    exit={{ opacity: 0, scale: 0, transition: { duration: 0.2 } }}
+                    transition={{
+                      duration: 0.8,
+                      delay: 1.9,
                       type: "spring",
                       stiffness: 200,
                       damping: 20
@@ -1394,9 +1532,8 @@ function App() {
                           ease: "easeInOut"
                         }}
                       >
-                        <div>Really</div>
-                        <div>Not</div>
-                        <div>Ergonomic</div>
+                        <div>Worst place</div>
+                        <div>for anything</div>
                       </motion.div>
                     </div>
                   </motion.div>
