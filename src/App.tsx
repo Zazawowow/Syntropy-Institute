@@ -1309,9 +1309,14 @@ function App() {
                         "{(slides[slideIndex] as { text: string }).text}"
                       </p>
                       {slideIndex === 3 && (
-                        <p className="text-lg sm:text-xl font-bold text-gray-900 mt-6">
-                          This probably happened just now, right?
-                        </p>
+                        <>
+                          <p className="text-lg sm:text-xl font-bold text-gray-900 mt-6">
+                            This probably happened just now, right?
+                          </p>
+                          <p className="text-lg sm:text-xl font-bold text-gray-900 mt-4">
+                            You probably didn't even read this, low intent users don't, the less text the better
+                          </p>
+                        </>
                       )}
                     </div>
                   )}
