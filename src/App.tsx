@@ -724,7 +724,7 @@ function App() {
                              </div>
                            )}
                          </div>
-                       </button>
+                   </button>
                      ) : (
                        <div className={`text-xs text-center italic transition-opacity ${
                          shouldInvertNav() ? 'text-gray-400' : 'text-gray-500'
@@ -915,8 +915,8 @@ function App() {
                    }`}
                  >
                    Reset to right-handed
-                 </button>
-               </div>
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}
