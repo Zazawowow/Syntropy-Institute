@@ -1343,6 +1343,16 @@ function App() {
                           This probably happened just now, right?
                         </motion.p>
                       )}
+                      {slideIndex === 1 && (
+                        <motion.p 
+                          className="text-lg sm:text-xl font-bold text-gray-900 mt-6"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.5, delay: 3 }}
+                        >
+                          Getting bored? Scroll Up (Or Down)
+                        </motion.p>
+                      )}
                     </div>
                   )}
                 </motion.div>
