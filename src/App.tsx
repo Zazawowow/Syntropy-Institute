@@ -1340,7 +1340,7 @@ function App() {
                           animate={{ opacity: 1 }}
                           transition={{ duration: 0.5, delay: 3 }}
                         >
-                          This probably happened just now, right?
+                          This probably happened to you just now
                         </motion.p>
                       )}
                       {slideIndex === 1 && (
