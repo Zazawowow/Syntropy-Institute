@@ -37,14 +37,14 @@ const sentenceRightToLeft = {
   },
 };
 
-const letterExit = {
-  opacity: 0,
-  y: -20,
-  transition: {
-    ease: 'easeIn' as const,
-    duration: 0.3,
-  },
-};
+// const letterExit = {
+//   opacity: 0,
+//   y: -20,
+//   transition: {
+//     ease: 'easeIn' as const,
+//     duration: 0.3,
+//   },
+// };
 
 function App() {
   const [step, setStep] = useState(() => {
@@ -1732,9 +1732,9 @@ function App() {
           const bgColor = isEven ? 'bg-black' : 'bg-white';
           const textColor = isEven ? 'text-white' : 'text-black';
           const subTextColor = isEven ? 'text-gray-300' : 'text-gray-700';
-          const loaderTextColor = isEven ? 'text-gray-500' : 'text-gray-400';
-          const loaderBgColor = isEven ? 'bg-gray-800' : 'bg-gray-200';
-          const loaderFillColor = isEven ? 'bg-gray-600' : 'bg-gray-500';
+          // const loaderTextColor = isEven ? 'text-gray-500' : 'text-gray-400';
+          // const loaderBgColor = isEven ? 'bg-gray-800' : 'bg-gray-200';
+          // const loaderFillColor = isEven ? 'bg-gray-600' : 'bg-gray-500';
           
           // Determine rhodopsin message
           const getRhodopsinMessage = () => {
