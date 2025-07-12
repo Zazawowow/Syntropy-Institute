@@ -103,7 +103,7 @@ function App() {
         // },
         {
           subheading: 'App Journey',
-          text: "Uses established patterns that work well for apps with content but not a new app with no content."
+          text: "Uses established patterns that work well for apps with content but not a new app with 3no content."
         }
       ]
     },
