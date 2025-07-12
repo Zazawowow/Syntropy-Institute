@@ -1129,10 +1129,7 @@ function App() {
                     <img 
                       src={`/${app.icon}`} 
                       alt={`${app.name} icon`}
-                      className="w-8 h-8"
-                      style={{
-                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3)) drop-shadow(0 1px 2px rgba(255,255,255,0.1))'
-                      }}
+                      className="w-8 h-8 rounded-full"
                     />
                     <span className="text-lg font-medium">{app.name}</span>
                   </button>
@@ -1715,10 +1712,7 @@ function App() {
               <img 
                 src={`/${getCurrentAppIcon().icon}`} 
                 alt={`${getCurrentAppIcon().name} icon`}
-                className="h-6 w-6"
-                style={{
-                  filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.2)) drop-shadow(0 0.5px 1px rgba(255,255,255,0.1))'
-                }}
+                className="h-6 w-6 rounded-full"
               />
             </button>
             
