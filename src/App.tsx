@@ -103,7 +103,7 @@ function App() {
         },
         {
           subheading: 'App Journey',
-          text: "It's using existing patterns that work well for apps with content for an new app onboarding without content."
+          text: "Uses established patterns that work well for apps with content but not a new app with no content."
         }
       ]
     },
