@@ -1309,14 +1309,14 @@ function App() {
                         "{(slides[slideIndex] as { text: string }).text}"
                       </p>
                       {slideIndex === 3 && (
-                        <>
-                          <p className="text-lg sm:text-xl font-bold text-gray-900 mt-6">
-                            This probably happened just now, right?
-                          </p>
-                          <p className="text-lg sm:text-xl font-bold text-gray-900 mt-4">
-                            You probably didn't even read this, low intent users don't, the less text the better
-                          </p>
-                        </>
+                        <motion.p 
+                          className="text-lg sm:text-xl font-bold text-gray-900 mt-6"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.5, delay: 3 }}
+                        >
+                          This probably happened just now, right?
+                        </motion.p>
                       )}
                     </div>
                   )}
@@ -1698,6 +1698,26 @@ function App() {
                 transition={{ duration: 4, ease: "easeInOut" }}
               >
                 {footnoteTextChanged ? '(is this distracting?)' : '(is this text too small?)'}
+              </motion.span>
+            </p>
+          </motion.div>
+
+          {/* --- Footnote for second quote --- */}
+          <motion.div
+            className="absolute inset-x-0 bottom-48 sm:bottom-32 z-10 flex justify-center px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: slideIndex === 3 ? 1 : 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <p className="text-xs sm:text-sm text-gray-600 italic text-center max-w-md">
+              <motion.span
+                key={slideIndex === 3 ? 'second-quote' : 'hidden'}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 4, ease: "easeInOut", delay: 5 }}
+              >
+                You probably didn't even read this, low intent users don't, the less text the better
               </motion.span>
             </p>
           </motion.div>
