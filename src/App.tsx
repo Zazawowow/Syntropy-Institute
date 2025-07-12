@@ -75,9 +75,11 @@ function App() {
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
-    { type: 'quote', text: 'Utilise habituated patterns, basically the user’s unconscious behavior, to make the app a breeze to use' },
+    { type: 'quote', text: 'Think about ergonomics when designing apps and research existing patterns, it\'s a simple step that will make your product more delightful.' },
     { type: 'image', src: '/screen-2.png', alt: 'Proux application screenshot 2' },
     { type: 'quote', text: 'Just like the doorway effect, people forget information as they move from screen to screen. Don\'t make them think' },
+    { type: 'image', src: '/screen-3.png', alt: 'Proux application screenshot 3' },
+    { type: 'quote', text: 'Utilise habituated patterns, basically the user\'s unconscious behavior, to make the app a breeze to use' },
   ];
   const [[page, direction], setPage] = useState([0, 0]);
 
@@ -308,10 +310,10 @@ function App() {
     }
   }, [currentSection]);
 
-  // Footnote timing for first quote
+  // Footnote timing for third quote
   useEffect(() => {
-    if (step >= 6 && slideIndex === 1) {
-      // Reset states when entering first quote
+    if (step >= 6 && slideIndex === 5) {
+      // Reset states when entering third quote
       setFootnoteVisible(false);
       setFootnoteTextChanged(false);
       
@@ -1130,6 +1132,172 @@ function App() {
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             </button>
+          </motion.div>
+
+          {/* --- Animated Arrow --- */}
+          <motion.div
+            className="absolute z-20 pointer-events-none"
+            style={{
+              top: isMobile ? '152px' : '150px',
+              right: isMobile ? '42px' : '500px'
+            }}
+            initial={{ opacity: 0, scale: 0, rotate: 0 }}
+            animate={{ 
+              opacity: step >= 6 && slideIndex === 0 ? 1 : 0,
+              scale: step >= 6 && slideIndex === 0 ? 1 : 0,
+              rotate: step >= 6 && slideIndex === 0 ? 0 : 0
+            }}
+            transition={{ 
+              duration: 0.8,
+              delay: 0.5,
+              type: "spring",
+              stiffness: 200,
+              damping: 20
+            }}
+          >
+            <div className="flex flex-col items-center">
+              <motion.div
+                className="w-16 h-16 sm:w-20 sm:h-20 drop-shadow-lg"
+                style={{
+                  filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
+                  transform: 'rotate(-135deg)'
+                }}
+                animate={{
+                  y: [0, -6, 0],
+                  x: [0, 6, 0],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                <svg 
+                  width="100%" 
+                  height="100%" 
+                  viewBox="0 0 120 120" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <g clipPath="url(#clip0_409_495)">
+                    <path d="M92 104L92 44C92 39.5817 88.4183 36 84 36L19 36" stroke="#DC2626" strokeWidth="4"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M90 122L90 80L94 80L94 122L90 122Z" fill="#DC2626"/>
+                    <path d="M36 19L19 36L36 53" stroke="#DC2626" strokeWidth="4"/>
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_409_495">
+                      <rect width="120" height="120" fill="white"/>
+                    </clipPath>
+                  </defs>
+                </svg>
+              </motion.div>
+              
+              <motion.div
+                className="mt-2 text-red-600 text-center leading-tight"
+                style={{
+                  fontFamily: 'Caveat, cursive',
+                  fontSize: isMobile ? '22px' : '24px',
+                  transform: isMobile ? 'rotate(-8deg)' : 'rotate(-8deg) translateX(20px)',
+                  fontWeight: '600'
+                }}
+                animate={{
+                  y: [0, -2, 0],
+                  rotate: [-8, -6, -8],
+                }}
+                transition={{
+                  duration: 2.5,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                <div>Not</div>
+                <div>Ergonomic</div>
+              </motion.div>
+            </div>
+          </motion.div>
+
+          {/* --- Left Side Mirrored Arrow --- */}
+          <motion.div
+            className="absolute z-20 pointer-events-none"
+            style={{
+              top: isMobile ? '152px' : '150px',
+              left: isMobile ? '42px' : '500px'
+            }}
+            initial={{ opacity: 0, scale: 0, rotate: 0 }}
+            animate={{ 
+              opacity: step >= 6 && slideIndex === 0 ? 1 : 0,
+              scale: step >= 6 && slideIndex === 0 ? 1 : 0,
+              rotate: step >= 6 && slideIndex === 0 ? 0 : 0
+            }}
+            transition={{ 
+              duration: 0.8,
+              delay: 1.2,
+              type: "spring",
+              stiffness: 200,
+              damping: 20
+            }}
+          >
+            <div className="flex flex-col items-center">
+                             <motion.div
+                 className="w-16 h-16 sm:w-20 sm:h-20 drop-shadow-lg"
+                 style={{
+                   filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
+                   transform: 'rotate(-135deg)'
+                 }}
+                animate={{
+                  y: [0, -6, 0],
+                  x: [0, -6, 0],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                                 <svg 
+                   width="100%" 
+                   height="100%" 
+                   viewBox="0 0 120 120" 
+                   fill="none" 
+                   xmlns="http://www.w3.org/2000/svg"
+                   style={{ transform: 'scaleX(-1)' }}
+                 >
+                   <g clipPath="url(#clip0_409_495_left)">
+                    <path d="M92 104L92 44C92 39.5817 88.4183 36 84 36L19 36" stroke="#DC2626" strokeWidth="4"/>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M90 122L90 80L94 80L94 122L90 122Z" fill="#DC2626"/>
+                    <path d="M36 19L19 36L36 53" stroke="#DC2626" strokeWidth="4"/>
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_409_495_left">
+                      <rect width="120" height="120" fill="white"/>
+                    </clipPath>
+                  </defs>
+                </svg>
+              </motion.div>
+              
+                             <motion.div
+                 className="mt-2 text-red-600 text-center leading-tight"
+                 style={{
+                   fontFamily: 'Caveat, cursive',
+                   fontSize: isMobile ? '22px' : '24px',
+                   transform: isMobile ? 'rotate(8deg)' : 'rotate(8deg) translateX(-20px)',
+                   fontWeight: '600'
+                 }}
+                animate={{
+                  y: [0, -2, 0],
+                  rotate: [8, 6, 8],
+                }}
+                transition={{
+                  duration: 2.5,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                <div>Really</div>
+                <div>Not</div>
+                <div>Ergonomic</div>
+              </motion.div>
+            </div>
           </motion.div>
         </section>
 
