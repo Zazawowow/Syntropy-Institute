@@ -26,7 +26,7 @@ jobs:
     - name: Build project
       run: npm run build
       
-    - name: Deploy to server
+    - name: Create backup and prepare server
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.SERVER_HOST }}
@@ -44,32 +44,26 @@ jobs:
           # Create new directory
           mkdir -p /var/www/html
           
-          # Clone and build on server
-          cd /tmp
-          rm -rf proux
-          git clone https://github.com/Zazawowow/proux.git
-          cd proux
-          
-          # Install Node.js if not present
-          if ! command -v node &> /dev/null; then
-            curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-            apt-get install -y nodejs
-          fi
-          
-          # Build project
-          npm ci
-          npm run build
-          
-          # Copy built files to web directory
-          cp -r dist/* /var/www/html/
-          
+    - name: Deploy files to server
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        password: ${{ secrets.SERVER_PASSWORD }}
+        source: "dist/*"
+        target: "/var/www/html/"
+        strip_components: 1
+        
+    - name: Set permissions and reload nginx
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        password: ${{ secrets.SERVER_PASSWORD }}
+        script: |
           # Set proper permissions
           chown -R www-data:www-data /var/www/html
           chmod -R 755 /var/www/html
           
           # Test nginx configuration and reload
           nginx -t && systemctl reload nginx
-          
-          # Cleanup
-          cd /
-          rm -rf /tmp/proux
