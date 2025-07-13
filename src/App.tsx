@@ -2402,7 +2402,8 @@ function App() {
                 {!(item === 'Ergonomics' && !isMobile) && (
                 <h2 className="text-3xl sm:text-4xl font-bold">
                       {item === 'Question' ? 
-                        (returnedFrom404 ? 'Oh, so it does matter? 🙂' : 'Does UX matter for Bitcoin & Nostr?') : 
+                        (questionAnswer === 'yes' ? 'UX Does Matter' :
+                         returnedFrom404 ? 'Oh, so it does matter? 🙂' : 'Does UX matter for Bitcoin & Nostr?') : 
                        item === 'Dialectics' ? (dialecticsState === 'content' ? 'UX is a dialectic' : '') :
                        item === 'Ergonomics' && ergonomicsState === 'revealed' ? 'That second one was annoying huh?' : 
                        item}
@@ -2445,7 +2446,29 @@ function App() {
                             scale: { type: "spring", stiffness: 400, damping: 25 }
                           }}
                         >
-                          <div className="flex-1 space-y-4 overflow-y-auto">
+                          <div className="flex-1 space-y-4 overflow-y-auto relative">
+                            {/* New Team Chat animation */}
+                            <AnimatePresence>
+                              {conversationProgress === 0 && (
+                                <motion.div
+                                  className="absolute inset-0 flex items-center justify-center"
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  exit={{ opacity: 0 }}
+                                  transition={{ duration: 0.5 }}
+                                >
+                                  <motion.div
+                                    className="text-xl font-medium text-gray-800"
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    transition={{ duration: 0.6 }}
+                                  >
+                                    New Team Chat
+                                  </motion.div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
                             <AnimatePresence>
                               {conversationMessages.slice(0, conversationProgress).map((msg, index) => (
                                 <motion.div
