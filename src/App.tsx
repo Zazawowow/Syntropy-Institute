@@ -2061,7 +2061,9 @@ function App() {
                                 setModalOpen(true);
                               } : handleErgonomicsClick}
                               className={`px-8 py-3 rounded-lg font-medium transition-colors duration-300 ${
-                                isEven ? 'bg-white text-black hover:bg-gray-100' : 'bg-black text-white hover:bg-gray-800'
+                                ergonomicsState === 'revealed' && isMobile && thumbFlowStage >= 5
+                                  ? 'bg-black text-white hover:bg-gray-800'
+                                  : (isEven ? 'bg-white text-black hover:bg-gray-100' : 'bg-black text-white hover:bg-gray-800')
                               }`}
                               animate={{
                                 y: ergonomicsState === 'moved' ? -(typeof window !== 'undefined' ? window.innerHeight * 0.3 : 250) : 0
@@ -2076,7 +2078,7 @@ function App() {
                               }}
                             >
                               {ergonomicsState === 'revealed' && isMobile
-                                ? (thumbFlowStage >= 5 ? 'Thumbflow Key' : 'Mmm, Comfortable 😊')
+                                ? (thumbFlowStage >= 5 ? '🗝️ Thumbflow Key' : 'Mmm, Comfortable 😊')
                                 : ergonomicsState === 'moved' 
                                   ? 'Ok, Now Tap Me'
                                   : 'Tap me'
@@ -2224,7 +2226,7 @@ function App() {
                                     }}
                                   >
                                     {ergonomicsState === 'revealed'
-                                      ? (thumbFlowStage >= 5 ? 'Thumbflow Key' : 'Mmm, Comfortable 😊')
+                                      ? (thumbFlowStage >= 5 ? '🗝️ Thumbflow Key' : 'Mmm, Comfortable 😊')
                                       : ergonomicsState === 'moved' 
                                         ? 'Ok, Now Click Me'
                                         : 'Click me'
