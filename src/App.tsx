@@ -85,6 +85,9 @@ function App() {
   const [typingIndicator, setTypingIndicator] = useState<{ visible: boolean; side: 'left' | 'right' }>({ visible: false, side: 'left' });
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [contactForm, setContactForm] = useState({ email: '', subject: '', message: '' });
+  const [unconsciousBehaviorStage, setUnconsciousBehaviorStage] = useState(0);
+  const [researchCompleting, setResearchCompleting] = useState(false);
+  const [researchTextVisible, setResearchTextVisible] = useState(false);
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
@@ -594,6 +597,47 @@ function App() {
       }
     }
   }, [conversationProgress, currentSection]);
+
+  // Unconscious behavior patterns animation for Research section
+  useEffect(() => {
+    if (currentSection === 'research') {
+      // Reset all states when entering research section
+      setUnconsciousBehaviorStage(0);
+      setResearchCompleting(false);
+      setResearchTextVisible(false);
+      
+      const timers: NodeJS.Timeout[] = [];
+      
+      // Stage 1: Show F-pattern eye tracking immediately
+      timers.push(setTimeout(() => setUnconsciousBehaviorStage(1), 500));
+      
+      // Stage 2: Show scroll behavior after 3 seconds
+      timers.push(setTimeout(() => setUnconsciousBehaviorStage(2), 3000));
+      
+      // Stage 3: Show thumb gesture patterns after 6 seconds
+      timers.push(setTimeout(() => setUnconsciousBehaviorStage(3), 6000));
+      
+      // Show "Research completing" loader after animations finish (10 seconds)
+      timers.push(setTimeout(() => {
+        setUnconsciousBehaviorStage(0); // Hide behavior patterns
+        setResearchCompleting(true);
+      }, 10000));
+      
+      // Show final text after loader completes (13 seconds total)
+      timers.push(setTimeout(() => {
+        setResearchCompleting(false);
+        setResearchTextVisible(true);
+      }, 13000));
+      
+      return () => {
+        timers.forEach(clearTimeout);
+      };
+    } else {
+      setUnconsciousBehaviorStage(0);
+      setResearchCompleting(false);
+      setResearchTextVisible(false);
+    }
+  }, [currentSection]);
 
 
 
@@ -2406,6 +2450,7 @@ function App() {
                          returnedFrom404 ? 'Oh, so it does matter? 🙂' : 'Does UX matter for Bitcoin & Nostr?') : 
                        item === 'Dialectics' ? (dialecticsState === 'content' ? 'UX is a dialectic' : '') :
                        item === 'Ergonomics' && ergonomicsState === 'revealed' ? 'That second one was annoying huh?' : 
+                       item === 'Research' && !researchTextVisible ? '' :
                        item}
                 </h2>
                 )}
@@ -2619,9 +2664,56 @@ function App() {
                   </>
                 )}
                 {item === 'Research' && (
-                  <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                    Deep interviews with target and non target archetypes. Day in the life and affinity mapping, and most simply, understanding the user before they even use your product so it's tuned to their habits, unconciouss interactions, and expectations.
-                  </p>
+                  <>
+                    {/* Research completing loader */}
+                    {researchCompleting && (
+                      <motion.div
+                        className="mt-4 flex flex-col items-center"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        transition={{ duration: 0.6 }}
+                      >
+                        <motion.div
+                          className={`text-lg font-medium mb-4 ${textColor}`}
+                          animate={{ 
+                            opacity: [0.7, 1, 0.7]
+                          }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                        >
+                          Research completing...
+                        </motion.div>
+                        <div className={`w-32 h-1 rounded-full overflow-hidden ${
+                          isEven ? 'bg-gray-800' : 'bg-gray-200'
+                        }`}>
+                          <motion.div
+                            className={`h-full rounded-full ${
+                              isEven ? 'bg-gray-600' : 'bg-gray-500'
+                            }`}
+                            initial={{ width: '0%' }}
+                            animate={{ width: '100%' }}
+                            transition={{ duration: 3, ease: 'easeInOut' }}
+                          />
+                        </div>
+                      </motion.div>
+                    )}
+                    
+                    {/* Final research text */}
+                    {researchTextVisible && (
+                      <motion.p 
+                        className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8 }}
+                      >
+                        Deep interviews with target and non target archetypes. Day in the life and affinity mapping, and most simply, understanding the user before they even use your product so it's tuned to their habits, unconciouss interactions, and expectations.
+                      </motion.p>
+                    )}
+                  </>
                 )}
                 {item === 'Testing' && (
                   <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
@@ -2974,6 +3066,160 @@ function App() {
                 )}
                 </div>
               </div>
+
+              {/* Unconscious Behavior Patterns - Research Section */}
+              {targetId === 'research' && unconsciousBehaviorStage > 0 && (
+                <div className="absolute inset-0 pointer-events-none z-0">
+                  {/* F-Pattern Eye Tracking */}
+                  <AnimatePresence>
+                    {unconsciousBehaviorStage >= 1 && (
+                      <>
+                        {/* F-Pattern horizontal lines */}
+                        <motion.div
+                          className="absolute top-16 left-8 right-8 h-1"
+                          style={{
+                            background: 'linear-gradient(90deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 60%, rgba(255, 255, 255, 0) 100%)',
+                            borderRadius: '2px',
+                            transformOrigin: 'left'
+                          }}
+                          initial={{ opacity: 0, scaleX: 0 }}
+                          animate={{ opacity: 1, scaleX: 1 }}
+                          exit={{ opacity: 0, scaleX: 0 }}
+                          transition={{ duration: 1 }}
+                        />
+                        <motion.div
+                          className="absolute top-32 left-8 right-16 h-1"
+                          style={{
+                            background: 'linear-gradient(90deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0) 100%)',
+                            borderRadius: '2px',
+                            transformOrigin: 'left'
+                          }}
+                          initial={{ opacity: 0, scaleX: 0 }}
+                          animate={{ opacity: 1, scaleX: 1 }}
+                          exit={{ opacity: 0, scaleX: 0 }}
+                          transition={{ duration: 1, delay: 0.5 }}
+                        />
+                        {/* F-Pattern vertical line */}
+                        <motion.div
+                          className="absolute top-16 left-8 w-1 h-40"
+                          style={{
+                            background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.3) 80%, rgba(255, 255, 255, 0) 100%)',
+                            borderRadius: '2px',
+                            transformOrigin: 'top'
+                          }}
+                          initial={{ opacity: 0, scaleY: 0 }}
+                          animate={{ opacity: 1, scaleY: 1 }}
+                          exit={{ opacity: 0, scaleY: 0 }}
+                          transition={{ duration: 1, delay: 1 }}
+                        />
+                        {/* Label */}
+                        <motion.div
+                          className="absolute top-12 left-12 bg-white/20 border border-white/30 rounded-lg px-3 py-1 text-xs text-white backdrop-blur-sm"
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.6, delay: 1.5 }}
+                        >
+                          F-Pattern Scanning
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Scroll Behavior */}
+                  <AnimatePresence>
+                    {unconsciousBehaviorStage >= 2 && (
+                      <>
+                        {/* Scroll indicator track */}
+                        <motion.div
+                          className="absolute right-4 top-20 bottom-20 w-1 bg-white/20 rounded-full"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.6 }}
+                        />
+                        {/* Animated scroll thumb */}
+                        <motion.div
+                          className="absolute right-3 w-3 h-8 bg-white/60 rounded-full"
+                          style={{ top: '20%' }}
+                          initial={{ opacity: 0 }}
+                          animate={{ 
+                            opacity: 1,
+                            y: [0, 100, 200, 100, 0]
+                          }}
+                          exit={{ opacity: 0 }}
+                          transition={{ 
+                            opacity: { duration: 0.6 },
+                            y: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                          }}
+                        />
+                        {/* Label */}
+                        <motion.div
+                          className="absolute top-12 right-12 bg-white/20 border border-white/30 rounded-lg px-3 py-1 text-xs text-white backdrop-blur-sm"
+                          initial={{ opacity: 0, x: 10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 10 }}
+                          transition={{ duration: 0.6, delay: 0.3 }}
+                        >
+                          Habitual Scrolling
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Thumb Gesture Heat Areas */}
+                  <AnimatePresence>
+                    {unconsciousBehaviorStage >= 3 && (
+                      <>
+                        {/* Common tap zones */}
+                        <motion.div
+                          className="absolute bottom-32 right-8 w-16 h-16 rounded-full"
+                          style={{
+                            background: 'radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0) 100%)'
+                          }}
+                          initial={{ opacity: 0, scale: 0 }}
+                          animate={{ 
+                            opacity: 1, 
+                            scale: [1, 1.2, 1],
+                          }}
+                          exit={{ opacity: 0, scale: 0 }}
+                          transition={{ 
+                            opacity: { duration: 0.6 },
+                            scale: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                          }}
+                        />
+                        <motion.div
+                          className="absolute bottom-48 left-12 w-12 h-12 rounded-full"
+                          style={{
+                            background: 'radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0) 100%)'
+                          }}
+                          initial={{ opacity: 0, scale: 0 }}
+                          animate={{ 
+                            opacity: 1, 
+                            scale: [1, 1.1, 1],
+                          }}
+                          exit={{ opacity: 0, scale: 0 }}
+                          transition={{ 
+                            opacity: { duration: 0.6, delay: 0.3 },
+                            scale: { duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }
+                          }}
+                        />
+                        {/* Label */}
+                        <motion.div
+                          className="absolute bottom-12 left-1/2 transform -translate-x-1/2 bg-white/20 border border-white/30 rounded-lg px-3 py-1 text-xs text-white backdrop-blur-sm text-center"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          transition={{ duration: 0.6, delay: 0.6 }}
+                        >
+                          <p className="font-medium mb-1">Unconscious Touch Patterns</p>
+                          <p className="text-xs opacity-80">Users tap here without thinking</p>
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
 
               {/* Thumb Flow Overlay - Mobile Only */}
               {targetId === 'ergonomics' && isMobile && thumbFlowStage > 0 && (
