@@ -81,6 +81,8 @@ function App() {
   const [historicalMistakesModalOpen, setHistoricalMistakesModalOpen] = useState(false);
   const [mobileMenuFixed, setMobileMenuFixed] = useState(false);
   const [historicalMistakesButtonClicked, setHistoricalMistakesButtonClicked] = useState(false);
+  const [menuMoving, setMenuMoving] = useState(false);
+  const [showHistoricalMistakesButton, setShowHistoricalMistakesButton] = useState(false);
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
@@ -92,7 +94,7 @@ function App() {
   ];
 
   const conversationMessages = [
-    { sender: 'Jason (Product Manager)', message: "I think the layout of the chat app's buttons are not ergonomic, they seem off best practice.", side: 'left' },
+    { sender: 'Jason (Product Manager)', message: "I think the layout of the chat app's buttons are not good", side: 'left' },
     { sender: 'Chad (CEO)', message: 'They are exactly the same as most chat apps, whatsapp, telegram, etc!', side: 'right' },
     { sender: 'Jason (Product Manager)', message: 'Yeah, but those apps have content, ours is new', side: 'left' },
     { sender: 'Chad (CEO)', message: "Ahh, you're right, how can we handle that?", side: 'right' },
@@ -568,6 +570,20 @@ function App() {
     }
   }, [conversationProgress, currentSection, dialecticsState]);
 
+  // Show Historical Mistakes button with delay
+  useEffect(() => {
+    if (currentSection === 'dialectics' && dialecticsState === 'content' && !historicalMistakesButtonClicked) {
+      setShowHistoricalMistakesButton(false);
+      const timer = setTimeout(() => {
+        setShowHistoricalMistakesButton(true);
+      }, 6000);
+      
+      return () => clearTimeout(timer);
+    } else {
+      setShowHistoricalMistakesButton(false);
+    }
+  }, [currentSection, dialecticsState, historicalMistakesButtonClicked]);
+
   return (
     <div className="bg-white font-orbitron">
       {/* --- 404 Page --- */}
@@ -672,8 +688,18 @@ function App() {
               className="z-50 flex h-8 w-8 flex-col items-center justify-center sm:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               initial={{ opacity: 0 }}
-              animate={{ opacity: step >= 6 ? 1 : 0 }}
-              transition={{ duration: 0.3 }}
+              animate={{ 
+                opacity: step >= 6 ? 1 : 0,
+                x: menuMoving ? 'calc(50vw - 50% - 16px)' : 0,
+                y: menuMoving ? 'calc(100vh - 120px)' : 0,
+                scale: menuMoving ? 1.5 : 1,
+              }}
+              transition={{ 
+                duration: menuMoving ? 1.5 : 0.3,
+                type: menuMoving ? "spring" : "tween",
+                stiffness: menuMoving ? 100 : 200,
+                damping: menuMoving ? 20 : 25
+              }}
             >
               <motion.span className={`mb-1 h-0.5 w-6 transition-colors duration-300 ${
                 shouldInvertNav() ? 'bg-white' : 'bg-black'
@@ -756,7 +782,7 @@ function App() {
 
       {/* --- Sad Face Modal Button --- */}
       <AnimatePresence>
-        {currentSection !== 'anatomy' && (
+        {currentSection !== 'anatomy' && currentSection !== 'dialectics' && (
           <motion.button
             onClick={() => {
               setModalOpenedBy('sad-face');
@@ -815,7 +841,7 @@ function App() {
                   }}
                 />
               )}
-              <span>{isLeftHanded ? 'Unbias your design' : 'Right Hand Bias Detected'}</span>
+              <span>{isLeftHanded ? 'Unbias your design' : 'Bias Detected'}</span>
             </div>
           </motion.button>
         )}
@@ -823,7 +849,7 @@ function App() {
 
             {/* --- Historical Mistakes Button (Mobile Only) --- */}
       <AnimatePresence>
-        {currentSection === 'dialectics' && dialecticsState === 'content' && isMobile && !historicalMistakesButtonClicked && (
+        {showHistoricalMistakesButton && isMobile && (
           <motion.button
             onClick={() => {
               setHistoricalMistakesModalOpen(true);
@@ -1401,20 +1427,25 @@ function App() {
                 <p className={`text-base leading-relaxed ${
                   shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
                 }`}>
-                  This is a horrible place for an interaction but it persists because someone decided that day one.
+                  This is a horrible place for a menu button but it persists because someone decided that day one.
                 </p>
                 <p className={`text-base leading-relaxed ${
                   shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
                 }`}>
-                  Over time bad decisions get habituated and are harder to fix.
+                  Over time bad UX gets habituated by users and is harder to undo.
                 </p>
               </div>
               
               <div className="flex flex-col space-y-3">
                 <button 
                   onClick={() => {
-                    setMobileMenuFixed(true);
+                    setMenuMoving(true);
                     setHistoricalMistakesModalOpen(false);
+                    // Start the animation sequence
+                    setTimeout(() => {
+                      setMobileMenuFixed(true);
+                      setMenuMoving(false);
+                    }, 1500); // Duration of the movement animation
                   }}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                     shouldInvertNav() 
