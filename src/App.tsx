@@ -739,7 +739,7 @@ function App() {
            >
                          <motion.div
                className={`rounded-lg p-6 max-w-md w-full mx-4 relative ${
-                 shouldInvertNav() ? 'bg-black text-white' : 'bg-white text-black'
+                 shouldInvertNav() ? 'bg-black text-white border border-white/20' : 'bg-white text-black'
                }`}
                initial={{ scale: 0.8, opacity: 0, y: 50 }}
                animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -942,7 +942,7 @@ function App() {
           >
             <motion.div
               className={`rounded-lg p-6 max-w-md w-full mx-4 relative ${
-                shouldInvertNav() ? 'bg-black text-white' : 'bg-white text-black'
+                shouldInvertNav() ? 'bg-black text-white border border-white/20' : 'bg-white text-black'
               }`}
               initial={{ scale: 0.8, opacity: 0, y: 50 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -1007,7 +1007,7 @@ function App() {
           >
             <motion.div
               className={`rounded-lg p-6 max-w-md w-full mx-4 relative ${
-                shouldInvertNav() ? 'bg-black text-white' : 'bg-white text-black'
+                shouldInvertNav() ? 'bg-black text-white border border-white/20' : 'bg-white text-black'
               }`}
               initial={{ scale: 0.8, opacity: 0, y: 50 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -1087,7 +1087,7 @@ function App() {
         >
             <motion.div
             className={`rounded-lg p-6 max-w-md w-full mx-4 relative ${
-                shouldInvertNav() ? 'bg-black text-white' : 'bg-white text-black'
+                shouldInvertNav() ? 'bg-black text-white border border-white/20' : 'bg-white text-black'
             }`}
             initial={{ scale: 0.8, opacity: 0, y: 50 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -1185,7 +1185,7 @@ function App() {
           >
             <motion.div
               className={`rounded-lg p-6 max-w-sm w-full mx-4 relative ${
-                shouldInvertNav() ? 'bg-black text-white' : 'bg-white text-black'
+                shouldInvertNav() ? 'bg-black text-white border border-white/20' : 'bg-white text-black'
               }`}
               initial={{ scale: 0.8, opacity: 0, y: 50 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -1994,8 +1994,8 @@ function App() {
                 </div>
               )}
 
-              <div className={`flex-1 flex items-center justify-center min-h-0 relative z-10 overflow-hidden -mt-8 sm:-mt-12`}>
-                <div className={`text-center max-w-2xl px-4 ${textColor}`}>
+              <div className={`flex-1 flex items-center justify-center min-h-0 relative z-10 overflow-hidden -mt-16 sm:-mt-12`}>
+                <div className={`text-center max-w-2xl px-10 sm:px-4 ${textColor}`}>
                 {/* Hide title for Ergonomics on desktop since it's now on the left */}
                 {!(item === 'Ergonomics' && !isMobile) && (
                 <h2 className="text-3xl sm:text-4xl font-bold">
