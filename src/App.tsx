@@ -83,10 +83,11 @@ function App() {
   const [historicalMistakesButtonClicked, setHistoricalMistakesButtonClicked] = useState(false);
   const [menuMoving, setMenuMoving] = useState(false);
   const [showHistoricalMistakesButton, setShowHistoricalMistakesButton] = useState(false);
+  const [typingIndicator, setTypingIndicator] = useState<{ visible: boolean; side: 'left' | 'right' }>({ visible: false, side: 'left' });
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
-    { type: 'quote', text: 'Think about ergonomics when designing apps and research existing patterns, it\'s a simple step that will make your product more delightful.' },
+    { type: 'quote', text: 'Think about ergonomics when designing apps. It\'s a simple step that will make your product more delightful.' },
     { type: 'image', src: '/screen-2.png', alt: 'Proux application screenshot 2' },
     { type: 'quote', text: 'Just like the doorway effect, people forget information as they move from screen to screen. Don\'t make them think' },
     { type: 'image', src: '/screen-3.png', alt: 'Proux application screenshot 3' },
@@ -95,10 +96,10 @@ function App() {
 
   const conversationMessages = [
     { sender: 'Jason (Product Manager)', message: "I think the layout of the chat app's buttons are not good", side: 'left' },
-    { sender: 'Chad (CEO)', message: 'They are exactly the same as most chat apps, whatsapp, telegram, etc!', side: 'right' },
+    { sender: 'Chad (CEO)', message: 'They are exactly the same as the popular chat apps', side: 'right' },
     { sender: 'Jason (Product Manager)', message: 'Yeah, but those apps have content, ours is new', side: 'left' },
     { sender: 'Chad (CEO)', message: "Ahh, you're right, how can we handle that?", side: 'right' },
-    { sender: 'Jason (Product Manager)', message: 'Maybe this https://protocolux.com', side: 'left' },
+    { sender: 'Jason (Product Manager)', message: 'Maybe try this guy https://protocolux.com', side: 'left' },
   ];
   const [[page, direction], setPage] = useState([0, 0]);
 
@@ -108,7 +109,7 @@ function App() {
       content: [
         {
           subheading: 'Ergonomics',
-          text: "Utilises most uncomfortable areas for primary actions during an onboarding phase where people are adding many contacts and chats."
+          text: "Chose the most uncomfortable areas for primary interactions during an onboarding phase, where people are adding many contacts and chats."
         },
         {
           subheading: 'Platform Guidelines',
@@ -122,8 +123,8 @@ function App() {
         //   text: "A lot of apps have made historical mistakes that take a while to be corrected, any new app is a good time to fix those, such as putting any actions at the top of a screen since screens moved past 3.5\""
         // },
         {
-          subheading: 'Wrong UI for a new app',
-          text: "Uses established patterns that work well for apps with content (chats and contacts) but not for a new app with no content."
+          subheading: 'Wrong UI for Onboarding',
+          text: "Uses established patterns that work well for apps with content (chats and contacts) but not for the onboarding scenario."
         }
       ]
     },
@@ -525,17 +526,36 @@ function App() {
   useEffect(() => {
     if (currentSection === 'dialectics' && dialecticsState === 'conversation') {
       setConversationProgress(0);
+      setTypingIndicator({ visible: false, side: 'left' });
       
       const animateConversation = () => {
-        for (let i = 0; i < conversationMessages.length; i++) {
+        // First message appears immediately after 1 second
+        setTimeout(() => {
+          setConversationProgress(1);
+        }, 1000);
+        
+        // Subsequent messages with typing indicators
+        for (let i = 1; i < conversationMessages.length; i++) {
+          const messageTime = 1000 + (i * 2000); // 1000, 3000, 5000, 7000
+          const typingTime = messageTime - 1000; // 1000 before each message
+          
+          // Show typing indicator
           setTimeout(() => {
+            setTypingIndicator({ 
+              visible: true, 
+              side: conversationMessages[i].side as 'left' | 'right' 
+            });
+          }, typingTime);
+          
+          // Show message and hide typing
+          setTimeout(() => {
+            setTypingIndicator({ visible: false, side: 'left' });
             setConversationProgress(i + 1);
-          }, i * 2000); // 2 seconds between each message
+          }, messageTime);
         }
       };
       
-      const timer = setTimeout(animateConversation, 1000); // Start after 1 second
-      return () => clearTimeout(timer);
+      animateConversation();
     }
   }, [currentSection, dialecticsState]);
 
@@ -576,7 +596,7 @@ function App() {
       setShowHistoricalMistakesButton(false);
       const timer = setTimeout(() => {
         setShowHistoricalMistakesButton(true);
-      }, 6000);
+      }, 4000);
       
       return () => clearTimeout(timer);
     } else {
@@ -866,9 +886,9 @@ function App() {
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-          >
-            <span>hmmm ↑</span>
-          </motion.button>
+                      >
+              <span>hmmm ↑ 🤔</span>
+            </motion.button>
         )}
       </AnimatePresence>
 
@@ -1667,16 +1687,6 @@ function App() {
                           This probably happened to you just now
                         </motion.p>
                       )}
-                      {slideIndex === 1 && (
-                        <motion.p 
-                          className="text-lg sm:text-xl font-bold text-gray-900 mt-6"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ duration: 0.5, delay: 3 }}
-                        >
-                          Getting bored? Start scrolling or continue right
-                        </motion.p>
-                      )}
                     </div>
                   )}
                 </motion.div>
@@ -2264,27 +2274,58 @@ function App() {
                 {item === 'Dialectics' && (
                   <>
                     {dialecticsState === 'conversation' ? (
-                      <div className="w-full max-w-md mx-auto">
-                        <div className="bg-gray-50 rounded-2xl p-4 max-h-[80vh] flex flex-col">
+                      <div className="w-80 sm:w-96 mx-auto">
+                        <motion.div 
+                          className="bg-gray-50 rounded-2xl p-4 flex flex-col h-[60vh] sm:h-[50vh] max-h-[420px] min-h-[300px]"
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ 
+                            opacity: { duration: 0.3 },
+                            scale: { type: "spring", stiffness: 400, damping: 25 }
+                          }}
+                        >
                           <div className="flex-1 space-y-4 overflow-y-auto">
                             <AnimatePresence>
                               {conversationMessages.slice(0, conversationProgress).map((msg, index) => (
                                 <motion.div
-                                  key={index}
+                                  key={`message-${index}`}
                                   className={`flex ${msg.side === 'right' ? 'justify-end' : 'justify-start'}`}
-                                  initial={{ opacity: 0, y: 20, scale: 0.8 }}
-                                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                  initial={{ 
+                                    opacity: 0, 
+                                    y: 30, 
+                                    scale: 0.85,
+                                    x: msg.side === 'right' ? 20 : -20 
+                                  }}
+                                  animate={{ 
+                                    opacity: 1, 
+                                    y: 0, 
+                                    scale: 1,
+                                    x: 0 
+                                  }}
+                                  transition={{ 
+                                    type: "spring", 
+                                    stiffness: 350, 
+                                    damping: 30, 
+                                    mass: 0.7
+                                  }}
+                                  layout
                                 >
                                   <div className="max-w-[80%]">
-                                    <div className={`text-xs mb-1 ${msg.side === 'right' ? 'text-right' : 'text-left'} text-gray-500`}>
-                                      {msg.sender}
-                                    </div>
-                                    <div className={`px-4 py-2 rounded-2xl text-base text-left ${
-                                      msg.side === 'right' 
-                                        ? 'bg-blue-500 text-white rounded-br-md' 
-                                        : 'bg-white text-gray-800 rounded-bl-md'
-                                    }`}>
+                                    <motion.div 
+                                      className={`px-4 py-2 rounded-2xl text-base text-left ${
+                                        msg.side === 'right' 
+                                          ? 'bg-blue-500 text-white rounded-br-md' 
+                                          : 'bg-white text-gray-800 rounded-bl-md'
+                                      }`}
+                                      initial={{ scale: 0.9, opacity: 0.8 }}
+                                      animate={{ scale: 1, opacity: 1 }}
+                                      transition={{ 
+                                        type: "spring", 
+                                        stiffness: 500, 
+                                        damping: 35,
+                                        delay: index * 0.1 + 0.2
+                                      }}
+                                    >
                                       {msg.message === 'Maybe this https://protocolux.com' ? (
                                         <>
                                           Maybe this{' '}
@@ -2298,13 +2339,84 @@ function App() {
                                       ) : (
                                         msg.message
                                       )}
-                                    </div>
+                                    </motion.div>
                                   </div>
                                 </motion.div>
                               ))}
                             </AnimatePresence>
+                            
+                            {/* Typing Indicator Container with phantom sizing */}
+                            <AnimatePresence>
+                              {typingIndicator.visible && (
+                                <div className="relative">
+                                  {/* Phantom next message for sizing */}
+                                  {conversationProgress < conversationMessages.length && (
+                                    <div 
+                                      className={`flex ${conversationMessages[conversationProgress].side === 'right' ? 'justify-end' : 'justify-start'} opacity-0 pointer-events-none`}
+                                    >
+                                      <div className="max-w-[80%]">
+                                        <div className={`px-4 py-2 rounded-2xl text-base text-left ${
+                                          conversationMessages[conversationProgress].side === 'right' 
+                                            ? 'bg-blue-500 text-white rounded-br-md' 
+                                            : 'bg-white text-gray-800 rounded-bl-md'
+                                        }`}>
+                                          {conversationMessages[conversationProgress].message === 'Maybe this https://protocolux.com' ? (
+                                            <>
+                                              Maybe this https://protocolux.com
+                                            </>
+                                          ) : (
+                                            conversationMessages[conversationProgress].message
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Actual typing indicator overlaid */}
+                                  <motion.div
+                                    className={`absolute inset-0 flex ${typingIndicator.side === 'right' ? 'justify-end' : 'justify-start'}`}
+                                    initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: -10, scale: 0.8 }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                                  >
+                                    <div className="max-w-[80%]">
+                                      <div className={`px-4 py-3 rounded-2xl ${
+                                        typingIndicator.side === 'right' 
+                                          ? 'bg-blue-500 text-white rounded-br-md' 
+                                          : 'bg-white text-gray-800 rounded-bl-md'
+                                      }`}>
+                                        <div className="flex space-x-1">
+                                          <motion.div
+                                            className={`w-2 h-2 rounded-full ${
+                                              typingIndicator.side === 'right' ? 'bg-white/70' : 'bg-gray-400'
+                                            }`}
+                                            animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+                                            transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
+                                          />
+                                          <motion.div
+                                            className={`w-2 h-2 rounded-full ${
+                                              typingIndicator.side === 'right' ? 'bg-white/70' : 'bg-gray-400'
+                                            }`}
+                                            animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+                                            transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }}
+                                          />
+                                          <motion.div
+                                            className={`w-2 h-2 rounded-full ${
+                                              typingIndicator.side === 'right' ? 'bg-white/70' : 'bg-gray-400'
+                                            }`}
+                                            animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+                                            transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }}
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </motion.div>
+                                </div>
+                              )}
+                            </AnimatePresence>
                           </div>
-                        </div>
+                        </motion.div>
                         
                         {/* Hint to click the link */}
                         <AnimatePresence>
