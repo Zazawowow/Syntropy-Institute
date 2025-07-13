@@ -75,6 +75,12 @@ function App() {
   const [breakdownModalIdentifier, setBreakdownModalIdentifier] = useState<number | null>(null);
   const [appSelectorModalOpen, setAppSelectorModalOpen] = useState(false);
   const [navLinePosition, setNavLinePosition] = useState({ x: 0, width: 0 });
+  const [dialecticsState, setDialecticsState] = useState<'conversation' | 'content'>('conversation');
+  const [conversationProgress, setConversationProgress] = useState(0);
+  const [showDialecticsHint, setShowDialecticsHint] = useState(false);
+  const [historicalMistakesModalOpen, setHistoricalMistakesModalOpen] = useState(false);
+  const [mobileMenuFixed, setMobileMenuFixed] = useState(false);
+  const [historicalMistakesButtonClicked, setHistoricalMistakesButtonClicked] = useState(false);
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
@@ -83,6 +89,14 @@ function App() {
     { type: 'quote', text: 'Just like the doorway effect, people forget information as they move from screen to screen. Don\'t make them think' },
     { type: 'image', src: '/screen-3.png', alt: 'Proux application screenshot 3' },
     { type: 'quote', text: 'Utilise habituated patterns, basically the user\'s unconscious behavior, to make the app a breeze to use' },
+  ];
+
+  const conversationMessages = [
+    { sender: 'Jason (Product Manager)', message: "I think the layout of the chat app's buttons are not ergonomic, they seem off best practice.", side: 'left' },
+    { sender: 'Chad (CEO)', message: 'They are exactly the same as most chat apps, whatsapp, telegram, etc!', side: 'right' },
+    { sender: 'Jason (Product Manager)', message: 'Yeah, but those apps have content, ours is new', side: 'left' },
+    { sender: 'Chad (CEO)', message: "Ahh, you're right, how can we handle that?", side: 'right' },
+    { sender: 'Jason (Product Manager)', message: 'Maybe this https://protocolux.com', side: 'left' },
   ];
   const [[page, direction], setPage] = useState([0, 0]);
 
@@ -417,7 +431,7 @@ function App() {
 
   // Rhodopsin progress animation
   useEffect(() => {
-    if (currentSection === 'question' || currentSection === 'dialectics') {
+    if (currentSection === 'question') {
       setRhodopsinProgress(0);
       const interval = setInterval(() => {
         setRhodopsinProgress(prev => {
@@ -504,6 +518,55 @@ function App() {
       setThumbFlowProgress(targetProgress);
     }
   }, [thumbFlowStage]);
+
+  // Conversation animation for Dialectics section
+  useEffect(() => {
+    if (currentSection === 'dialectics' && dialecticsState === 'conversation') {
+      setConversationProgress(0);
+      
+      const animateConversation = () => {
+        for (let i = 0; i < conversationMessages.length; i++) {
+          setTimeout(() => {
+            setConversationProgress(i + 1);
+          }, i * 2000); // 2 seconds between each message
+        }
+      };
+      
+      const timer = setTimeout(animateConversation, 1000); // Start after 1 second
+      return () => clearTimeout(timer);
+    }
+  }, [currentSection, dialecticsState]);
+
+  // Reset dialectics state when leaving section
+  useEffect(() => {
+    if (currentSection !== 'dialectics') {
+      setDialecticsState('conversation');
+      setConversationProgress(0);
+    }
+  }, [currentSection]);
+
+  // Auto-scroll to latest message
+  useEffect(() => {
+    if (currentSection === 'dialectics' && conversationProgress > 0) {
+      const messageContainer = document.querySelector('.conversation-messages');
+      if (messageContainer) {
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+      }
+    }
+  }, [conversationProgress, currentSection]);
+
+  // Show hint after conversation completes
+  useEffect(() => {
+    if (currentSection === 'dialectics' && conversationProgress >= conversationMessages.length && dialecticsState === 'conversation') {
+      const timer = setTimeout(() => {
+        setShowDialecticsHint(true);
+      }, 4000);
+      
+      return () => clearTimeout(timer);
+    } else {
+      setShowDialecticsHint(false);
+    }
+  }, [conversationProgress, currentSection, dialecticsState]);
 
   return (
     <div className="bg-white font-orbitron">
@@ -603,28 +666,59 @@ function App() {
             />
           </nav>
 
-          {/* Mobile Hamburger Button */}
-          <motion.button
-            className="z-30 flex h-8 w-8 flex-col items-center justify-center sm:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: step >= 6 ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <motion.span className={`mb-1 h-0.5 w-6 transition-colors duration-300 ${
-              shouldInvertNav() ? 'bg-white' : 'bg-black'
-            }`} animate={{ rotate: mobileMenuOpen ? 45 : 0, y: mobileMenuOpen ? 6 : 0 }} />
-            <motion.span className={`mb-1 h-0.5 w-6 transition-colors duration-300 ${
-              shouldInvertNav() ? 'bg-white' : 'bg-black'
-            }`} animate={{ opacity: mobileMenuOpen ? 0 : 1 }} />
-            <motion.span className={`h-0.5 w-6 transition-colors duration-300 ${
-              shouldInvertNav() ? 'bg-white' : 'bg-black'
-            }`} animate={{ rotate: mobileMenuOpen ? -45 : 0, y: mobileMenuOpen ? -6 : 0 }} />
-          </motion.button>
+          {/* Mobile Hamburger Button - Original Position */}
+          {!mobileMenuFixed && (
+            <motion.button
+              className="z-30 flex h-8 w-8 flex-col items-center justify-center sm:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: step >= 6 ? 1 : 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <motion.span className={`mb-1 h-0.5 w-6 transition-colors duration-300 ${
+                shouldInvertNav() ? 'bg-white' : 'bg-black'
+              }`} animate={{ rotate: mobileMenuOpen ? 45 : 0, y: mobileMenuOpen ? 6 : 0 }} />
+              <motion.span className={`mb-1 h-0.5 w-6 transition-colors duration-300 ${
+                shouldInvertNav() ? 'bg-white' : 'bg-black'
+              }`} animate={{ opacity: mobileMenuOpen ? 0 : 1 }} />
+              <motion.span className={`h-0.5 w-6 transition-colors duration-300 ${
+                shouldInvertNav() ? 'bg-white' : 'bg-black'
+              }`} animate={{ rotate: mobileMenuOpen ? -45 : 0, y: mobileMenuOpen ? -6 : 0 }} />
+            </motion.button>
+          )}
         </div>
-      </header>
-      
-      {/* --- Mobile Menu Overlay --- */}
+              </header>
+
+        {/* --- Mobile Hamburger Button - Fixed Position --- */}
+        <AnimatePresence>
+          {mobileMenuFixed && (
+            <motion.button
+              className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40 flex h-12 w-12 flex-col items-center justify-center rounded-full shadow-lg sm:hidden"
+              style={{
+                backgroundColor: shouldInvertNav() ? '#000000' : '#ffffff',
+              }}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              initial={{ opacity: 0, scale: 0, y: 20 }}
+              animate={{ opacity: step >= 6 ? 1 : 0, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <motion.span className={`mb-1 h-0.5 w-6 transition-colors duration-300 ${
+                shouldInvertNav() ? 'bg-white' : 'bg-black'
+              }`} animate={{ rotate: mobileMenuOpen ? 45 : 0, y: mobileMenuOpen ? 6 : 0 }} />
+              <motion.span className={`mb-1 h-0.5 w-6 transition-colors duration-300 ${
+                shouldInvertNav() ? 'bg-white' : 'bg-black'
+              }`} animate={{ opacity: mobileMenuOpen ? 0 : 1 }} />
+              <motion.span className={`h-0.5 w-6 transition-colors duration-300 ${
+                shouldInvertNav() ? 'bg-white' : 'bg-black'
+              }`} animate={{ rotate: mobileMenuOpen ? -45 : 0, y: mobileMenuOpen ? -6 : 0 }} />
+            </motion.button>
+          )}
+        </AnimatePresence>
+        
+        {/* --- Mobile Menu Overlay --- */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -723,6 +817,31 @@ function App() {
               )}
               <span>{isLeftHanded ? 'Unbias your design' : 'Right Hand Bias Detected'}</span>
             </div>
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+            {/* --- Historical Mistakes Button (Mobile Only) --- */}
+      <AnimatePresence>
+        {currentSection === 'dialectics' && dialecticsState === 'content' && isMobile && !historicalMistakesButtonClicked && (
+          <motion.button
+            onClick={() => {
+              setHistoricalMistakesModalOpen(true);
+              setHistoricalMistakesButtonClicked(true);
+            }}
+            className={`fixed top-20 right-6 z-40 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-110 hover:rotate-3 ${
+              shouldInvertNav() 
+                ? 'bg-white text-black shadow-lg hover:bg-gray-200' 
+                : 'bg-black text-white shadow-lg hover:bg-gray-800'
+            }`}
+            initial={{ opacity: 0, scale: 0, y: -20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0, y: -20 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <span>hmmm ↑</span>
           </motion.button>
         )}
       </AnimatePresence>
@@ -1229,6 +1348,82 @@ function App() {
                     <span className="text-lg font-medium">{app.name}</span>
                   </button>
                 ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* --- Historical Mistakes Modal --- */}
+      <AnimatePresence>
+        {historicalMistakesModalOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setHistoricalMistakesModalOpen(false)}
+          >
+            <motion.div
+              className={`rounded-lg p-6 max-w-md w-full mx-4 relative ${
+                shouldInvertNav() ? 'bg-black text-white border border-white/20' : 'bg-white text-black'
+              }`}
+              initial={{ scale: 0.8, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 50 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setHistoricalMistakesModalOpen(false)}
+                className={`absolute top-4 right-4 text-xl transition-colors ${
+                  shouldInvertNav() ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                ×
+              </button>
+              
+              <h2 className={`text-2xl font-bold mb-6 ${
+                shouldInvertNav() ? 'text-white' : 'text-black'
+              }`}>Historical Mistakes</h2>
+              
+              <div className="space-y-4 mb-6">
+                <p className={`text-base leading-relaxed ${
+                  shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  When we transitioned from desktop to mobile a lot of ideas were transferred that no longer made sense.
+                </p>
+                <p className={`text-base leading-relaxed ${
+                  shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  Information Hierarchy made sense on desktop but not ergonomically on mobile, this is a horrible place for an interaction but it persists because someone decided that day one. And over time bad decisions get habituated and are harder to fix.
+                </p>
+              </div>
+              
+              <div className="flex flex-col space-y-3">
+                <button 
+                  onClick={() => {
+                    setMobileMenuFixed(true);
+                    setHistoricalMistakesModalOpen(false);
+                  }}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    shouldInvertNav() 
+                      ? 'bg-white text-black hover:bg-gray-200' 
+                      : 'bg-black text-white hover:bg-gray-800'
+                  }`}
+                >
+                  Let's fix it
+                </button>
+                <button 
+                  onClick={() => setHistoricalMistakesModalOpen(false)}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors border ${
+                    shouldInvertNav() 
+                      ? 'border-white text-white hover:bg-white hover:text-black' 
+                      : 'border-black text-black hover:bg-black hover:text-white'
+                  }`}
+                >
+                  No I like it
+                </button>
               </div>
             </motion.div>
           </motion.div>
@@ -1899,11 +2094,6 @@ function App() {
                 ? 'Rhodopsin Pigments Generated' 
                 : 'Rhodopsin Pigments Generating';
             }
-            if (targetId === 'dialectics') {
-              return rhodopsinProgress >= 100 
-                ? 'Rhodopsin Pigments Decayed' 
-                : 'Rhodopsin Pigments Decaying';
-            }
             return null;
           };
           
@@ -2001,7 +2191,7 @@ function App() {
                 <h2 className="text-3xl sm:text-4xl font-bold">
                       {item === 'Question' ? 
                         (returnedFrom404 ? 'Oh, so it does matter? 🙂' : 'Does UX matter for Bitcoin & Nostr?') : 
-                       item === 'Dialectics' ? 'UX is a dialectic' :
+                       item === 'Dialectics' ? (dialecticsState === 'content' ? 'UX is a dialectic' : '') :
                        item === 'Ergonomics' && ergonomicsState === 'revealed' ? 'That second one was annoying huh?' : 
                        item}
                 </h2>
@@ -2032,14 +2222,91 @@ function App() {
                 )}
                 {item === 'Dialectics' && (
                   <>
-                    <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                      There is no "right" in user experience, there is just the length of conversation you go to in making your design decisions, based on the unique scenarios and characteristics of your product, team, and its users. Hypothesis, Antithesis, Synthesis.
-                    </p>
-                    <div className="mt-6 flex justify-center">
-                      <button className="px-8 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300">
-                        Start that conversation today
-                      </button>
-                    </div>
+                    {dialecticsState === 'conversation' ? (
+                      <div className="w-full max-w-md mx-auto">
+                        <div className="bg-gray-50 rounded-2xl p-4 max-h-[80vh] flex flex-col">
+                          <div className="flex-1 space-y-4 overflow-y-auto">
+                            <AnimatePresence>
+                              {conversationMessages.slice(0, conversationProgress).map((msg, index) => (
+                                <motion.div
+                                  key={index}
+                                  className={`flex ${msg.side === 'right' ? 'justify-end' : 'justify-start'}`}
+                                  initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                                >
+                                  <div className="max-w-[80%]">
+                                    <div className={`text-xs mb-1 ${msg.side === 'right' ? 'text-right' : 'text-left'} text-gray-500`}>
+                                      {msg.sender}
+                                    </div>
+                                    <div className={`px-4 py-2 rounded-2xl text-base text-left ${
+                                      msg.side === 'right' 
+                                        ? 'bg-blue-500 text-white rounded-br-md' 
+                                        : 'bg-white text-gray-800 rounded-bl-md'
+                                    }`}>
+                                      {msg.message === 'Maybe this https://protocolux.com' ? (
+                                        <>
+                                          Maybe this{' '}
+                                          <button
+                                            onClick={() => setDialecticsState('content')}
+                                            className="underline hover:no-underline font-medium"
+                                          >
+                                            https://protocolux.com
+                                          </button>
+                                        </>
+                                      ) : (
+                                        msg.message
+                                      )}
+                                    </div>
+                                  </div>
+                                </motion.div>
+                              ))}
+                            </AnimatePresence>
+                          </div>
+                        </div>
+                        
+                        {/* Hint to click the link */}
+                        <AnimatePresence>
+                          {showDialecticsHint && (
+                            <motion.div
+                              className="mt-4 text-center"
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: 10 }}
+                              transition={{ duration: 0.5 }}
+                            >
+                              <div className="flex flex-col items-center space-y-2">
+                                <motion.div
+                                  animate={{ y: [0, -4, 0] }}
+                                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                                  className="text-2xl"
+                                >
+                                  ↑
+                                </motion.div>
+                                <p className="text-base text-gray-600">
+                                  You're meant to click that link, maybe it wasn't obvious 😅
+                                </p>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    ) : (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                      >
+                        <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
+                          There is no "right" in user experience, there is just the length of conversation you go to in making your design decisions, based on the unique scenarios and characteristics of your product, team, and its users. Hypothesis, Antithesis, Synthesis.
+                        </p>
+                        <div className="mt-6 flex justify-center">
+                          <button className="px-8 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300">
+                            Start that conversation today
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
                   </>
                 )}
                 {item === 'Research' && (
