@@ -106,15 +106,18 @@ function App() {
         // },
         {
           subheading: 'Wrong UI for a new app',
-          text: "Uses established patterns that work well for apps with content but not for a new app with no content."
+          text: "Uses established patterns that work well for apps with content (chats and contacts)but not for a new app with no content."
         }
       ]
     },
     // Placeholders for other screens
-    2: {
-      title: 'Recognition not Recall',
-      content: [{ subheading: 'Balance Status', text: 'Users have to remember their balance as they transition to payment, it\'s fairly established to give a balance indication and reduction calculation.' }]
-    },
+          2: {
+        title: 'Recognition not Recall',
+        content: [
+          { subheading: 'Balance Status', text: 'Users have to remember their balance as they transition to payment, it\'s fairly established to give a balance indication and reduction calculation.' },
+          { subheading: 'Prefilled Amounts', text: 'As an extra convenient UX add common amounts to execute and "max" which is often a use case' }
+        ]
+      },
     4: {
       title: 'Breakdown: Screen 3',
       content: [
