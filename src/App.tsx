@@ -88,6 +88,7 @@ function App() {
   const [unconsciousBehaviorStage, setUnconsciousBehaviorStage] = useState(0);
   const [researchCompleting, setResearchCompleting] = useState(false);
   const [researchTextVisible, setResearchTextVisible] = useState(false);
+  const [researchProgress, setResearchProgress] = useState(0);
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
@@ -605,8 +606,12 @@ function App() {
       setUnconsciousBehaviorStage(0);
       setResearchCompleting(false);
       setResearchTextVisible(false);
+      setResearchProgress(0);
       
       const timers: NodeJS.Timeout[] = [];
+      
+      // Start loader immediately
+      timers.push(setTimeout(() => setResearchCompleting(true), 100));
       
       // Stage 1: Show F-pattern eye tracking immediately
       timers.push(setTimeout(() => setUnconsciousBehaviorStage(1), 500));
@@ -617,17 +622,12 @@ function App() {
       // Stage 3: Show thumb gesture patterns after 6 seconds
       timers.push(setTimeout(() => setUnconsciousBehaviorStage(3), 6000));
       
-      // Show "Research completing" loader after animations finish (10 seconds)
+      // Hide animations and loader, show text after 10 seconds
       timers.push(setTimeout(() => {
         setUnconsciousBehaviorStage(0); // Hide behavior patterns
-        setResearchCompleting(true);
+        setResearchCompleting(false); // Hide loader
+        setResearchTextVisible(true); // Show final text
       }, 10000));
-      
-      // Show final text after loader completes (13 seconds total)
-      timers.push(setTimeout(() => {
-        setResearchCompleting(false);
-        setResearchTextVisible(true);
-      }, 13000));
       
       return () => {
         timers.forEach(clearTimeout);
@@ -636,8 +636,27 @@ function App() {
       setUnconsciousBehaviorStage(0);
       setResearchCompleting(false);
       setResearchTextVisible(false);
+      setResearchProgress(0);
     }
   }, [currentSection]);
+
+  // Research progress animation
+  useEffect(() => {
+    if (currentSection === 'research' && researchCompleting) {
+      setResearchProgress(0);
+      const interval = setInterval(() => {
+        setResearchProgress(prev => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            return 100;
+          }
+          return prev + (100 / (9.9 * 10)); // 9.9 seconds, 10 updates per second
+        });
+      }, 100);
+
+      return () => clearInterval(interval);
+    }
+  }, [currentSection, researchCompleting]);
 
 
 
@@ -2663,57 +2682,15 @@ function App() {
                     )}
                   </>
                 )}
-                {item === 'Research' && (
-                  <>
-                    {/* Research completing loader */}
-                    {researchCompleting && (
-                      <motion.div
-                        className="mt-4 flex flex-col items-center"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 20 }}
-                        transition={{ duration: 0.6 }}
-                      >
-                        <motion.div
-                          className={`text-lg font-medium mb-4 ${textColor}`}
-                          animate={{ 
-                            opacity: [0.7, 1, 0.7]
-                          }}
-                          transition={{
-                            duration: 1.5,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
-                        >
-                          Research completing...
-                        </motion.div>
-                        <div className={`w-32 h-1 rounded-full overflow-hidden ${
-                          isEven ? 'bg-gray-800' : 'bg-gray-200'
-                        }`}>
-                          <motion.div
-                            className={`h-full rounded-full ${
-                              isEven ? 'bg-gray-600' : 'bg-gray-500'
-                            }`}
-                            initial={{ width: '0%' }}
-                            animate={{ width: '100%' }}
-                            transition={{ duration: 3, ease: 'easeInOut' }}
-                          />
-                        </div>
-                      </motion.div>
-                    )}
-                    
-                    {/* Final research text */}
-                    {researchTextVisible && (
-                      <motion.p 
-                        className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8 }}
-                      >
-                        Deep interviews with target and non target archetypes. Day in the life and affinity mapping, and most simply, understanding the user before they even use your product so it's tuned to their habits, unconciouss interactions, and expectations.
-                      </motion.p>
-                    )}
-                  </>
+                {item === 'Research' && researchTextVisible && (
+                  <motion.p 
+                    className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8 }}
+                  >
+                    Deep interviews with target and non target archetypes. Day in the life and affinity mapping, and most simply, understanding the user before they even use your product so it's tuned to their habits, unconciouss interactions, and expectations.
+                  </motion.p>
                 )}
                 {item === 'Testing' && (
                   <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
@@ -3066,6 +3043,90 @@ function App() {
                 )}
                 </div>
               </div>
+
+              {/* Research Progress Loader - Center Overlay */}
+              {targetId === 'research' && researchCompleting && (
+                <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                  <motion.div
+                    className="flex flex-col items-center"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.6 }}
+                  >
+                    <motion.div
+                      className={`text-xl font-medium mb-6 ${textColor}`}
+                      animate={{ 
+                        opacity: [0.7, 1, 0.7]
+                      }}
+                      transition={{
+                        duration: 1.5,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    >
+                      Research in progress...
+                    </motion.div>
+                    
+                    {/* Circular progress */}
+                    <div className="relative w-32 h-32 mb-4">
+                      {/* Background circle */}
+                      <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
+                        <circle
+                          cx="60"
+                          cy="60"
+                          r="54"
+                          stroke={isEven ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.2)"}
+                          strokeWidth="4"
+                          fill="none"
+                        />
+                        {/* Progress circle */}
+                        <motion.circle
+                          cx="60"
+                          cy="60"
+                          r="54"
+                          stroke={isEven ? "rgba(255, 255, 255, 0.8)" : "rgba(0, 0, 0, 0.8)"}
+                          strokeWidth="4"
+                          fill="none"
+                          strokeLinecap="round"
+                          initial={{ strokeDasharray: "0 339.3" }}
+                          animate={{ 
+                            strokeDasharray: `${(researchProgress / 100) * 339.3} 339.3` 
+                          }}
+                          transition={{ duration: 0.1, ease: "linear" }}
+                        />
+                      </svg>
+                      
+                      {/* Percentage text */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <motion.span
+                          className={`text-2xl font-bold ${textColor}`}
+                          key={Math.floor(researchProgress)}
+                          initial={{ scale: 0.8 }}
+                          animate={{ scale: 1 }}
+                          transition={{ duration: 0.1 }}
+                        >
+                          {Math.round(researchProgress)}%
+                        </motion.span>
+                      </div>
+                    </div>
+                    
+                    <motion.div
+                      className={`text-sm ${subTextColor} text-center max-w-xs`}
+                      animate={{ 
+                        opacity: [0.6, 0.9, 0.6]
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    >
+                      Analyzing unconscious behaviors and interaction patterns
+                    </motion.div>
+                  </motion.div>
+                </div>
+              )}
 
               {/* Unconscious Behavior Patterns - Research Section */}
               {targetId === 'research' && unconsciousBehaviorStage > 0 && (
