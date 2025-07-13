@@ -89,6 +89,8 @@ function App() {
   const [researchCompleting, setResearchCompleting] = useState(false);
   const [researchTextVisible, setResearchTextVisible] = useState(false);
   const [researchProgress, setResearchProgress] = useState(0);
+  const [researchPatternModalOpen, setResearchPatternModalOpen] = useState(false);
+  const [selectedResearchPattern, setSelectedResearchPattern] = useState<'f-pattern' | 'scroll' | 'touch' | null>(null);
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
@@ -107,6 +109,63 @@ function App() {
     { sender: 'Jason (Product Manager)', message: 'Maybe try this guy https://protocolux.com', side: 'left' },
   ];
   const [[page, direction], setPage] = useState([0, 0]);
+
+  const researchPatternContent: { [key: string]: { title: string; content: { subheading: string; text: string; hasLink?: boolean; linkText?: string; linkUrl?: string }[] } } = {
+    'f-pattern': {
+      title: 'F-Pattern Scanning',
+      content: [
+        {
+          subheading: 'Eye Movement Research',
+          text: 'Users typically scan web content in an F-shaped pattern: two horizontal stripes followed by a vertical stripe on the left side.'
+        },
+        {
+          subheading: 'Design Implications',
+          text: 'Place important information in these high-attention areas. The most important content should be at the top, with secondary info in the middle horizontal stripe.'
+        },
+        {
+          subheading: 'Jakob Nielsen Study',
+          text: 'Originally discovered through eyetracking studies of 232 users looking at thousands of web pages.',
+          hasLink: true,
+          linkText: 'Jakob Nielsen Study',
+          linkUrl: 'https://www.nngroup.com/articles/f-shaped-pattern-reading-web-content/'
+        }
+      ]
+    },
+    'scroll': {
+      title: 'Habitual Scrolling',
+      content: [
+        {
+          subheading: 'Automatic Behavior',
+          text: 'Users scroll unconsciously, often without registering content. This behavior is deeply ingrained from years of mobile and web usage.'
+        },
+        {
+          subheading: 'Content Strategy',
+          text: 'Design for the scroll. Break content into digestible chunks and use visual cues to encourage engagement at key points.'
+        },
+        {
+          subheading: 'Attention Spans',
+          text: 'Users spend 80% of their time looking at information above the fold, but will scroll if initially engaged.'
+        }
+      ]
+    },
+    'touch': {
+      title: 'Touch & Click Patterns',
+      content: [
+        {
+          subheading: 'Muscle Memory',
+          text: 'Users develop muscle memory for common interactions. They tap or click in predictable areas without conscious thought.'
+        },
+        {
+          subheading: 'Heat Mapping',
+          text: 'Interaction heatmaps reveal consistent patterns across users, showing preferred zones based on device type, hand position, and screen size.'
+        },
+        {
+          subheading: 'Ergonomic Design',
+          text: 'Leverage these patterns to reduce cognitive load and improve user experience through intuitive interface placement for both mobile and desktop.'
+        }
+      ]
+    }
+  };
 
   const breakdownModalContent: { [key: number]: { title: string; content: { subheading: string; text: string; hasLink?: boolean; linkText?: string; linkUrl?: string }[] } } = {
     0: {
@@ -613,21 +672,24 @@ function App() {
       // Start loader immediately
       timers.push(setTimeout(() => setResearchCompleting(true), 100));
       
-      // Stage 1: Show F-pattern eye tracking immediately
+      // Stage 1: Show F-pattern eye tracking
       timers.push(setTimeout(() => setUnconsciousBehaviorStage(1), 500));
       
-      // Stage 2: Show scroll behavior after 3 seconds
-      timers.push(setTimeout(() => setUnconsciousBehaviorStage(2), 3000));
+      // Stage 1 fade out and Stage 2 fade in: Show scroll behavior
+      timers.push(setTimeout(() => setUnconsciousBehaviorStage(2), 3500));
       
-      // Stage 3: Show thumb gesture patterns after 6 seconds
-      timers.push(setTimeout(() => setUnconsciousBehaviorStage(3), 6000));
+      // Stage 2 fade out and Stage 3 fade in: Show touch patterns
+      timers.push(setTimeout(() => setUnconsciousBehaviorStage(3), 6500));
       
-      // Hide animations and loader, show text after 10 seconds
+      // Stage 3 fade out
+      timers.push(setTimeout(() => setUnconsciousBehaviorStage(4), 9000));
+      
+      // Hide loader and show text after all patterns complete
       timers.push(setTimeout(() => {
-        setUnconsciousBehaviorStage(0); // Hide behavior patterns
+        setUnconsciousBehaviorStage(0); // Reset stage
         setResearchCompleting(false); // Hide loader
         setResearchTextVisible(true); // Show final text
-      }, 10000));
+      }, 10500));
       
       return () => {
         timers.forEach(clearTimeout);
@@ -650,7 +712,7 @@ function App() {
             clearInterval(interval);
             return 100;
           }
-          return prev + (100 / (9.9 * 10)); // 9.9 seconds, 10 updates per second
+          return prev + (100 / (10 * 10)); // 10 seconds, 10 updates per second
         });
       }, 100);
 
@@ -1554,6 +1616,99 @@ function App() {
                   }`}
                 >
                   No I like it
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* --- Research Pattern Modal --- */}
+      <AnimatePresence>
+        {researchPatternModalOpen && selectedResearchPattern && researchPatternContent[selectedResearchPattern] && (
+          <motion.div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => {
+              setResearchPatternModalOpen(false);
+              setSelectedResearchPattern(null);
+            }}
+          >
+            <motion.div
+              className={`rounded-lg p-6 max-w-md w-full mx-4 relative ${
+                shouldInvertNav() ? 'bg-black text-white border border-white/20' : 'bg-white text-black'
+              }`}
+              initial={{ scale: 0.8, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 50 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => {
+                  setResearchPatternModalOpen(false);
+                  setSelectedResearchPattern(null);
+                }}
+                className={`absolute top-4 right-4 text-xl transition-colors ${
+                  shouldInvertNav() ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                ×
+              </button>
+              
+              <h2 className={`text-2xl font-bold mb-6 ${
+                shouldInvertNav() ? 'text-white' : 'text-black'
+              }`}>{researchPatternContent[selectedResearchPattern].title}</h2>
+              
+              <div className="space-y-4">
+                {researchPatternContent[selectedResearchPattern].content.map((item, index) => (
+                  <div key={index}>
+                    <h3 className={`text-lg font-bold mb-2 ${
+                      shouldInvertNav() ? 'text-white' : 'text-black'
+                    }`}>
+                      {item.subheading}
+                    </h3>
+                    <p className={`text-sm leading-relaxed ${
+                      shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                    }`}>
+                      {item.hasLink && item.linkText && item.linkUrl ? (
+                        <>
+                          {item.text.split(item.linkText)[0]}
+                          <a 
+                            href={item.linkUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className={`underline hover:no-underline transition-all ${
+                              shouldInvertNav() ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'
+                            }`}
+                          >
+                            {item.linkText}
+                          </a>
+                          {item.text.split(item.linkText)[1]}
+                        </>
+                      ) : (
+                        item.text
+                      )}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="flex justify-center mt-6">
+                <button 
+                  onClick={() => {
+                    setResearchPatternModalOpen(false);
+                    setSelectedResearchPattern(null);
+                  }}
+                  className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
+                    shouldInvertNav() 
+                      ? 'bg-white text-black hover:bg-gray-200' 
+                      : 'bg-black text-white hover:bg-gray-800'
+                  }`}
+                >
+                  Got it
                 </button>
               </div>
             </motion.div>
@@ -2683,14 +2838,63 @@ function App() {
                   </>
                 )}
                 {item === 'Research' && researchTextVisible && (
-                  <motion.p 
-                    className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}
+                  <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
                   >
-                    Deep interviews with target and non target archetypes. Day in the life and affinity mapping, and most simply, understanding the user before they even use your product so it's tuned to their habits, unconciouss interactions, and expectations.
-                  </motion.p>
+                    <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
+                      Deep interviews with target and non target archetypes. Day in the life and affinity mapping, and most simply, understanding the user before they even use your product so it's tuned to their habits, unconciouss interactions, and expectations.
+                    </p>
+                    
+                    {/* Research Pattern Badges */}
+                    <motion.div 
+                      className="flex flex-wrap justify-center gap-3 mt-6"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: 0.4 }}
+                    >
+                      <button
+                        onClick={() => {
+                          setSelectedResearchPattern('f-pattern');
+                          setResearchPatternModalOpen(true);
+                        }}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 ${
+                          shouldInvertNav() 
+                            ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20' 
+                            : 'bg-black/10 text-black hover:bg-black/20 border border-black/20'
+                        }`}
+                      >
+                        F-Pattern Scanning
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelectedResearchPattern('scroll');
+                          setResearchPatternModalOpen(true);
+                        }}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 ${
+                          shouldInvertNav() 
+                            ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20' 
+                            : 'bg-black/10 text-black hover:bg-black/20 border border-black/20'
+                        }`}
+                      >
+                        Habitual Scrolling
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelectedResearchPattern('touch');
+                          setResearchPatternModalOpen(true);
+                        }}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 ${
+                          shouldInvertNav() 
+                            ? 'bg-white/10 text-white hover:bg-white/20 border border-white/20' 
+                            : 'bg-black/10 text-black hover:bg-black/20 border border-black/20'
+                        }`}
+                      >
+{isMobile ? 'Touch' : 'Click'} Patterns
+                      </button>
+                    </motion.div>
+                  </motion.div>
                 )}
                 {item === 'Testing' && (
                   <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
@@ -3048,82 +3252,92 @@ function App() {
               {targetId === 'research' && researchCompleting && (
                 <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
                   <motion.div
-                    className="flex flex-col items-center"
-                    initial={{ opacity: 0, scale: 0.9 }}
+                    className={`px-6 py-4 rounded-lg backdrop-blur-sm`}
+                    style={{
+                      backgroundColor: isEven 
+                        ? `rgba(255, 255, 255, 0.1)` 
+                        : `rgba(0, 0, 0, 0.1)`,
+                    }}
+                    initial={{ opacity: 1, scale: 1 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.6 }}
+                    transition={{ duration: 0 }}
                   >
-                    <motion.div
-                      className={`text-xl font-medium mb-6 ${textColor}`}
-                      animate={{ 
-                        opacity: [0.7, 1, 0.7]
-                      }}
-                      transition={{
-                        duration: 1.5,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                    >
-                      Research in progress...
-                    </motion.div>
-                    
-                    {/* Circular progress */}
-                    <div className="relative w-32 h-32 mb-4">
-                      {/* Background circle */}
-                      <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
-                        <circle
-                          cx="60"
-                          cy="60"
-                          r="54"
-                          stroke={isEven ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.2)"}
-                          strokeWidth="4"
-                          fill="none"
-                        />
-                        {/* Progress circle */}
-                        <motion.circle
-                          cx="60"
-                          cy="60"
-                          r="54"
-                          stroke={isEven ? "rgba(255, 255, 255, 0.8)" : "rgba(0, 0, 0, 0.8)"}
-                          strokeWidth="4"
-                          fill="none"
-                          strokeLinecap="round"
-                          initial={{ strokeDasharray: "0 339.3" }}
-                          animate={{ 
-                            strokeDasharray: `${(researchProgress / 100) * 339.3} 339.3` 
-                          }}
-                          transition={{ duration: 0.1, ease: "linear" }}
-                        />
-                      </svg>
-                      
-                      {/* Percentage text */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <motion.span
-                          className={`text-2xl font-bold ${textColor}`}
-                          key={Math.floor(researchProgress)}
-                          initial={{ scale: 0.8 }}
-                          animate={{ scale: 1 }}
-                          transition={{ duration: 0.1 }}
+                    <div className="flex flex-col items-center">
+                      {/* Dynamic Pattern Label */}
+                      <AnimatePresence mode="wait">
+                        <motion.div 
+                          key={unconsciousBehaviorStage}
+                          className="text-white text-sm font-medium mb-3"
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          transition={{ duration: 0.3 }}
                         >
-                          {Math.round(researchProgress)}%
-                        </motion.span>
+                          {unconsciousBehaviorStage === 1 && "Analyzing F-Pattern Scanning"}
+                          {unconsciousBehaviorStage === 2 && "Analyzing Habitual Scrolling"}
+                          {unconsciousBehaviorStage === 3 && `Analyzing ${isMobile ? 'Touch' : 'Click'} Patterns`}
+                          {unconsciousBehaviorStage === 4 && "Analysis Complete"}
+                          {unconsciousBehaviorStage === 0 && "Research in progress..."}
+                        </motion.div>
+                      </AnimatePresence>
+                      
+                      <motion.div 
+                        className={`text-sm mb-2`}
+                        style={{
+                          color: isEven 
+                            ? `rgba(156, 163, 175, 0.9)` 
+                            : `rgba(55, 65, 81, 0.9)`
+                        }}
+                        animate={{ 
+                          opacity: [1, 0.6, 1]
+                        }}
+                        transition={{ 
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        Desktop Research
+                      </motion.div>
+                      <div 
+                        className={`w-32 h-2 rounded-full overflow-hidden`}
+                        style={{
+                          backgroundColor: isEven 
+                            ? `rgba(17, 24, 39, 0.7)` 
+                            : `rgba(229, 231, 235, 0.7)`
+                        }}
+                      >
+                        <motion.div
+                          className={`h-full rounded-full`}
+                          style={{
+                            backgroundColor: isEven 
+                              ? `rgba(75, 85, 99, 0.8)` 
+                              : `rgba(75, 85, 99, 0.8)`
+                          }}
+                          initial={{ width: '0%' }}
+                          animate={{ width: `${Math.max(0, researchProgress)}%` }}
+                          transition={{ duration: 0.1, ease: 'linear' }}
+                        />
                       </div>
+                      <motion.div 
+                        className={`text-xs mt-1`}
+                        style={{
+                          color: isEven 
+                            ? `rgba(156, 163, 175, 0.8)` 
+                            : `rgba(55, 65, 81, 0.8)`
+                        }}
+                        animate={{ 
+                          opacity: [1, 0.7, 1]
+                        }}
+                        transition={{ 
+                          duration: 1.5,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        {Math.round(Math.max(0, researchProgress))}% Complete
+                      </motion.div>
                     </div>
-                    
-                    <motion.div
-                      className={`text-sm ${subTextColor} text-center max-w-xs`}
-                      animate={{ 
-                        opacity: [0.6, 0.9, 0.6]
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                    >
-                      Analyzing unconscious behaviors and interaction patterns
-                    </motion.div>
                   </motion.div>
                 </div>
               )}
@@ -3133,11 +3347,11 @@ function App() {
                 <div className="absolute inset-0 pointer-events-none z-0">
                   {/* F-Pattern Eye Tracking */}
                   <AnimatePresence>
-                    {unconsciousBehaviorStage >= 1 && (
+                    {unconsciousBehaviorStage === 1 && (
                       <>
                         {/* F-Pattern horizontal lines */}
                         <motion.div
-                          className="absolute top-16 left-8 right-8 h-1"
+                          className="absolute top-16 left-8 right-8 sm:left-16 sm:right-16 md:left-24 md:right-24 lg:left-32 lg:right-32 h-1"
                           style={{
                             background: 'linear-gradient(90deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 60%, rgba(255, 255, 255, 0) 100%)',
                             borderRadius: '2px',
@@ -3149,7 +3363,7 @@ function App() {
                           transition={{ duration: 1 }}
                         />
                         <motion.div
-                          className="absolute top-32 left-8 right-16 h-1"
+                          className="absolute top-32 left-8 right-16 sm:left-16 sm:right-24 md:left-24 md:right-32 lg:left-32 lg:right-40 h-1"
                           style={{
                             background: 'linear-gradient(90deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0) 100%)',
                             borderRadius: '2px',
@@ -3162,7 +3376,7 @@ function App() {
                         />
                         {/* F-Pattern vertical line */}
                         <motion.div
-                          className="absolute top-16 left-8 w-1 h-40"
+                          className="absolute top-16 left-8 sm:left-16 md:left-24 lg:left-32 w-1 h-40"
                           style={{
                             background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.3) 80%, rgba(255, 255, 255, 0) 100%)',
                             borderRadius: '2px',
@@ -3173,27 +3387,18 @@ function App() {
                           exit={{ opacity: 0, scaleY: 0 }}
                           transition={{ duration: 1, delay: 1 }}
                         />
-                        {/* Label */}
-                        <motion.div
-                          className="absolute top-12 left-12 bg-white/20 border border-white/30 rounded-lg px-3 py-1 text-xs text-white backdrop-blur-sm"
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          transition={{ duration: 0.6, delay: 1.5 }}
-                        >
-                          F-Pattern Scanning
-                        </motion.div>
+
                       </>
                     )}
                   </AnimatePresence>
 
                   {/* Scroll Behavior */}
                   <AnimatePresence>
-                    {unconsciousBehaviorStage >= 2 && (
+                    {unconsciousBehaviorStage === 2 && (
                       <>
                         {/* Scroll indicator track */}
                         <motion.div
-                          className="absolute right-4 top-20 bottom-20 w-1 bg-white/20 rounded-full"
+                          className="absolute right-4 sm:right-12 md:right-20 lg:right-28 top-20 bottom-20 w-1 bg-white/20 rounded-full"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
@@ -3201,7 +3406,7 @@ function App() {
                         />
                         {/* Animated scroll thumb */}
                         <motion.div
-                          className="absolute right-3 w-3 h-8 bg-white/60 rounded-full"
+                          className="absolute right-3 sm:right-11 md:right-19 lg:right-27 w-3 h-8 bg-white/60 rounded-full"
                           style={{ top: '20%' }}
                           initial={{ opacity: 0 }}
                           animate={{ 
@@ -3214,67 +3419,183 @@ function App() {
                             y: { duration: 3, repeat: Infinity, ease: "easeInOut" }
                           }}
                         />
-                        {/* Label */}
-                        <motion.div
-                          className="absolute top-12 right-12 bg-white/20 border border-white/30 rounded-lg px-3 py-1 text-xs text-white backdrop-blur-sm"
-                          initial={{ opacity: 0, x: 10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: 10 }}
-                          transition={{ duration: 0.6, delay: 0.3 }}
-                        >
-                          Habitual Scrolling
-                        </motion.div>
+
                       </>
                     )}
                   </AnimatePresence>
 
-                  {/* Thumb Gesture Heat Areas */}
+                  {/* Fingerprint Touch Patterns */}
                   <AnimatePresence>
-                    {unconsciousBehaviorStage >= 3 && (
+                    {unconsciousBehaviorStage === 3 && (
                       <>
-                        {/* Common tap zones */}
+                        {/* Primary fingerprint zone with graphic on left */}
                         <motion.div
-                          className="absolute bottom-32 right-8 w-16 h-16 rounded-full"
-                          style={{
-                            background: 'radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0) 100%)'
-                          }}
+                          className="absolute right-8 sm:right-16 md:right-24 lg:right-32 flex items-start space-x-3"
+                          style={{ bottom: 'calc(32rem - 100px)' }} // 100px higher than before
                           initial={{ opacity: 0, scale: 0 }}
                           animate={{ 
                             opacity: 1, 
-                            scale: [1, 1.2, 1],
+                            scale: [1, 1.02, 1],
                           }}
                           exit={{ opacity: 0, scale: 0 }}
                           transition={{ 
                             opacity: { duration: 0.6 },
                             scale: { duration: 2, repeat: Infinity, ease: "easeInOut" }
                           }}
-                        />
+                        >
+                          {/* Realistic Fingerprint Graphic */}
+                          <motion.div
+                            className="w-12 h-12 flex-shrink-0"
+                            animate={{ 
+                              scale: [1, 1.05, 1],
+                            }}
+                            transition={{ 
+                              duration: 2.5, 
+                              repeat: Infinity, 
+                              ease: "easeInOut" 
+                            }}
+                          >
+                            <svg
+                              width="48"
+                              height="48"
+                              viewBox="0 0 48 48"
+                              className="opacity-80"
+                            >
+                              {/* Realistic fingerprint ridges using curved paths */}
+                              <path d="M24 6 C16 6, 10 12, 10 20 C10 28, 16 34, 24 34 C32 34, 38 28, 38 20 C38 12, 32 6, 24 6" 
+                                    stroke="rgba(255,255,255,0.7)" strokeWidth="0.8" fill="none"/>
+                              <path d="M24 8 C17 8, 12 13, 12 20 C12 27, 17 32, 24 32 C31 32, 36 27, 36 20 C36 13, 31 8, 24 8" 
+                                    stroke="rgba(255,255,255,0.6)" strokeWidth="0.7" fill="none"/>
+                              <path d="M24 10 C18 10, 14 14, 14 20 C14 26, 18 30, 24 30 C30 30, 34 26, 34 20 C34 14, 30 10, 24 10" 
+                                    stroke="rgba(255,255,255,0.5)" strokeWidth="0.6" fill="none"/>
+                              <path d="M24 12 C19 12, 16 15, 16 20 C16 25, 19 28, 24 28 C29 28, 32 25, 32 20 C32 15, 29 12, 24 12" 
+                                    stroke="rgba(255,255,255,0.4)" strokeWidth="0.5" fill="none"/>
+                              <path d="M24 14 C20 14, 18 16, 18 20 C18 24, 20 26, 24 26 C28 26, 30 24, 30 20 C30 16, 28 14, 24 14" 
+                                    stroke="rgba(255,255,255,0.4)" strokeWidth="0.4" fill="none"/>
+                              <path d="M24 16 C21 16, 20 17, 20 20 C20 23, 21 24, 24 24 C27 24, 28 23, 28 20 C28 17, 27 16, 24 16" 
+                                    stroke="rgba(255,255,255,0.3)" strokeWidth="0.3" fill="none"/>
+                              
+                              {/* Characteristic fingerprint features */}
+                              <path d="M15 18 Q18 16, 21 18" stroke="rgba(255,255,255,0.5)" strokeWidth="0.4" fill="none"/>
+                              <path d="M27 18 Q30 16, 33 18" stroke="rgba(255,255,255,0.5)" strokeWidth="0.4" fill="none"/>
+                              <path d="M19 22 Q21 24, 23 22" stroke="rgba(255,255,255,0.4)" strokeWidth="0.3" fill="none"/>
+                              <path d="M25 22 Q27 24, 29 22" stroke="rgba(255,255,255,0.4)" strokeWidth="0.3" fill="none"/>
+                              
+                              {/* Central core */}
+                              <circle cx="24" cy="20" r="2" stroke="rgba(255,255,255,0.6)" strokeWidth="0.5" fill="none"/>
+                              <circle cx="24" cy="20" r="1" fill="rgba(255,255,255,0.4)"/>
+                            </svg>
+                          </motion.div>
+                          
+                          {/* Text Container */}
+                          <motion.div
+                            className="rounded-lg backdrop-blur-sm border border-white/20 px-3 py-2 max-w-[140px]"
+                            style={{
+                              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                            }}
+                          >
+                                                         <motion.p 
+                               className="font-medium text-white text-xs leading-tight"
+                               animate={{ opacity: [1, 0.7, 1] }}
+                               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                             >
+                               {isMobile ? 'Primary Touch Zone' : 'Primary Click Patterns'}
+                             </motion.p>
+                             <p className="text-xs text-white/70 mt-1">{isMobile ? 'High frequency taps' : 'Common click areas'}</p>
+                          </motion.div>
+                        </motion.div>
+                        
+                        {/* Secondary fingerprint zone */}
                         <motion.div
-                          className="absolute bottom-48 left-12 w-12 h-12 rounded-full"
-                          style={{
-                            background: 'radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0) 100%)'
-                          }}
+                          className="absolute left-8 sm:left-16 md:left-24 lg:left-32 flex items-start space-x-2"
+                          style={{ bottom: 'calc(48rem - 100px)' }} // 100px higher than before
                           initial={{ opacity: 0, scale: 0 }}
                           animate={{ 
                             opacity: 1, 
-                            scale: [1, 1.1, 1],
+                            scale: [1, 1.02, 1],
                           }}
                           exit={{ opacity: 0, scale: 0 }}
                           transition={{ 
                             opacity: { duration: 0.6, delay: 0.3 },
                             scale: { duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }
                           }}
-                        />
-                        {/* Label */}
+                        >
+                          {/* Smaller Fingerprint Graphic */}
+                          <motion.div
+                            className="w-10 h-10 flex-shrink-0"
+                            animate={{ 
+                              scale: [1, 1.03, 1],
+                            }}
+                            transition={{ 
+                              duration: 2.8, 
+                              repeat: Infinity, 
+                              ease: "easeInOut",
+                              delay: 0.3
+                            }}
+                          >
+                            <svg
+                              width="40"
+                              height="40"
+                              viewBox="0 0 40 40"
+                              className="opacity-70"
+                            >
+                              {/* Smaller fingerprint ridges */}
+                              <path d="M20 5 C14 5, 9 10, 9 16 C9 22, 14 27, 20 27 C26 27, 31 22, 31 16 C31 10, 26 5, 20 5" 
+                                    stroke="rgba(255,255,255,0.6)" strokeWidth="0.7" fill="none"/>
+                              <path d="M20 7 C15 7, 11 11, 11 16 C11 21, 15 25, 20 25 C25 25, 29 21, 29 16 C29 11, 25 7, 20 7" 
+                                    stroke="rgba(255,255,255,0.5)" strokeWidth="0.6" fill="none"/>
+                              <path d="M20 9 C16 9, 13 12, 13 16 C13 20, 16 23, 20 23 C24 23, 27 20, 27 16 C27 12, 24 9, 20 9" 
+                                    stroke="rgba(255,255,255,0.4)" strokeWidth="0.5" fill="none"/>
+                              <path d="M20 11 C17 11, 15 13, 15 16 C15 19, 17 21, 20 21 C23 21, 25 19, 25 16 C25 13, 23 11, 20 11" 
+                                    stroke="rgba(255,255,255,0.4)" strokeWidth="0.4" fill="none"/>
+                              
+                              {/* Central features */}
+                              <path d="M13 14 Q15 13, 17 14" stroke="rgba(255,255,255,0.4)" strokeWidth="0.3" fill="none"/>
+                              <path d="M23 14 Q25 13, 27 14" stroke="rgba(255,255,255,0.4)" strokeWidth="0.3" fill="none"/>
+                              
+                              <circle cx="20" cy="16" r="1.5" stroke="rgba(255,255,255,0.5)" strokeWidth="0.4" fill="none"/>
+                              <circle cx="20" cy="16" r="0.8" fill="rgba(255,255,255,0.3)"/>
+                            </svg>
+                          </motion.div>
+                          
+                          {/* Text Container */}
+                          <motion.div
+                            className="rounded-lg backdrop-blur-sm border border-white/15 px-2 py-1.5 max-w-[120px]"
+                            style={{
+                              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                            }}
+                          >
+                                                         <motion.p 
+                               className="font-medium text-white text-xs leading-tight"
+                               animate={{ opacity: [1, 0.7, 1] }}
+                               transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+                             >
+                               Secondary Zone
+                             </motion.p>
+                             <p className="text-xs text-white/60 mt-0.5">{isMobile ? 'Occasional taps' : 'Less frequent clicks'}</p>
+                          </motion.div>
+                        </motion.div>
+                        
+                        {/* Main Label - Repositioned */}
                         <motion.div
-                          className="absolute bottom-12 left-1/2 transform -translate-x-1/2 bg-white/20 border border-white/30 rounded-lg px-3 py-1 text-xs text-white backdrop-blur-sm text-center"
+                          className="absolute left-1/2 transform -translate-x-1/2 rounded-lg backdrop-blur-sm border border-white/20 px-4 py-3 text-center"
+                          style={{ 
+                            bottom: 'calc(12rem - 100px)', // 100px higher than before
+                            backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                          }}
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 10 }}
-                          transition={{ duration: 0.6, delay: 0.6 }}
+                          transition={{ duration: 0.6, delay: 0.8 }}
                         >
-                          <p className="font-medium mb-1">Unconscious Touch Patterns</p>
-                          <p className="text-xs opacity-80">Users tap here without thinking</p>
+                          <motion.p 
+                            className="font-medium mb-1 text-white text-sm"
+                            animate={{ opacity: [1, 0.7, 1] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                          >
+                            {isMobile ? 'Unconscious Touch Patterns' : 'Primary Click Patterns'}
+                          </motion.p>
+                          <p className="text-xs text-white/80">{isMobile ? 'Users tap here without thinking' : 'Users click here most frequently'}</p>
                         </motion.div>
                       </>
                     )}
