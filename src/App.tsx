@@ -107,7 +107,7 @@ function App() {
         // },
         {
           subheading: 'Wrong UI for a new app',
-          text: "Uses established patterns that work well for apps with content (chats and contacts)but not for a new app with no content."
+          text: "Uses established patterns that work well for apps with content (chats and contacts) but not for a new app with no content."
         }
       ]
     },
@@ -216,13 +216,22 @@ function App() {
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, targetId: string) => {
     e.preventDefault();
     
-    // Use appropriate scroll behavior - auto on mobile for better snap behavior, smooth on desktop
-    document.getElementById(targetId)?.scrollIntoView({ 
-      behavior: isMobile ? 'auto' : 'smooth',
-      block: 'start'
-    });
-    
-    setMobileMenuOpen(false);
+    if (mobileMenuOpen) {
+      // On mobile menu, close menu first, then scroll after animation
+      setMobileMenuOpen(false);
+      setTimeout(() => {
+        document.getElementById(targetId)?.scrollIntoView({ 
+          behavior: 'auto',
+          block: 'start'
+        });
+      }, 300); // Wait for menu close animation
+    } else {
+      // Desktop or mobile menu already closed
+      document.getElementById(targetId)?.scrollIntoView({ 
+        behavior: isMobile ? 'auto' : 'smooth',
+        block: 'start'
+      });
+    }
   };
 
   // Determine if current section should have inverted nav colors
@@ -809,13 +818,18 @@ function App() {
                    </p>
                  </div>
                  
-                 <div>
+                                  <div>
                    <h3 className={`text-lg font-bold mb-2 ${
                      shouldInvertNav() ? 'text-white' : 'text-black'
-                       }`}>Halation</h3>
+                   }`}>Halation</h3>
                    <p className={`text-sm leading-relaxed ${
                      shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
-                   }`}>
+                   }`}
+                   style={{
+                     textShadow: shouldInvertNav() 
+                       ? '0 0 8px rgba(255, 255, 255, 0.6), 0 0 12px rgba(255, 255, 255, 0.4)' 
+                       : '0 0 8px rgba(0, 0, 0, 0.6), 0 0 12px rgba(0, 0, 0, 0.4)'
+                   }}>
                      Pure white on pure black or vice versa causes halation, which is a glow behind the text making it hard to read.
                    </p>
                  </div>
@@ -1980,7 +1994,7 @@ function App() {
                 </div>
               )}
 
-              <div className={`flex-1 flex items-center justify-center min-h-0 relative z-10 overflow-hidden`}>
+              <div className={`flex-1 flex items-center justify-center min-h-0 relative z-10 overflow-hidden -mt-8 sm:-mt-12`}>
                 <div className={`text-center max-w-2xl px-4 ${textColor}`}>
                 {/* Hide title for Ergonomics on desktop since it's now on the left */}
                 {!(item === 'Ergonomics' && !isMobile) && (
@@ -2003,7 +2017,7 @@ function App() {
                         </button>
                         <button
                           onClick={() => handleQuestionAnswer('no')}
-                          className="px-8 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300 min-w-[100px]"
+                          className="px-8 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300 min-w-[100px] border border-gray-200/50"
                         >
                           No
                         </button>
