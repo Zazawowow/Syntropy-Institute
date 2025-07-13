@@ -1929,7 +1929,7 @@ function App() {
                 </div>
               )}
 
-              <div className={`flex-1 flex items-center justify-center min-h-0 relative z-10`}>
+              <div className={`flex-1 flex items-center justify-center min-h-0 relative z-10 overflow-hidden`}>
                 <div className={`text-center max-w-2xl px-4 ${textColor}`}>
                 {/* Hide title for Ergonomics on desktop since it's now on the left */}
                 {!(item === 'Ergonomics' && !isMobile) && (
@@ -2011,7 +2011,7 @@ function App() {
                               }}
                             >
                               {ergonomicsState === 'revealed' && isMobile
-                                ? 'Mmm, Comfortable 😊'
+                                ? (thumbFlowStage >= 5 ? 'Thumbflow Key' : 'Mmm, Comfortable 😊')
                                 : ergonomicsState === 'moved' 
                                   ? 'Ok, Now Tap Me'
                                   : 'Tap me'
@@ -2159,7 +2159,7 @@ function App() {
                                     }}
                                   >
                                     {ergonomicsState === 'revealed'
-                                      ? 'Mmm, Comfortable 😊'
+                                      ? (thumbFlowStage >= 5 ? 'Thumbflow Key' : 'Mmm, Comfortable 😊')
                                       : ergonomicsState === 'moved' 
                                         ? 'Ok, Now Click Me'
                                         : 'Click me'
@@ -2417,7 +2417,7 @@ function App() {
               )}
               
                             {/* Bottom Container - For consistent spacing across all sections */}
-              <div className="pb-8 flex justify-center relative z-10">
+              <div className="absolute bottom-0 left-0 right-0 pb-8 flex justify-center z-10">
                 <div className="h-24 flex items-center">
                   {/* Empty space to maintain consistent layout across all sections */}
                   <div className="h-full w-full"></div>
