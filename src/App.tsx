@@ -95,7 +95,7 @@ function App() {
         },
         {
           subheading: 'Platform Guidelines',
-          text: "Ignored Apple's ubiquitous use of a tab bar to support navigation",
+          text: "Ignored Apple's ubiquitous use of a tab bar to support navigation.",
           hasLink: true,
           linkText: "tab bar",
           linkUrl: "https://developer.apple.com/design/human-interface-guidelines/tab-bars"
@@ -115,11 +115,11 @@ function App() {
         title: 'Recognition not Recall',
         content: [
           { subheading: 'Balance Status', text: 'Users have to remember their balance as they transition to payment, it\'s fairly established to give a balance indication and reduction calculation.' },
-          { subheading: 'Prefilled Amounts', text: 'As an extra convenient UX add common amounts to execute and "max" which is often a use case' }
+          { subheading: 'Prefilled Amounts', text: 'As an extra convenience, add common amounts to execute and a "max" button, which is often a user scenario' }
         ]
       },
     4: {
-      title: 'Breakdown: Screen 3',
+      title: 'Strike Breakdown',
       content: [
         {
           subheading: 'Desktop Patterns',
@@ -127,7 +127,7 @@ function App() {
         },
         {
           subheading: 'Tab Bar',
-          text: 'The tab bar is underutilized as well, meaning there is no reason for the account icon to be top right, very unergonomic, it can adhere to best practive and be in the tab bar.'
+          text: 'There is plenty of space for account (established pattern), the scanner (though tab bar actions are off-guideline). Activity is fine as it\'s a less used action.'
         }
       ]
     }
