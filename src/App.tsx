@@ -198,7 +198,7 @@ function App() {
     1000, 1000, 2000, 1000, 1500, 1000, 500, 500, 500, 500, 500, 500,
   ];
 
-  const navItems = ['Anatomy', 'Question', 'Research', 'Testing', 'Ergonomics', 'Prediction'];
+  const navItems = ['Anatomy', 'Question', 'Dialectics', 'Research', 'Ergonomics', 'Testing', 'Prediction'];
 
   // Detect if mobile for button text  
   const [isMobile, setIsMobile] = useState(false);
@@ -236,7 +236,7 @@ function App() {
 
   // Determine if current section should have inverted nav colors
   const shouldInvertNav = () => {
-    const blackSections = ['question', 'testing', 'prediction']; // These are the black sections (even indexed sections from navItems.slice(1))
+    const blackSections = ['question', 'research', 'testing']; // These are the black sections
     return blackSections.includes(currentSection);
   };
 
@@ -353,7 +353,7 @@ function App() {
   // Scroll listener to detect current section
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['anatomy', 'question', 'research', 'testing', 'ergonomics', 'prediction'];
+      const sections = ['anatomy', 'question', 'dialectics', 'research', 'ergonomics', 'testing', 'prediction'];
       const scrollPosition = window.scrollY + window.innerHeight / 2;
 
       for (const sectionId of sections) {
@@ -369,7 +369,7 @@ function App() {
             // Update theme color for mobile status bar
             const metaThemeColor = document.getElementById('theme-color-meta') as HTMLMetaElement;
             if (metaThemeColor) {
-              const blackSections = ['question', 'testing', 'prediction'];
+              const blackSections = ['question', 'research', 'testing'];
               const isBlackSection = blackSections.includes(sectionId);
               metaThemeColor.setAttribute('content', isBlackSection ? '#000000' : '#ffffff');
             }
@@ -417,7 +417,7 @@ function App() {
 
   // Rhodopsin progress animation
   useEffect(() => {
-    if (currentSection === 'question' || currentSection === 'research') {
+    if (currentSection === 'question' || currentSection === 'dialectics') {
       setRhodopsinProgress(0);
       const interval = setInterval(() => {
         setRhodopsinProgress(prev => {
@@ -1899,7 +1899,7 @@ function App() {
                 ? 'Rhodopsin Pigments Generated' 
                 : 'Rhodopsin Pigments Generating';
             }
-            if (targetId === 'research') {
+            if (targetId === 'dialectics') {
               return rhodopsinProgress >= 100 
                 ? 'Rhodopsin Pigments Decayed' 
                 : 'Rhodopsin Pigments Decaying';
@@ -2001,6 +2001,7 @@ function App() {
                 <h2 className="text-3xl sm:text-4xl font-bold">
                       {item === 'Question' ? 
                         (returnedFrom404 ? 'Oh, so it does matter? 🙂' : 'Does UX matter for Bitcoin & Nostr?') : 
+                       item === 'Dialectics' ? 'UX is a dialectic' :
                        item === 'Ergonomics' && ergonomicsState === 'revealed' ? 'That second one was annoying huh?' : 
                        item}
                 </h2>
@@ -2027,6 +2028,18 @@ function App() {
                         That's a lovely answer. I'm here for the people who answer yes and want to get a head start with the UX for their websites and applications rather than having to fix things retroactively. Though I'm more than happy to do that too.
                   </p>
                     ) : null}
+                  </>
+                )}
+                {item === 'Dialectics' && (
+                  <>
+                    <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
+                      There is no "right" in user experience, there is just the length of conversation you go to in making your design decisions, based on the unique scenarios and characteristics of your product, team, and its users. Hypothesis, Antithesis, Synthesis.
+                    </p>
+                    <div className="mt-6 flex justify-center">
+                      <button className="px-8 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300">
+                        Start that conversation today
+                      </button>
+                    </div>
                   </>
                 )}
                 {item === 'Research' && (
