@@ -2274,9 +2274,9 @@ function App() {
                 {item === 'Dialectics' && (
                   <>
                     {dialecticsState === 'conversation' ? (
-                      <div className="w-80 sm:w-96 mx-auto">
+                      <div className="w-96 sm:w-[420px] mx-auto">
                         <motion.div 
-                          className="bg-gray-50 rounded-2xl p-4 flex flex-col h-[60vh] sm:h-[50vh] max-h-[420px] min-h-[300px]"
+                          className="bg-gray-50 rounded-2xl p-4 flex flex-col h-[70vh] sm:h-[50vh] max-h-[420px] min-h-[320px]"
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ 
@@ -2292,21 +2292,15 @@ function App() {
                                   className={`flex ${msg.side === 'right' ? 'justify-end' : 'justify-start'}`}
                                   initial={{ 
                                     opacity: 0, 
-                                    y: 30, 
-                                    scale: 0.85,
-                                    x: msg.side === 'right' ? 20 : -20 
+                                    y: 10
                                   }}
                                   animate={{ 
                                     opacity: 1, 
-                                    y: 0, 
-                                    scale: 1,
-                                    x: 0 
+                                    y: 0
                                   }}
                                   transition={{ 
-                                    type: "spring", 
-                                    stiffness: 350, 
-                                    damping: 30, 
-                                    mass: 0.7
+                                    duration: 0.4,
+                                    ease: "easeOut"
                                   }}
                                   layout
                                 >
@@ -2317,21 +2311,20 @@ function App() {
                                           ? 'bg-blue-500 text-white rounded-br-md' 
                                           : 'bg-white text-gray-800 rounded-bl-md'
                                       }`}
-                                      initial={{ scale: 0.9, opacity: 0.8 }}
-                                      animate={{ scale: 1, opacity: 1 }}
+                                      initial={{ opacity: 0 }}
+                                      animate={{ opacity: 1 }}
                                       transition={{ 
-                                        type: "spring", 
-                                        stiffness: 500, 
-                                        damping: 35,
-                                        delay: index * 0.1 + 0.2
+                                        duration: 0.3,
+                                        ease: "easeOut",
+                                        delay: 0.1
                                       }}
                                     >
-                                      {msg.message === 'Maybe this https://protocolux.com' ? (
+                                      {msg.message === 'Maybe try this guy https://protocolux.com' ? (
                                         <>
-                                          Maybe this{' '}
+                                          Maybe try this guy{' '}
                                           <button
                                             onClick={() => setDialecticsState('content')}
-                                            className="underline hover:no-underline font-medium"
+                                            className="underline hover:no-underline font-medium text-blue-600 hover:text-blue-700"
                                           >
                                             https://protocolux.com
                                           </button>
@@ -2360,9 +2353,9 @@ function App() {
                                             ? 'bg-blue-500 text-white rounded-br-md' 
                                             : 'bg-white text-gray-800 rounded-bl-md'
                                         }`}>
-                                          {conversationMessages[conversationProgress].message === 'Maybe this https://protocolux.com' ? (
+                                          {conversationMessages[conversationProgress].message === 'Maybe try this guy https://protocolux.com' ? (
                                             <>
-                                              Maybe this https://protocolux.com
+                                              Maybe try this guy https://protocolux.com
                                             </>
                                           ) : (
                                             conversationMessages[conversationProgress].message
