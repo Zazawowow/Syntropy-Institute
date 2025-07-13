@@ -74,6 +74,7 @@ function App() {
   const [biasModalOpen, setBiasModalOpen] = useState(false);
   const [breakdownModalIdentifier, setBreakdownModalIdentifier] = useState<number | null>(null);
   const [appSelectorModalOpen, setAppSelectorModalOpen] = useState(false);
+  const [navLinePosition, setNavLinePosition] = useState({ x: 0, width: 0 });
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
@@ -376,6 +377,35 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Update navigation line position when current section changes
+  useEffect(() => {
+    const updateNavLinePosition = () => {
+      const activeNavItem = document.getElementById(`nav-${currentSection}`);
+      const navContainer = activeNavItem?.parentElement;
+      
+      if (activeNavItem && navContainer) {
+        const navRect = navContainer.getBoundingClientRect();
+        const itemRect = activeNavItem.getBoundingClientRect();
+        
+        setNavLinePosition({
+          x: itemRect.left - navRect.left,
+          width: itemRect.width
+        });
+      }
+    };
+
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(updateNavLinePosition, 50);
+    
+    // Also update on resize
+    window.addEventListener('resize', updateNavLinePosition);
+    
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', updateNavLinePosition);
+    };
+  }, [currentSection]);
+
   // Rhodopsin progress animation
   useEffect(() => {
     if (currentSection === 'question' || currentSection === 'research') {
@@ -521,7 +551,7 @@ function App() {
           {/* Desktop Navigation */}
           <nav className={`hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 ${
             shouldInvertNav() ? 'text-white' : 'text-black'
-          }`}>
+          } relative`}>
             {navItems.map((item, index) => {
               const appearStep = 6 + index;
               const targetId = item.toLowerCase().replace(/\s+/g, '-');
@@ -533,14 +563,35 @@ function App() {
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: step >= appearStep ? 1 : 0, y: step >= appearStep ? 0 : -20 }}
                   transition={{ duration: 0.3 }}
-                  className={`cursor-pointer transition-colors ${
+                  className={`cursor-pointer transition-colors relative ${
                     shouldInvertNav() ? 'hover:text-gray-300' : 'hover:text-gray-600'
                   }`}
+                  id={`nav-${targetId}`}
                 >
                   {item}
                 </motion.a>
               );
             })}
+            
+            {/* Animated underline */}
+            <motion.div
+              className={`absolute bottom-0 h-0.5 transition-colors duration-300 ${
+                shouldInvertNav() ? 'bg-white' : 'bg-black'
+              }`}
+              initial={{ opacity: 0, width: 0 }}
+              animate={{
+                opacity: step >= 6 ? 1 : 0,
+                x: navLinePosition.x,
+                width: navLinePosition.width
+              }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 300, 
+                damping: 30,
+                opacity: { duration: 0.3 }
+              }}
+              style={{ bottom: '-8px' }}
+            />
           </nav>
 
           {/* Mobile Hamburger Button */}
