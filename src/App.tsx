@@ -669,7 +669,7 @@ function App() {
           {/* Mobile Hamburger Button - Original Position */}
           {!mobileMenuFixed && (
             <motion.button
-              className="z-30 flex h-8 w-8 flex-col items-center justify-center sm:hidden"
+              className="z-50 flex h-8 w-8 flex-col items-center justify-center sm:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               initial={{ opacity: 0 }}
               animate={{ opacity: step >= 6 ? 1 : 0 }}
@@ -693,7 +693,7 @@ function App() {
         <AnimatePresence>
           {mobileMenuFixed && (
             <motion.button
-              className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40 flex h-12 w-12 flex-col items-center justify-center rounded-full shadow-lg sm:hidden"
+              className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 flex h-12 w-12 flex-col items-center justify-center rounded-full shadow-lg sm:hidden"
               style={{
                 backgroundColor: shouldInvertNav() ? '#000000' : '#ffffff',
               }}
@@ -1396,7 +1396,17 @@ function App() {
                 <p className={`text-base leading-relaxed ${
                   shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
                 }`}>
-                  Information Hierarchy made sense on desktop but not ergonomically on mobile, this is a horrible place for an interaction but it persists because someone decided that day one. And over time bad decisions get habituated and are harder to fix.
+                  Information Hierarchy made sense on desktop but not ergonomically on mobile, especially after screens got bigger than 3.5".
+                </p>
+                <p className={`text-base leading-relaxed ${
+                  shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  This is a horrible place for an interaction but it persists because someone decided that day one.
+                </p>
+                <p className={`text-base leading-relaxed ${
+                  shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  Over time bad decisions get habituated and are harder to fix.
                 </p>
               </div>
               
