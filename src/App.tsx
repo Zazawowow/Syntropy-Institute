@@ -85,32 +85,35 @@ function App() {
   ];
   const [[page, direction], setPage] = useState([0, 0]);
 
-  const breakdownModalContent: { [key: number]: { title: string; content: { subheading: string; text: string }[] } } = {
+  const breakdownModalContent: { [key: number]: { title: string; content: { subheading: string; text: string; hasLink?: boolean; linkText?: string; linkUrl?: string }[] } } = {
     0: {
-      title: 'Breakdown',
+      title: 'Whitenoise Breakdown',
       content: [
         {
           subheading: 'Ergonomics',
-          text: "Utilises most uncomfortable areas for primary actions during an onboarding phase where people are adding many contacts and chats they don't have access to."
+          text: "Utilises most uncomfortable areas for primary actions during an onboarding phase where people are adding many contacts and chats."
         },
         {
           subheading: 'Platform Guidelines',
-          text: "Ignored Apple's ubiquitous use of a navigation bar"
+          text: "Ignored Apple's ubiquitous use of a tab bar to support navigation",
+          hasLink: true,
+          linkText: "tab bar",
+          linkUrl: "https://developer.apple.com/design/human-interface-guidelines/tab-bars"
         },
         // {
         //   subheading: 'Historical Mistakes',
         //   text: "A lot of apps have made historical mistakes that take a while to be corrected, any new app is a good time to fix those, such as putting any actions at the top of a screen since screens moved past 3.5\""
         // },
         {
-          subheading: 'App Journey',
-          text: "Uses established patterns that work well for apps with content but not a new app with 3no content."
+          subheading: 'Wrong UI for a new app',
+          text: "Uses established patterns that work well for apps with content but not for a new app with no content."
         }
       ]
     },
     // Placeholders for other screens
     2: {
-      title: 'Breakdown: Screen 2',
-      content: [{ subheading: 'Placeholder', text: 'Content for the second screen modal goes here.' }]
+      title: 'Recognition not Recall',
+      content: [{ subheading: 'Balance Status', text: 'Users have to remember their balance as they transition to payment, it\'s fairly established to give a balance indication and reduction calculation.' }]
     },
     4: {
       title: 'Breakdown: Screen 3',
@@ -1062,7 +1065,24 @@ function App() {
                     <p className={`text-sm leading-relaxed ${
                         shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
                     }`}>
-                    {item.text}
+                    {item.hasLink && item.linkText && item.linkUrl ? (
+                      <>
+                        {item.text.split(item.linkText)[0]}
+                        <a 
+                          href={item.linkUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className={`underline hover:no-underline transition-all ${
+                            shouldInvertNav() ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'
+                          }`}
+                        >
+                          {item.linkText}
+                        </a>
+                        {item.text.split(item.linkText)[1]}
+                      </>
+                    ) : (
+                      item.text
+                    )}
                     </p>
                 </div>
                 ))}
