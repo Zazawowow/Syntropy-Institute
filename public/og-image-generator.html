@@ -155,25 +155,25 @@
         <h1 style="text-align: center; color: #1a1a1a; font-weight: 900; margin-bottom: 40px;">PROUX Social Image Generator</h1>
         <p style="text-align: center; color: #666; font-size: 18px; margin-bottom: 40px;">Generate professional social media images for the PROUX UX platform</p>
         
-        <div class="controls">
+    <div class="controls">
             <button onclick="downloadImage('og-image', 'proux-og-image.png')" id="og-btn">Download OG Image (1200×630)</button>
             <button onclick="downloadImage('twitter-image', 'proux-twitter-image.png')" id="twitter-btn">Download Twitter Image (1200×675)</button>
             <div class="download-status" id="download-status"></div>
+    </div>
+    
+    <!-- Open Graph Image (1200x630) -->
+    <div id="og-image" class="og-image">
+        <div class="content">
+            <h1 class="title">PROUX</h1>
+            <p class="subtitle">Bitcoin & Nostr User Experience</p>
         </div>
-        
-        <!-- Open Graph Image (1200x630) -->
-        <div id="og-image" class="og-image">
-            <div class="content">
-                <h1 class="title">PROUX</h1>
-                <p class="subtitle">Bitcoin & Nostr User Experience</p>
-            </div>
-        </div>
-        
-        <!-- Twitter Image (1200x675) -->
-        <div id="twitter-image" class="twitter-image">
-            <div class="content">
-                <h1 class="title">PROUX</h1>
-                <p class="subtitle">Bitcoin & Nostr User Experience</p>
+    </div>
+    
+    <!-- Twitter Image (1200x675) -->
+    <div id="twitter-image" class="twitter-image">
+        <div class="content">
+            <h1 class="title">PROUX</h1>
+            <p class="subtitle">Bitcoin & Nostr User Experience</p>
             </div>
         </div>
 
@@ -207,9 +207,9 @@
             button.textContent = 'Generating...';
             status.textContent = 'Preparing download...';
             
-            html2canvas(element, {
-                scale: 1,
-                useCORS: true,
+                html2canvas(element, {
+                    scale: 1,
+                    useCORS: true,
                 allowTaint: true,
                 backgroundColor: null,
                 removeContainer: true,
@@ -220,11 +220,11 @@
                         clonedElement.style.fontFamily = 'Inter, -apple-system, BlinkMacSystemFont, sans-serif';
                     }
                 }
-            }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = filename;
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = filename;
                 link.href = canvas.toDataURL('image/png', 1.0);
-                link.click();
+                    link.click();
                 
                 // Reset button
                 button.disabled = false;

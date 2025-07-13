@@ -77,13 +77,14 @@ function App() {
   const [navLinePosition, setNavLinePosition] = useState({ x: 0, width: 0 });
   const [dialecticsState, setDialecticsState] = useState<'conversation' | 'content'>('conversation');
   const [conversationProgress, setConversationProgress] = useState(0);
-  const [showDialecticsHint, setShowDialecticsHint] = useState(false);
   const [historicalMistakesModalOpen, setHistoricalMistakesModalOpen] = useState(false);
   const [mobileMenuFixed, setMobileMenuFixed] = useState(false);
   const [historicalMistakesButtonClicked, setHistoricalMistakesButtonClicked] = useState(false);
   const [menuMoving, setMenuMoving] = useState(false);
   const [showHistoricalMistakesButton, setShowHistoricalMistakesButton] = useState(false);
   const [typingIndicator, setTypingIndicator] = useState<{ visible: boolean; side: 'left' | 'right' }>({ visible: false, side: 'left' });
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [contactForm, setContactForm] = useState({ email: '', subject: '', message: '' });
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
@@ -95,8 +96,8 @@ function App() {
   ];
 
   const conversationMessages = [
-    { sender: 'Jason (Product Manager)', message: "I think the layout of the chat app's buttons are not good", side: 'left' },
-    { sender: 'Chad (CEO)', message: 'They are exactly the same as the popular chat apps', side: 'right' },
+    { sender: 'Jason (Product Manager)', message: "I think the layout of our app's buttons is not good", side: 'left' },
+    { sender: 'Chad (CEO)', message: 'They are exactly the same as the popular apps', side: 'right' },
     { sender: 'Jason (Product Manager)', message: 'Yeah, but those apps have content, ours is new', side: 'left' },
     { sender: 'Chad (CEO)', message: "Ahh, you're right, how can we handle that?", side: 'right' },
     { sender: 'Jason (Product Manager)', message: 'Maybe try this guy https://protocolux.com', side: 'left' },
@@ -306,6 +307,23 @@ function App() {
     setModalOpen(false);
     setPathwayDiagramClicked(false);
     setModalOpenedBy(null);
+  };
+
+  // Handle contact form submission
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Create mailto link (fallback if no backend)
+    const subject = encodeURIComponent(contactForm.subject || 'Contact from PROUX');
+    const body = encodeURIComponent(`Email: ${contactForm.email}\n\nMessage:\n${contactForm.message}`);
+    const mailtoLink = `mailto:zaza@zazawowow.co.uk?subject=${subject}&body=${body}`;
+    
+    // Open mailto link
+    window.location.href = mailtoLink;
+    
+    // Reset form and close modal
+    setContactForm({ email: '', subject: '', message: '' });
+    setContactModalOpen(false);
   };
 
   // Helper function to get thumb flow zone styles based on handedness
@@ -577,18 +595,7 @@ function App() {
     }
   }, [conversationProgress, currentSection]);
 
-  // Show hint after conversation completes
-  useEffect(() => {
-    if (currentSection === 'dialectics' && conversationProgress >= conversationMessages.length && dialecticsState === 'conversation') {
-      const timer = setTimeout(() => {
-        setShowDialecticsHint(true);
-      }, 4000);
-      
-      return () => clearTimeout(timer);
-    } else {
-      setShowDialecticsHint(false);
-    }
-  }, [conversationProgress, currentSection, dialecticsState]);
+
 
   // Show Historical Mistakes button with delay
   useEffect(() => {
@@ -1008,7 +1015,7 @@ function App() {
                    <>
                    <button 
                      onClick={handleModalClose}
-                     className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                     className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
                        shouldInvertNav() 
                          ? 'bg-white text-black hover:bg-gray-200' 
                          : 'bg-black text-white hover:bg-gray-800'
@@ -1069,7 +1076,7 @@ function App() {
                    <>
                  <button 
                    onClick={handleModalClose}
-                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                   className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
                      shouldInvertNav() 
                        ? 'bg-white text-black hover:bg-gray-200' 
                        : 'bg-black text-white hover:bg-gray-800'
@@ -1079,7 +1086,7 @@ function App() {
                  </button>
                  <button 
                    onClick={handleModalClose}
-                   className={`px-4 py-2 rounded-lg font-medium transition-colors border ${
+                   className={`w-full px-4 py-2 rounded-lg font-medium transition-colors border ${
                      shouldInvertNav() 
                        ? 'border-white text-white hover:bg-white hover:text-black' 
                        : 'border-black text-black hover:bg-black hover:text-white'
@@ -1146,7 +1153,7 @@ function App() {
               <div className="flex justify-center">
                 <button 
                   onClick={handleRhodopsinModalClose}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
                     shouldInvertNav() 
                       ? 'bg-white text-black hover:bg-gray-200' 
                       : 'bg-black text-white hover:bg-gray-800'
@@ -1213,7 +1220,7 @@ function App() {
                              <div className="flex flex-col space-y-3">
                  <button 
                    onClick={() => setBiasModalOpen(false)}
-                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                   className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
                      shouldInvertNav() 
                        ? 'bg-white text-black hover:bg-gray-200' 
                        : 'bg-black text-white hover:bg-gray-800'
@@ -1226,7 +1233,7 @@ function App() {
                      setIsLeftHanded(false);
                      setBiasModalOpen(false);
                    }}
-                   className={`px-4 py-2 rounded-lg font-medium transition-colors border ${
+                   className={`w-full px-4 py-2 rounded-lg font-medium transition-colors border ${
                      shouldInvertNav() 
                        ? 'border-white text-white hover:bg-white hover:text-black' 
                        : 'border-black text-black hover:bg-black hover:text-white'
@@ -1324,7 +1331,7 @@ function App() {
             <div className="flex justify-center mt-6">
                 <button 
                 onClick={() => setBreakdownModalIdentifier(null)}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
                     shouldInvertNav() 
                     ? 'bg-white text-black hover:bg-gray-200' 
                     : 'bg-black text-white hover:bg-gray-800'
@@ -1467,7 +1474,7 @@ function App() {
                       setMenuMoving(false);
                     }, 1500); // Duration of the movement animation
                   }}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
                     shouldInvertNav() 
                       ? 'bg-white text-black hover:bg-gray-200' 
                       : 'bg-black text-white hover:bg-gray-800'
@@ -1477,7 +1484,7 @@ function App() {
                 </button>
                 <button 
                   onClick={() => setHistoricalMistakesModalOpen(false)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors border ${
+                  className={`w-full px-4 py-2 rounded-lg font-medium transition-colors border ${
                     shouldInvertNav() 
                       ? 'border-white text-white hover:bg-white hover:text-black' 
                       : 'border-black text-black hover:bg-black hover:text-white'
@@ -1485,6 +1492,160 @@ function App() {
                 >
                   No I like it
                 </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* --- Contact Form Modal --- */}
+      <AnimatePresence>
+        {contactModalOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setContactModalOpen(false)}
+          >
+            <motion.div
+              className={`rounded-lg p-6 max-w-md w-full mx-4 relative ${
+                shouldInvertNav() ? 'bg-black text-white border border-white/20' : 'bg-white text-black'
+              }`}
+              initial={{ scale: 0.8, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 50 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setContactModalOpen(false)}
+                className={`absolute top-4 right-4 text-xl transition-colors ${
+                  shouldInvertNav() ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                ×
+              </button>
+              
+              <h2 className={`text-2xl font-bold mb-6 ${
+                shouldInvertNav() ? 'text-white' : 'text-black'
+              }`}>Get In Touch</h2>
+              
+              <form onSubmit={handleContactSubmit} className="space-y-4">
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${
+                    shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                  }`}>
+                    Email:
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={contactForm.email}
+                    onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
+                    className={`w-full px-3 py-2 rounded-lg border transition-colors ${
+                      shouldInvertNav() 
+                        ? 'bg-gray-800 border-gray-600 text-white focus:border-gray-400' 
+                        : 'bg-white border-gray-300 text-black focus:border-gray-500'
+                    } focus:outline-none`}
+                  />
+                </div>
+                
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${
+                    shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                  }`}>
+                    Subject:
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={contactForm.subject}
+                    onChange={(e) => setContactForm(prev => ({ ...prev, subject: e.target.value }))}
+                    className={`w-full px-3 py-2 rounded-lg border transition-colors ${
+                      shouldInvertNav() 
+                        ? 'bg-gray-800 border-gray-600 text-white focus:border-gray-400' 
+                        : 'bg-white border-gray-300 text-black focus:border-gray-500'
+                    } focus:outline-none`}
+                  />
+                </div>
+                
+                <div>
+                  <label className={`block text-sm font-medium mb-2 ${
+                    shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                  }`}>
+                    Message:
+                  </label>
+                  <textarea
+                    required
+                    rows={4}
+                    value={contactForm.message}
+                    onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
+                    className={`w-full px-3 py-2 rounded-lg border transition-colors resize-none ${
+                      shouldInvertNav() 
+                        ? 'bg-gray-800 border-gray-600 text-white focus:border-gray-400' 
+                        : 'bg-white border-gray-300 text-black focus:border-gray-500'
+                    } focus:outline-none`}
+                  />
+                </div>
+                
+                <div className="flex justify-center mt-6">
+                  <button 
+                    type="submit"
+                    className={`w-full px-6 py-2 rounded-lg font-medium transition-colors ${
+                      shouldInvertNav() 
+                        ? 'bg-white text-black hover:bg-gray-200' 
+                        : 'bg-black text-white hover:bg-gray-800'
+                    }`}
+                  >
+                    Send
+                  </button>
+                </div>
+              </form>
+              
+              {/* Or connect on section */}
+              <div className={`mt-6 pt-6 border-t ${
+                shouldInvertNav() ? 'border-white/20' : 'border-gray-200'
+              }`}>
+                <div className="flex flex-col items-center space-y-3">
+                  <div className="flex items-center space-x-3">
+                    <a
+                      href="https://signal.me/#eu/OMbm5xbezTKaXYSUqblWuZfrd-FTo5oFGJiQ6WLcx21N0wAi2IxOLqHmZIjrEsj1"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
+                        shouldInvertNav() 
+                          ? 'text-gray-300 hover:text-white hover:bg-gray-800' 
+                          : 'text-gray-700 hover:text-black hover:bg-gray-100'
+                      }`}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12.002 2C6.486 2 2.002 6.484 2.002 12s4.484 10 9.998 10c1.386 0 2.711-.301 3.906-.838L20.002 22l-.838-4.096C20.301 16.711 22.002 14.386 22.002 12c0-5.516-4.484-10-9.998-10zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"/>
+                        <path d="M7.002 10h2v6h-2zm4 0h2v6h-2zm4 0h2v6h-2z"/>
+                      </svg>
+                      <span className="text-sm font-medium">Signal</span>
+                    </a>
+                    <a
+                      href="https://primal.net/Zazawowow"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
+                        shouldInvertNav() 
+                          ? 'text-gray-300 hover:text-white hover:bg-gray-800' 
+                          : 'text-gray-700 hover:text-black hover:bg-gray-100'
+                      }`}
+                    >
+                      <img 
+                        src="/nostr_logo_prpl.svg" 
+                        alt="Nostr logo" 
+                        width="16" 
+                        height="16"
+                        className="flex-shrink-0"
+                      />
+                      <span className="text-sm font-medium">Nostr</span>
+                    </a>
+                  </div>
+                </div>
               </div>
             </motion.div>
           </motion.div>
@@ -2326,7 +2487,7 @@ function App() {
                                             onClick={() => setDialecticsState('content')}
                                             className="underline hover:no-underline font-medium text-blue-600 hover:text-blue-700"
                                           >
-                                            https://protocolux.com
+                                            Check out PROUX
                                           </button>
                                         </>
                                       ) : (
@@ -2355,7 +2516,7 @@ function App() {
                                         }`}>
                                           {conversationMessages[conversationProgress].message === 'Maybe try this guy https://protocolux.com' ? (
                                             <>
-                                              Maybe try this guy https://protocolux.com
+                                              Maybe try this guy Check out PROUX
                                             </>
                                           ) : (
                                             conversationMessages[conversationProgress].message
@@ -2411,31 +2572,7 @@ function App() {
                           </div>
                         </motion.div>
                         
-                        {/* Hint to click the link */}
-                        <AnimatePresence>
-                          {showDialecticsHint && (
-                            <motion.div
-                              className="mt-4 text-center"
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: 10 }}
-                              transition={{ duration: 0.5 }}
-                            >
-                              <div className="flex flex-col items-center space-y-2">
-                                <motion.div
-                                  animate={{ y: [0, -4, 0] }}
-                                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                                  className="text-2xl"
-                                >
-                                  ↑
-                                </motion.div>
-                                <p className="text-base text-gray-600">
-                                  You're meant to click that link, maybe it wasn't obvious 😅
-                                </p>
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
+
                       </div>
                     ) : (
                       <motion.div
@@ -2447,8 +2584,11 @@ function App() {
                           There is no "right" in user experience, there is just the length of conversation you go to in making your design decisions, based on the unique scenarios and characteristics of your product, team, and its users. Hypothesis, Antithesis, Synthesis.
                         </p>
                         <div className="mt-6 flex justify-center">
-                          <button className="px-8 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300">
-                            Start that conversation today
+                          <button 
+                            onClick={() => setContactModalOpen(true)}
+                            className="px-8 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300"
+                          >
+                            Start That Conversation Today
                           </button>
                         </div>
                       </motion.div>
