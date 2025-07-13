@@ -91,6 +91,11 @@ function App() {
   const [researchProgress, setResearchProgress] = useState(0);
   const [researchPatternModalOpen, setResearchPatternModalOpen] = useState(false);
   const [selectedResearchPattern, setSelectedResearchPattern] = useState<'f-pattern' | 'scroll' | 'touch' | null>(null);
+  const [eyeTrackingStage, setEyeTrackingStage] = useState(0);
+  const [eyeTrackingProgress, setEyeTrackingProgress] = useState(0);
+  const [eyeTrackingActive, setEyeTrackingActive] = useState(false);
+  const [heatmapIntensity, setHeatmapIntensity] = useState(0);
+  const [eyeTrackingTextVisible, setEyeTrackingTextVisible] = useState(false);
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
@@ -719,6 +724,78 @@ function App() {
       return () => clearInterval(interval);
     }
   }, [currentSection, researchCompleting]);
+
+  // Eye tracking animation for Testing section
+  useEffect(() => {
+    if (currentSection === 'testing') {
+      // Reset all states when entering testing section
+      setEyeTrackingStage(0);
+      setEyeTrackingActive(false);
+      setEyeTrackingTextVisible(false);
+      setEyeTrackingProgress(0);
+      setHeatmapIntensity(0);
+      
+      const timers: NodeJS.Timeout[] = [];
+      
+      // Start eye tracking loader immediately
+      timers.push(setTimeout(() => setEyeTrackingActive(true), 100));
+      
+      // Stage 1: First user session (F-pattern focus)
+      timers.push(setTimeout(() => setEyeTrackingStage(1), 500));
+      
+      // Stage 2: Second user session (different pattern)
+      timers.push(setTimeout(() => setEyeTrackingStage(2), 4000));
+      
+      // Stage 3: Third user session (building heatmap)
+      timers.push(setTimeout(() => setEyeTrackingStage(3), 7500));
+      
+      // Stage 4: Complete heatmap revelation
+      timers.push(setTimeout(() => setEyeTrackingStage(4), 11000));
+      
+      // Hide loader and show text after all sessions complete
+      timers.push(setTimeout(() => {
+        setEyeTrackingStage(0); // Reset stage
+        setEyeTrackingActive(false); // Hide loader
+        setEyeTrackingTextVisible(true); // Show final text
+      }, 13000));
+      
+      return () => {
+        timers.forEach(clearTimeout);
+      };
+    } else {
+      setEyeTrackingStage(0);
+      setEyeTrackingActive(false);
+      setEyeTrackingTextVisible(false);
+      setEyeTrackingProgress(0);
+      setHeatmapIntensity(0);
+    }
+  }, [currentSection]);
+
+  // Eye tracking progress animation
+  useEffect(() => {
+    if (currentSection === 'testing' && eyeTrackingActive) {
+      setEyeTrackingProgress(0);
+      const interval = setInterval(() => {
+        setEyeTrackingProgress(prev => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            return 100;
+          }
+          return prev + (100 / (12 * 10)); // 12 seconds, 10 updates per second
+        });
+      }, 100);
+
+      return () => clearInterval(interval);
+    }
+  }, [currentSection, eyeTrackingActive]);
+
+  // Heatmap intensity build-up
+  useEffect(() => {
+    if (eyeTrackingStage > 0) {
+      const targetIntensity = eyeTrackingStage * 25; // 25% per stage
+      setHeatmapIntensity(targetIntensity);
+    }
+  }, [eyeTrackingStage]);
 
 
 
@@ -2616,8 +2693,8 @@ function App() {
 
               <div className={`flex-1 flex items-center justify-center min-h-0 relative z-10 overflow-hidden -mt-16 sm:-mt-12`}>
                 <div className={`text-center max-w-2xl px-10 sm:px-4 ${textColor}`}>
-                {/* Hide title for Ergonomics on desktop since it's now on the left */}
-                {!(item === 'Ergonomics' && !isMobile) && (
+                {/* Hide title for Ergonomics on desktop and Testing section during animation */}
+                {!(item === 'Ergonomics' && !isMobile) && !(item === 'Testing' && !eyeTrackingTextVisible) && (
                 <h2 className="text-3xl sm:text-4xl font-bold">
                       {item === 'Question' ? 
                         (questionAnswer === 'yes' ? 'UX Does Matter' :
@@ -2896,10 +2973,16 @@ function App() {
                     </motion.div>
                   </motion.div>
                 )}
-                {item === 'Testing' && (
-                  <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                    UX testing is more than presenting a product to a random person and asking what they think, though there are some uses for guerilla testing, it all starts with a carefully crafted test to rule out known biases and simulate as real world situations as possible, with well written testing scripts.
-                  </p>
+                {item === 'Testing' && eyeTrackingTextVisible && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8 }}
+                  >
+                    <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
+                      UX testing is more than presenting a product to a random person and asking what they think, though there are some uses for guerilla testing, it all starts with a carefully crafted test to rule out known biases and simulate as real world situations as possible, with well written testing scripts and documentation of the test.
+                    </p>
+                  </motion.div>
                 )}
                 {item === 'Ergonomics' && (
                   <>
@@ -3339,6 +3422,331 @@ function App() {
                       </motion.div>
                     </div>
                   </motion.div>
+                </div>
+              )}
+
+              {/* Eye Tracking Progress Loader - Center Overlay */}
+              {targetId === 'testing' && eyeTrackingActive && (
+                <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                  <motion.div
+                    className={`px-6 py-4 rounded-lg backdrop-blur-sm`}
+                    style={{
+                      backgroundColor: isEven 
+                        ? `rgba(255, 255, 255, 0.1)` 
+                        : `rgba(0, 0, 0, 0.1)`,
+                    }}
+                    initial={{ opacity: 1, scale: 1 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0 }}
+                  >
+                    <div className="flex flex-col items-center">
+                      {/* Dynamic Session Label */}
+                      <AnimatePresence mode="wait">
+                        <motion.div 
+                          key={eyeTrackingStage}
+                          className="text-white text-sm font-medium mb-3"
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          {eyeTrackingStage === 1 && "Recording User Session 1"}
+                          {eyeTrackingStage === 2 && "Recording User Session 2"}
+                          {eyeTrackingStage === 3 && "Recording User Session 3"}
+                          {eyeTrackingStage === 4 && "Generating Heatmap"}
+                          {eyeTrackingStage === 0 && "Eye Tracking Test Session"}
+                        </motion.div>
+                      </AnimatePresence>
+                      
+                      <motion.div 
+                        className={`text-sm mb-2`}
+                        style={{
+                          color: isEven 
+                            ? `rgba(156, 163, 175, 0.9)` 
+                            : `rgba(55, 65, 81, 0.9)`
+                        }}
+                        animate={{ 
+                          opacity: [1, 0.6, 1]
+                        }}
+                        transition={{ 
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        Eye Tracking Study
+                      </motion.div>
+                      <div 
+                        className={`w-32 h-2 rounded-full overflow-hidden`}
+                        style={{
+                          backgroundColor: isEven 
+                            ? `rgba(17, 24, 39, 0.7)` 
+                            : `rgba(229, 231, 235, 0.7)`
+                        }}
+                      >
+                        <motion.div
+                          className={`h-full rounded-full`}
+                          style={{
+                            backgroundColor: isEven 
+                              ? `rgba(75, 85, 99, 0.8)` 
+                              : `rgba(75, 85, 99, 0.8)`
+                          }}
+                          initial={{ width: '0%' }}
+                          animate={{ width: `${Math.max(0, eyeTrackingProgress)}%` }}
+                          transition={{ duration: 0.1, ease: 'linear' }}
+                        />
+                      </div>
+                      <motion.div 
+                        className={`text-xs mt-1`}
+                        style={{
+                          color: isEven 
+                            ? `rgba(156, 163, 175, 0.8)` 
+                            : `rgba(55, 65, 81, 0.8)`
+                        }}
+                        animate={{ 
+                          opacity: [1, 0.7, 1]
+                        }}
+                        transition={{ 
+                          duration: 1.5,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        {Math.round(Math.max(0, eyeTrackingProgress))}% Complete
+                      </motion.div>
+                    </div>
+                  </motion.div>
+                </div>
+              )}
+
+              {/* Eye Tracking Visualization - Testing Section */}
+              {targetId === 'testing' && (eyeTrackingStage > 0 || (eyeTrackingTextVisible && heatmapIntensity > 0)) && (
+                <div className="absolute inset-0 pointer-events-none z-0">
+                  {/* Interface Mockup Background - Only show during eye tracking, not after */}
+                  {eyeTrackingStage > 0 && !eyeTrackingTextVisible && (
+                    <motion.div
+                      className="absolute inset-4 sm:inset-8 md:inset-16 lg:inset-24 rounded-lg overflow-hidden"
+                      style={{
+                        backgroundColor: '#000000',
+                        border: '1px solid rgba(255, 255, 255, 0.15)'
+                      }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.6 }}
+                    >
+                      {/* Simulated interface elements */}
+                      <div className="p-4 sm:p-6 md:p-8">
+                        {/* Header area */}
+                        <div className="h-3 sm:h-4 bg-white/20 rounded mb-3 sm:mb-6 w-3/4"></div>
+                        <div className="h-2 sm:h-3 bg-white/15 rounded mb-4 sm:mb-8 w-1/2"></div>
+                        
+                        {/* Content blocks */}
+                        <div className="space-y-2 sm:space-y-4">
+                          <div className="h-2 sm:h-3 bg-white/15 rounded w-full"></div>
+                          <div className="h-2 sm:h-3 bg-white/15 rounded w-5/6"></div>
+                        </div>
+                        
+                        {/* Button area */}
+                        <div className="mt-4 sm:mt-8">
+                          <div className="h-6 sm:h-10 bg-white/25 rounded w-20 sm:w-32"></div>
+                        </div>
+                        
+                        {/* Secondary content */}
+                        <div className="mt-6 sm:mt-12 space-y-2 sm:space-y-3">
+                          <div className="h-2 sm:h-3 bg-white/10 rounded w-full"></div>
+                          <div className="h-2 sm:h-3 bg-white/10 rounded w-2/3"></div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Heatmap Zones - Only show during stage 4 (heatmap generation) and after */}
+                  <AnimatePresence>
+                    {(eyeTrackingStage >= 4 || eyeTrackingTextVisible) && heatmapIntensity > 0 && (
+                      <>
+                        {/* F-Pattern Top Horizontal Sweep (Stage 1 contribution) */}
+                        <motion.div
+                          className="absolute"
+                          style={{
+                            top: isMobile ? '15%' : '12%',
+                            left: isMobile ? '10%' : '15%',
+                            width: isMobile ? '70%' : '65%',
+                            height: isMobile ? '6%' : '5%',
+                            background: `radial-gradient(ellipse, rgba(255, 0, 0, ${0.4 * (heatmapIntensity / 100)}) 0%, rgba(255, 0, 0, ${0.2 * (heatmapIntensity / 100)}) 50%, transparent 100%)`,
+                            borderRadius: '50%',
+                            filter: 'blur(8px)'
+                          }}
+                          initial={{ opacity: 0, scale: 0.5 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.5 }}
+                          transition={{ duration: 1 }}
+                        />
+                        
+                        {/* F-Pattern Left Vertical (Stage 1 contribution) */}
+                        <motion.div
+                          className="absolute"
+                          style={{
+                            top: isMobile ? '25%' : '22%',
+                            left: isMobile ? '8%' : '12%',
+                            width: isMobile ? '15%' : '12%',
+                            height: isMobile ? '35%' : '30%',
+                            background: `radial-gradient(ellipse, rgba(255, 0, 0, ${0.35 * (heatmapIntensity / 100)}) 0%, rgba(255, 0, 0, ${0.18 * (heatmapIntensity / 100)}) 50%, transparent 100%)`,
+                            borderRadius: '50%',
+                            filter: 'blur(10px)'
+                          }}
+                          initial={{ opacity: 0, scale: 0.5 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.5 }}
+                          transition={{ duration: 1, delay: 0.2 }}
+                        />
+                        
+                        {/* Z-Pattern Center Area (Stage 2 contribution) */}
+                        <motion.div
+                          className="absolute"
+                          style={{
+                            top: isMobile ? '35%' : '32%',
+                            left: isMobile ? '35%' : '40%',
+                            width: isMobile ? '30%' : '25%',
+                            height: isMobile ? '15%' : '12%',
+                            background: `radial-gradient(ellipse, rgba(255, 255, 0, ${0.3 * (heatmapIntensity / 100)}) 0%, rgba(255, 255, 0, ${0.15 * (heatmapIntensity / 100)}) 50%, transparent 100%)`,
+                            borderRadius: '50%',
+                            filter: 'blur(10px)'
+                          }}
+                          initial={{ opacity: 0, scale: 0.5 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.5 }}
+                          transition={{ duration: 1, delay: 0.4 }}
+                        />
+
+                        {/* Z-Pattern Bottom Horizontal (Stage 2 contribution) */}
+                        <motion.div
+                          className="absolute"
+                          style={{
+                            top: isMobile ? '55%' : '52%',
+                            left: isMobile ? '12%' : '18%',
+                            width: isMobile ? '65%' : '60%',
+                            height: isMobile ? '8%' : '6%',
+                            background: `radial-gradient(ellipse, rgba(255, 255, 0, ${0.35 * (heatmapIntensity / 100)}) 0%, rgba(255, 255, 0, ${0.18 * (heatmapIntensity / 100)}) 50%, transparent 100%)`,
+                            borderRadius: '50%',
+                            filter: 'blur(8px)'
+                          }}
+                          initial={{ opacity: 0, scale: 0.5 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.5 }}
+                          transition={{ duration: 1, delay: 0.6 }}
+                        />
+
+                        {/* Bottom-Focused Heavy Concentration (Stage 3 contribution) */}
+                        <motion.div
+                          className="absolute"
+                          style={{
+                            top: isMobile ? '70%' : '67%',
+                            left: isMobile ? '15%' : '20%',
+                            width: isMobile ? '60%' : '55%',
+                            height: isMobile ? '20%' : '18%',
+                            background: `radial-gradient(ellipse, rgba(0, 100, 255, ${0.4 * (heatmapIntensity / 100)}) 0%, rgba(0, 100, 255, ${0.2 * (heatmapIntensity / 100)}) 50%, transparent 100%)`,
+                            borderRadius: '50%',
+                            filter: 'blur(12px)'
+                          }}
+                          initial={{ opacity: 0, scale: 0.5 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.5 }}
+                          transition={{ duration: 1, delay: 0.8 }}
+                        />
+
+                        {/* Small Top Glance Zone (Stage 3 quick top look) */}
+                        <motion.div
+                          className="absolute"
+                          style={{
+                            top: isMobile ? '18%' : '15%',
+                            left: isMobile ? '25%' : '30%',
+                            width: isMobile ? '20%' : '18%',
+                            height: isMobile ? '5%' : '4%',
+                            background: `radial-gradient(ellipse, rgba(0, 100, 255, ${0.25 * (heatmapIntensity / 100)}) 0%, rgba(0, 100, 255, ${0.12 * (heatmapIntensity / 100)}) 50%, transparent 100%)`,
+                            borderRadius: '50%',
+                            filter: 'blur(6px)'
+                          }}
+                          initial={{ opacity: 0, scale: 0.5 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.5 }}
+                          transition={{ duration: 1, delay: 1.0 }}
+                        />
+                      </>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Animated Eye Tracking Dots */}
+                  <AnimatePresence>
+                    {/* Stage 1: Classic F-Pattern Scanner - Systematic top-to-bottom, left-focused */}
+                    {eyeTrackingStage === 1 && (
+                      <motion.div
+                        className="absolute w-3 h-3 sm:w-4 sm:h-4 bg-red-400 rounded-full shadow-lg"
+                        style={{
+                          boxShadow: '0 0 10px rgba(255, 100, 100, 0.6), 0 0 20px rgba(255, 100, 100, 0.4)'
+                        }}
+                        initial={{ opacity: 0 }}
+                        animate={{
+                          opacity: [0, 1, 1, 1, 1, 1, 0.8, 1],
+                          // F-Pattern: horizontal sweeps at top, then vertical down left side
+                          x: isMobile ? [40, 200, 230, 50, 180, 60, 45, 70] : [100, 400, 450, 120, 350, 130, 110, 140],
+                          y: isMobile ? [60, 65, 70, 120, 125, 180, 240, 300] : [80, 85, 90, 150, 155, 220, 290, 360]
+                        }}
+                        exit={{ opacity: 0 }}
+                        transition={{
+                          duration: 3,
+                          times: [0, 0.15, 0.25, 0.4, 0.55, 0.7, 0.85, 1],
+                          ease: "easeInOut"
+                        }}
+                      />
+                    )}
+                    
+                    {/* Stage 2: Z-Pattern Scanner - Top-left to top-right, diagonal, bottom-left to bottom-right */}
+                    {eyeTrackingStage === 2 && (
+                      <motion.div
+                        className="absolute w-3 h-3 sm:w-4 sm:h-4 bg-yellow-400 rounded-full shadow-lg"
+                        style={{
+                          boxShadow: '0 0 10px rgba(255, 255, 100, 0.6), 0 0 20px rgba(255, 255, 100, 0.4)'
+                        }}
+                        initial={{ opacity: 0 }}
+                        animate={{
+                          opacity: [0, 1, 1, 0.9, 1, 0.8, 1, 0.9, 1],
+                          // Z-Pattern: top-left → top-right → center → bottom-left → bottom-right
+                          x: isMobile ? [40, 220, 240, 140, 120, 60, 180, 200, 230] : [100, 450, 480, 300, 250, 130, 380, 420, 460],
+                          y: isMobile ? [70, 75, 80, 160, 200, 280, 290, 300, 310] : [90, 95, 100, 200, 250, 340, 350, 360, 370]
+                        }}
+                        exit={{ opacity: 0 }}
+                        transition={{
+                          duration: 3.5,
+                          times: [0, 0.12, 0.2, 0.35, 0.5, 0.65, 0.8, 0.9, 1],
+                          ease: "easeInOut"
+                        }}
+                      />
+                    )}
+                    
+                    {/* Stage 3: Bottom-Focused Scanner - Scrolls down, focuses on lower content */}
+                    {eyeTrackingStage === 3 && (
+                      <motion.div
+                        className="absolute w-3 h-3 sm:w-4 sm:h-4 bg-blue-400 rounded-full shadow-lg"
+                        style={{
+                          boxShadow: '0 0 10px rgba(100, 150, 255, 0.6), 0 0 20px rgba(100, 150, 255, 0.4)'
+                        }}
+                        initial={{ opacity: 0 }}
+                        animate={{
+                          opacity: [0, 1, 0.9, 1, 0.8, 1, 0.9, 1, 0.8, 1],
+                          // Bottom-focused pattern: quick glance at top, then concentrates on lower areas
+                          x: isMobile ? [120, 80, 60, 180, 220, 140, 200, 100, 180, 160] : [250, 150, 130, 380, 450, 300, 420, 200, 380, 340],
+                          y: isMobile ? [70, 240, 280, 260, 240, 300, 280, 320, 300, 340] : [90, 290, 340, 320, 290, 360, 340, 380, 360, 400]
+                        }}
+                        exit={{ opacity: 0 }}
+                        transition={{
+                          duration: 3.5,
+                          times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.85, 1],
+                          ease: "easeInOut"
+                        }}
+                      />
+                    )}
+                  </AnimatePresence>
                 </div>
               )}
 
