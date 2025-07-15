@@ -96,6 +96,7 @@ function App() {
   const [eyeTrackingActive, setEyeTrackingActive] = useState(false);
   const [heatmapIntensity, setHeatmapIntensity] = useState(0);
   const [eyeTrackingTextVisible, setEyeTrackingTextVisible] = useState(false);
+  const [mockupFadingOut, setMockupFadingOut] = useState(false);
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
@@ -734,6 +735,7 @@ function App() {
       setEyeTrackingTextVisible(false);
       setEyeTrackingProgress(0);
       setHeatmapIntensity(0);
+      setMockupFadingOut(false);
       
       const timers: NodeJS.Timeout[] = [];
       
@@ -752,12 +754,17 @@ function App() {
       // Stage 4: Complete heatmap revelation
       timers.push(setTimeout(() => setEyeTrackingStage(4), 11000));
       
-      // Hide loader and show text after all sessions complete
+      // Start mockup fade out
+      timers.push(setTimeout(() => {
+        setMockupFadingOut(true);
+      }, 12000));
+      
+      // Hide loader and show text after mockup fades out
       timers.push(setTimeout(() => {
         setEyeTrackingStage(0); // Reset stage
         setEyeTrackingActive(false); // Hide loader
         setEyeTrackingTextVisible(true); // Show final text
-      }, 13000));
+      }, 13500));
       
       return () => {
         timers.forEach(clearTimeout);
@@ -768,6 +775,7 @@ function App() {
       setEyeTrackingTextVisible(false);
       setEyeTrackingProgress(0);
       setHeatmapIntensity(0);
+      setMockupFadingOut(false);
     }
   }, [currentSection]);
 
@@ -3604,8 +3612,8 @@ function App() {
               {/* Eye Tracking Visualization - Testing Section */}
               {targetId === 'testing' && (eyeTrackingStage > 0 || (eyeTrackingTextVisible && heatmapIntensity > 0)) && (
                 <div className="absolute inset-0 pointer-events-none z-0">
-                  {/* Interface Mockup Background - Only show during eye tracking, not after */}
-                  {eyeTrackingStage > 0 && !eyeTrackingTextVisible && (
+                  {/* Interface Mockup Background - Fades out at the end */}
+                  {(eyeTrackingStage > 0 || mockupFadingOut) && !eyeTrackingTextVisible && (
                     <motion.div
                       className="absolute top-8 left-4 right-4 bottom-16 sm:inset-8 md:inset-16 lg:inset-24 rounded-lg overflow-hidden"
                       style={{
@@ -3613,9 +3621,9 @@ function App() {
                         border: '1px solid rgba(255, 255, 255, 0.15)'
                       }}
                       initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
+                      animate={{ opacity: mockupFadingOut ? 0 : 1 }}
                       exit={{ opacity: 0 }}
-                      transition={{ duration: 0.6 }}
+                      transition={{ duration: mockupFadingOut ? 1.5 : 0.6 }}
                     >
                       {/* Simulated interface elements */}
                       <div className="p-3 sm:p-6 md:p-8 relative">
@@ -3700,75 +3708,74 @@ function App() {
                           <div className="h-6 sm:h-8 bg-white/25 rounded w-20 sm:w-28"></div>
                         </div>
                         
-                        
-                        {/* Tab Bar Mockup - Bottom (Mobile Only) */}
-                        {isMobile && (
-                          <motion.div
-                            className="absolute left-1/2 transform -translate-x-1/2 w-4/5 max-w-xs"
-                            style={{ bottom: '-12px' }}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.8, duration: 0.6 }}
-                          >
-                            {/* Tab Bar Background */}
-                            <div className="w-full h-10 bg-white/6 rounded flex items-center justify-around px-2">
-                              {/* Home Tab - Active */}
-                              <div className="flex flex-col items-center space-y-1">
-                                <div className="w-4 h-4 bg-white/25 rounded flex items-center justify-center">
-                                  <div className="w-2 h-2 bg-white/60 rounded"></div>
-                                </div>
-                                <div className="w-5 h-0.5 bg-white/30 rounded"></div>
-                              </div>
-                              
-                              {/* Wallet Tab */}
-                              <div className="flex flex-col items-center space-y-1">
-                                <div className="w-4 h-4 bg-white/15 rounded flex items-center justify-center">
-                                  <div className="w-2.5 h-2 border border-white/30 rounded-sm relative">
-                                    <div className="absolute -top-0.5 left-1/2 transform -translate-x-1/2 w-1.5 h-0.5 border border-white/30 rounded-t"></div>
-                                  </div>
-                                </div>
-                                <div className="w-5 h-0.5 bg-white/20 rounded"></div>
-                              </div>
-                              
-                              {/* Send Tab */}
-                              <div className="flex flex-col items-center space-y-1">
-                                <div className="w-4 h-4 bg-white/15 rounded flex items-center justify-center">
-                                  <div className="w-1.5 h-1.5 border border-white/30 rounded-full relative">
-                                    <div className="absolute -top-1 -right-1 w-1 h-0.5 border-t border-r border-white/30 rotate-45"></div>
-                                  </div>
-                                </div>
-                                <div className="w-5 h-0.5 bg-white/20 rounded"></div>
-                              </div>
-                              
-                              {/* Receive Tab */}
-                              <div className="flex flex-col items-center space-y-1">
-                                <div className="w-4 h-4 bg-white/15 rounded flex items-center justify-center">
-                                  <div className="w-1.5 h-1.5 border border-white/30 rounded-full relative">
-                                    <div className="absolute -bottom-1 -left-1 w-1 h-0.5 border-b border-l border-white/30 -rotate-45"></div>
-                                  </div>
-                                </div>
-                                <div className="w-5 h-0.5 bg-white/20 rounded"></div>
-                              </div>
-                              
-                              {/* Settings Tab */}
-                              <div className="flex flex-col items-center space-y-1">
-                                <div className="w-4 h-4 bg-white/15 rounded flex items-center justify-center space-x-0.5">
-                                  <div className="w-0.5 h-0.5 bg-white/30 rounded-full"></div>
-                                  <div className="w-0.5 h-0.5 bg-white/30 rounded-full"></div>
-                                  <div className="w-0.5 h-0.5 bg-white/30 rounded-full"></div>
-                                </div>
-                                <div className="w-5 h-0.5 bg-white/20 rounded"></div>
-                              </div>
-                            </div>
-                          </motion.div>
-                        )}
                       </div>
+                      
+                      {/* Tab Bar Mockup - Bottom (Mobile Only) - Positioned relative to mockup container */}
+                      {isMobile && (
+                        <motion.div
+                          className="absolute bottom-3 left-1/2 transform -translate-x-1/2 w-4/5 max-w-xs"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.8, duration: 0.6 }}
+                        >
+                          {/* Tab Bar Background */}
+                          <div className="w-full h-10 bg-white/6 rounded flex items-center justify-around px-2">
+                            {/* Home Tab - Active */}
+                            <div className="flex flex-col items-center space-y-1">
+                              <div className="w-4 h-4 bg-white/25 rounded flex items-center justify-center">
+                                <div className="w-2 h-2 bg-white/60 rounded"></div>
+                              </div>
+                              <div className="w-5 h-0.5 bg-white/30 rounded"></div>
+                            </div>
+                            
+                            {/* Wallet Tab */}
+                            <div className="flex flex-col items-center space-y-1">
+                              <div className="w-4 h-4 bg-white/15 rounded flex items-center justify-center">
+                                <div className="w-2.5 h-2 border border-white/30 rounded-sm relative">
+                                  <div className="absolute -top-0.5 left-1/2 transform -translate-x-1/2 w-1.5 h-0.5 border border-white/30 rounded-t"></div>
+                                </div>
+                              </div>
+                              <div className="w-5 h-0.5 bg-white/20 rounded"></div>
+                            </div>
+                            
+                            {/* Send Tab */}
+                            <div className="flex flex-col items-center space-y-1">
+                              <div className="w-4 h-4 bg-white/15 rounded flex items-center justify-center">
+                                <div className="w-1.5 h-1.5 border border-white/30 rounded-full relative">
+                                  <div className="absolute -top-1 -right-1 w-1 h-0.5 border-t border-r border-white/30 rotate-45"></div>
+                                </div>
+                              </div>
+                              <div className="w-5 h-0.5 bg-white/20 rounded"></div>
+                            </div>
+                            
+                            {/* Receive Tab */}
+                            <div className="flex flex-col items-center space-y-1">
+                              <div className="w-4 h-4 bg-white/15 rounded flex items-center justify-center">
+                                <div className="w-1.5 h-1.5 border border-white/30 rounded-full relative">
+                                  <div className="absolute -bottom-1 -left-1 w-1 h-0.5 border-b border-l border-white/30 -rotate-45"></div>
+                                </div>
+                              </div>
+                              <div className="w-5 h-0.5 bg-white/20 rounded"></div>
+                            </div>
+                            
+                            {/* Settings Tab */}
+                            <div className="flex flex-col items-center space-y-1">
+                              <div className="w-4 h-4 bg-white/15 rounded flex items-center justify-center space-x-0.5">
+                                <div className="w-0.5 h-0.5 bg-white/30 rounded-full"></div>
+                                <div className="w-0.5 h-0.5 bg-white/30 rounded-full"></div>
+                                <div className="w-0.5 h-0.5 bg-white/30 rounded-full"></div>
+                              </div>
+                              <div className="w-5 h-0.5 bg-white/20 rounded"></div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
                     </motion.div>
                   )}
 
-                  {/* Heatmap Zones - Only show during stage 4 (heatmap generation) and after */}
+                  {/* Heatmap Zones - Only show during stage 4 (heatmap generation) and fades out at end */}
                   <AnimatePresence>
-                    {(eyeTrackingStage >= 4 || eyeTrackingTextVisible) && heatmapIntensity > 0 && (
+                    {eyeTrackingStage >= 4 && heatmapIntensity > 0 && !eyeTrackingTextVisible && (
                       <>
                         {/* F-Pattern Top Horizontal Sweep (Stage 1 contribution) */}
                         <motion.div
@@ -3783,9 +3790,9 @@ function App() {
                             filter: 'blur(8px)'
                           }}
                           initial={{ opacity: 0, scale: 0.5 }}
-                          animate={{ opacity: 1, scale: 1 }}
+                          animate={{ opacity: mockupFadingOut ? 0 : 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.5 }}
-                          transition={{ duration: 1 }}
+                          transition={{ duration: mockupFadingOut ? 1.5 : 1 }}
                         />
                         
                         {/* F-Pattern Left Vertical (Stage 1 contribution) */}
@@ -3891,7 +3898,7 @@ function App() {
                   {/* Animated Eye Tracking Dots with Particle Effects */}
                   <AnimatePresence>
                     {/* Stage 1: Classic F-Pattern Scanner - Systematic top-to-bottom, left-focused */}
-                    {eyeTrackingStage === 1 && (
+                    {eyeTrackingStage === 1 && !mockupFadingOut && (
                       <div className="absolute">
                         {/* Main Eye Tracking Dot */}
                         <motion.div
@@ -3973,7 +3980,7 @@ function App() {
                     )}
                     
                     {/* Stage 2: User Flow Test - Shows progression through app: account → login → bitcoin → receive */}
-                    {eyeTrackingStage === 2 && (
+                    {eyeTrackingStage === 2 && !mockupFadingOut && (
                       <div className="absolute">
                         {/* Flow Step Badges */}
                         {['account', 'login', 'bitcoin', 'receive'].map((step, stepIndex) => (
@@ -4019,7 +4026,7 @@ function App() {
                         ))}
                         
                         {/* Screen Click Effects */}
-                        {['account', 'login', 'bitcoin', 'receive'].map((step, stepIndex) => {
+                        {['account', 'login', 'bitcoin', 'receive'].map((_, stepIndex) => {
                           // Calculate mockup dimensions based on responsive breakpoints
                           const containerPadding = isMobile ? 16 : (typeof window !== 'undefined' && window.innerWidth >= 768 ? 96 : 64);
                           const contentPadding = isMobile ? 12 : (typeof window !== 'undefined' && window.innerWidth >= 768 ? 32 : 24);
@@ -4137,7 +4144,7 @@ function App() {
                     )}
                     
                     {/* Stage 3: Touch/Tap Interaction Test - Shows tap ripples and touch responses */}
-                    {eyeTrackingStage === 3 && (
+                    {eyeTrackingStage === 3 && !mockupFadingOut && (
                       <div className="absolute">
                         {/* Touch Ripple Effects */}
                         {Array.from({ length: 6 }).map((_, i) => (
