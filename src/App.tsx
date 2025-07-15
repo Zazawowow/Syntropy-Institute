@@ -1939,6 +1939,22 @@ function App() {
                       />
                       <span className="text-sm font-medium">Nostr</span>
                     </a>
+                    <a
+                      href="https://www.zazawowow.co.uk"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
+                        shouldInvertNav() 
+                          ? 'text-gray-300 hover:text-white hover:bg-gray-800' 
+                          : 'text-gray-700 hover:text-black hover:bg-gray-100'
+                      }`}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L2 7v10c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V7l-10-5z"/>
+                        <path d="M9 12l2 2 4-4"/>
+                      </svg>
+                      <span className="text-sm font-medium">Portfolio</span>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -3525,7 +3541,7 @@ function App() {
                   {/* Interface Mockup Background - Only show during eye tracking, not after */}
                   {eyeTrackingStage > 0 && !eyeTrackingTextVisible && (
                     <motion.div
-                      className="absolute inset-4 sm:inset-8 md:inset-16 lg:inset-24 rounded-lg overflow-hidden"
+                      className="absolute top-8 left-4 right-4 bottom-16 sm:inset-8 md:inset-16 lg:inset-24 rounded-lg overflow-hidden"
                       style={{
                         backgroundColor: '#000000',
                         border: '1px solid rgba(255, 255, 255, 0.15)'
@@ -3536,26 +3552,36 @@ function App() {
                       transition={{ duration: 0.6 }}
                     >
                       {/* Simulated interface elements */}
-                      <div className="p-4 sm:p-6 md:p-8">
+                      <div className="p-3 sm:p-6 md:p-8">
                         {/* Header area */}
-                        <div className="h-3 sm:h-4 bg-white/20 rounded mb-3 sm:mb-6 w-3/4"></div>
-                        <div className="h-2 sm:h-3 bg-white/15 rounded mb-4 sm:mb-8 w-1/2"></div>
+                        <div className="h-3 sm:h-4 bg-white/20 rounded mb-2 sm:mb-4 w-3/4"></div>
+                        <div className="h-2 sm:h-3 bg-white/15 rounded mb-3 sm:mb-6 w-1/2"></div>
+                        
+                        {/* Placeholder image */}
+                        <div className="h-16 sm:h-20 md:h-24 bg-white/10 rounded mb-3 sm:mb-4 w-full flex items-center justify-center">
+                          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-white/20 rounded"></div>
+                        </div>
                         
                         {/* Content blocks */}
-                        <div className="space-y-2 sm:space-y-4">
+                        <div className="space-y-1.5 sm:space-y-3">
                           <div className="h-2 sm:h-3 bg-white/15 rounded w-full"></div>
                           <div className="h-2 sm:h-3 bg-white/15 rounded w-5/6"></div>
+                          <div className="h-2 sm:h-3 bg-white/15 rounded w-4/5"></div>
                         </div>
                         
                         {/* Button area */}
-                        <div className="mt-4 sm:mt-8">
-                          <div className="h-6 sm:h-10 bg-white/25 rounded w-20 sm:w-32"></div>
+                        <div className="mt-3 sm:mt-6">
+                          <div className="h-6 sm:h-8 bg-white/25 rounded w-20 sm:w-28"></div>
                         </div>
                         
-                        {/* Secondary content */}
-                        <div className="mt-6 sm:mt-12 space-y-2 sm:space-y-3">
-                          <div className="h-2 sm:h-3 bg-white/10 rounded w-full"></div>
-                          <div className="h-2 sm:h-3 bg-white/10 rounded w-2/3"></div>
+                        {/* Secondary image/content */}
+                        <div className="mt-4 sm:mt-8">
+                          <div className="h-12 sm:h-16 bg-white/8 rounded mb-2 sm:mb-3 w-full"></div>
+                          <div className="space-y-1.5 sm:space-y-2">
+                            <div className="h-2 sm:h-3 bg-white/10 rounded w-full"></div>
+                            <div className="h-2 sm:h-3 bg-white/10 rounded w-3/4"></div>
+                            <div className="h-2 sm:h-3 bg-white/10 rounded w-2/3"></div>
+                          </div>
                         </div>
                       </div>
                     </motion.div>
@@ -3676,75 +3702,253 @@ function App() {
                     )}
                   </AnimatePresence>
 
-                  {/* Animated Eye Tracking Dots */}
+                  {/* Animated Eye Tracking Dots with Particle Effects */}
                   <AnimatePresence>
                     {/* Stage 1: Classic F-Pattern Scanner - Systematic top-to-bottom, left-focused */}
                     {eyeTrackingStage === 1 && (
-                      <motion.div
-                        className="absolute w-3 h-3 sm:w-4 sm:h-4 bg-red-400 rounded-full shadow-lg"
-                        style={{
-                          boxShadow: '0 0 10px rgba(255, 100, 100, 0.6), 0 0 20px rgba(255, 100, 100, 0.4)'
-                        }}
-                        initial={{ opacity: 0 }}
-                        animate={{
-                          opacity: [0, 1, 1, 1, 1, 1, 0.8, 1],
-                          // F-Pattern: horizontal sweeps at top, then vertical down left side
-                          x: isMobile ? [40, 200, 230, 50, 180, 60, 45, 70] : [100, 400, 450, 120, 350, 130, 110, 140],
-                          y: isMobile ? [60, 65, 70, 120, 125, 180, 240, 300] : [80, 85, 90, 150, 155, 220, 290, 360]
-                        }}
-                        exit={{ opacity: 0 }}
-                        transition={{
-                          duration: 3,
-                          times: [0, 0.15, 0.25, 0.4, 0.55, 0.7, 0.85, 1],
-                          ease: "easeInOut"
-                        }}
-                      />
+                      <div className="absolute">
+                        {/* Main Eye Tracking Dot */}
+                        <motion.div
+                          className="absolute w-4 h-4 sm:w-5 sm:h-5 bg-red-400 rounded-full z-10"
+                          style={{
+                            boxShadow: '0 0 15px rgba(255, 100, 100, 0.8), 0 0 30px rgba(255, 100, 100, 0.6), 0 0 45px rgba(255, 100, 100, 0.4)'
+                          }}
+                          initial={{ opacity: 0 }}
+                          animate={{
+                            opacity: [0, 1, 1, 1, 1, 1, 0.8, 1],
+                            scale: [1, 1.2, 1, 1.1, 1, 1.3, 1, 1.1],
+                            // F-Pattern: horizontal sweeps at top, then vertical down left side
+                            x: isMobile ? [40, 200, 230, 50, 180, 60, 45, 70] : [100, 400, 450, 120, 350, 130, 110, 140],
+                            y: isMobile ? [60, 65, 70, 120, 125, 180, 240, 300] : [80, 85, 90, 150, 155, 220, 290, 360]
+                          }}
+                          exit={{ opacity: 0 }}
+                          transition={{
+                            duration: 3,
+                            times: [0, 0.15, 0.25, 0.4, 0.55, 0.7, 0.85, 1],
+                            ease: "easeInOut"
+                          }}
+                        />
+                        
+                        {/* Particle Trail Effect */}
+                        {Array.from({ length: 8 }).map((_, i) => (
+                          <motion.div
+                            key={`red-particle-${i}`}
+                            className="absolute w-2 h-2 sm:w-3 sm:h-3 bg-red-300 rounded-full"
+                            style={{
+                              opacity: 0.6 - (i * 0.07),
+                              filter: 'blur(1px)'
+                            }}
+                            initial={{ opacity: 0 }}
+                            animate={{
+                              opacity: [0, 0.6 - (i * 0.07), 0.5 - (i * 0.06), 0.6 - (i * 0.07), 0.4 - (i * 0.05), 0.6 - (i * 0.07), 0.3 - (i * 0.04), 0.5 - (i * 0.06)],
+                              scale: [0.8, 1, 0.9, 1.1, 0.8, 1.2, 0.9, 1],
+                              x: isMobile ? [40, 200, 230, 50, 180, 60, 45, 70] : [100, 400, 450, 120, 350, 130, 110, 140],
+                              y: isMobile ? [60, 65, 70, 120, 125, 180, 240, 300] : [80, 85, 90, 150, 155, 220, 290, 360]
+                            }}
+                            exit={{ opacity: 0 }}
+                            transition={{
+                              duration: 3,
+                              times: [0, 0.15, 0.25, 0.4, 0.55, 0.7, 0.85, 1],
+                              ease: "easeInOut",
+                              delay: i * 0.08
+                            }}
+                          />
+                        ))}
+                        
+                        {/* Ambient Glow Particles */}
+                        {Array.from({ length: 6 }).map((_, i) => (
+                          <motion.div
+                            key={`red-glow-${i}`}
+                            className="absolute w-1 h-1 bg-red-200 rounded-full"
+                            style={{
+                              filter: 'blur(2px)'
+                            }}
+                            initial={{ opacity: 0 }}
+                            animate={{
+                              opacity: [0, 0.4, 0.2, 0.6, 0.3, 0.5, 0.1, 0.4],
+                              scale: [0.5, 1.5, 0.8, 2, 1, 1.8, 0.6, 1.2],
+                              x: isMobile ? 
+                                [40 + (Math.sin(i) * 15), 200 + (Math.cos(i) * 20), 230 + (Math.sin(i + 1) * 18), 50 + (Math.cos(i + 2) * 16), 180 + (Math.sin(i + 3) * 22), 60 + (Math.cos(i + 1) * 14), 45 + (Math.sin(i + 2) * 19), 70 + (Math.cos(i + 3) * 17)] : 
+                                [100 + (Math.sin(i) * 25), 400 + (Math.cos(i) * 30), 450 + (Math.sin(i + 1) * 28), 120 + (Math.cos(i + 2) * 26), 350 + (Math.sin(i + 3) * 32), 130 + (Math.cos(i + 1) * 24), 110 + (Math.sin(i + 2) * 29), 140 + (Math.cos(i + 3) * 27)],
+                              y: isMobile ? 
+                                [60 + (Math.cos(i) * 12), 65 + (Math.sin(i) * 15), 70 + (Math.cos(i + 1) * 13), 120 + (Math.sin(i + 2) * 16), 125 + (Math.cos(i + 3) * 14), 180 + (Math.sin(i + 1) * 11), 240 + (Math.cos(i + 2) * 17), 300 + (Math.sin(i + 3) * 13)] :
+                                [80 + (Math.cos(i) * 20), 85 + (Math.sin(i) * 25), 90 + (Math.cos(i + 1) * 23), 150 + (Math.sin(i + 2) * 26), 155 + (Math.cos(i + 3) * 24), 220 + (Math.sin(i + 1) * 21), 290 + (Math.cos(i + 2) * 27), 360 + (Math.sin(i + 3) * 23)]
+                            }}
+                            exit={{ opacity: 0 }}
+                            transition={{
+                              duration: 3,
+                              times: [0, 0.15, 0.25, 0.4, 0.55, 0.7, 0.85, 1],
+                              ease: "easeInOut",
+                              delay: i * 0.12
+                            }}
+                          />
+                        ))}
+                      </div>
                     )}
                     
                     {/* Stage 2: Z-Pattern Scanner - Top-left to top-right, diagonal, bottom-left to bottom-right */}
                     {eyeTrackingStage === 2 && (
-                      <motion.div
-                        className="absolute w-3 h-3 sm:w-4 sm:h-4 bg-yellow-400 rounded-full shadow-lg"
-                        style={{
-                          boxShadow: '0 0 10px rgba(255, 255, 100, 0.6), 0 0 20px rgba(255, 255, 100, 0.4)'
-                        }}
-                        initial={{ opacity: 0 }}
-                        animate={{
-                          opacity: [0, 1, 1, 0.9, 1, 0.8, 1, 0.9, 1],
-                          // Z-Pattern: top-left → top-right → center → bottom-left → bottom-right
-                          x: isMobile ? [40, 220, 240, 140, 120, 60, 180, 200, 230] : [100, 450, 480, 300, 250, 130, 380, 420, 460],
-                          y: isMobile ? [70, 75, 80, 160, 200, 280, 290, 300, 310] : [90, 95, 100, 200, 250, 340, 350, 360, 370]
-                        }}
-                        exit={{ opacity: 0 }}
-                        transition={{
-                          duration: 3.5,
-                          times: [0, 0.12, 0.2, 0.35, 0.5, 0.65, 0.8, 0.9, 1],
-                          ease: "easeInOut"
-                        }}
-                      />
+                      <div className="absolute">
+                        {/* Main Eye Tracking Dot */}
+                        <motion.div
+                          className="absolute w-4 h-4 sm:w-5 sm:h-5 bg-yellow-400 rounded-full z-10"
+                          style={{
+                            boxShadow: '0 0 15px rgba(255, 255, 100, 0.8), 0 0 30px rgba(255, 255, 100, 0.6), 0 0 45px rgba(255, 255, 100, 0.4)'
+                          }}
+                          initial={{ opacity: 0 }}
+                          animate={{
+                            opacity: [0, 1, 1, 0.9, 1, 0.8, 1, 0.9, 1],
+                            scale: [1, 1.3, 1.1, 1.2, 1, 1.4, 1.1, 1.2, 1.1],
+                            // Z-Pattern: top-left → top-right → center → bottom-left → bottom-right
+                            x: isMobile ? [40, 220, 240, 140, 120, 60, 180, 200, 230] : [100, 450, 480, 300, 250, 130, 380, 420, 460],
+                            y: isMobile ? [70, 75, 80, 160, 200, 280, 290, 300, 310] : [90, 95, 100, 200, 250, 340, 350, 360, 370]
+                          }}
+                          exit={{ opacity: 0 }}
+                          transition={{
+                            duration: 3.5,
+                            times: [0, 0.12, 0.2, 0.35, 0.5, 0.65, 0.8, 0.9, 1],
+                            ease: "easeInOut"
+                          }}
+                        />
+                        
+                        {/* Particle Trail Effect */}
+                        {Array.from({ length: 10 }).map((_, i) => (
+                          <motion.div
+                            key={`yellow-particle-${i}`}
+                            className="absolute w-2 h-2 sm:w-3 sm:h-3 bg-yellow-300 rounded-full"
+                            style={{
+                              opacity: 0.7 - (i * 0.06),
+                              filter: 'blur(1px)'
+                            }}
+                            initial={{ opacity: 0 }}
+                            animate={{
+                              opacity: [0, 0.7 - (i * 0.06), 0.6 - (i * 0.05), 0.5 - (i * 0.04), 0.7 - (i * 0.06), 0.4 - (i * 0.03), 0.6 - (i * 0.05), 0.5 - (i * 0.04), 0.6 - (i * 0.05)],
+                              scale: [0.9, 1.1, 1, 0.8, 1.2, 0.9, 1.1, 1, 1.1],
+                              x: isMobile ? [40, 220, 240, 140, 120, 60, 180, 200, 230] : [100, 450, 480, 300, 250, 130, 380, 420, 460],
+                              y: isMobile ? [70, 75, 80, 160, 200, 280, 290, 300, 310] : [90, 95, 100, 200, 250, 340, 350, 360, 370]
+                            }}
+                            exit={{ opacity: 0 }}
+                            transition={{
+                              duration: 3.5,
+                              times: [0, 0.12, 0.2, 0.35, 0.5, 0.65, 0.8, 0.9, 1],
+                              ease: "easeInOut",
+                              delay: i * 0.06
+                            }}
+                          />
+                        ))}
+                        
+                        {/* Sparkling Effect */}
+                        {Array.from({ length: 8 }).map((_, i) => (
+                          <motion.div
+                            key={`yellow-sparkle-${i}`}
+                            className="absolute w-1 h-1 bg-yellow-200 rounded-full"
+                            style={{
+                              filter: 'blur(1.5px)'
+                            }}
+                            initial={{ opacity: 0 }}
+                            animate={{
+                              opacity: [0, 0.8, 0.3, 0.9, 0.2, 0.7, 0.4, 0.6, 0.5],
+                              scale: [0.3, 2, 0.8, 2.5, 0.5, 2.2, 1, 1.8, 1.2],
+                              rotate: [0, 180, 90, 270, 45, 135, 225, 315, 180],
+                              x: isMobile ? 
+                                [40 + (Math.sin(i * 2) * 20), 220 + (Math.cos(i * 2) * 25), 240 + (Math.sin(i * 2 + 1) * 22), 140 + (Math.cos(i * 2 + 2) * 18), 120 + (Math.sin(i * 2 + 3) * 24), 60 + (Math.cos(i * 2 + 1) * 16), 180 + (Math.sin(i * 2 + 2) * 21), 200 + (Math.cos(i * 2 + 3) * 19), 230 + (Math.sin(i * 2 + 4) * 17)] : 
+                                [100 + (Math.sin(i * 2) * 35), 450 + (Math.cos(i * 2) * 40), 480 + (Math.sin(i * 2 + 1) * 37), 300 + (Math.cos(i * 2 + 2) * 33), 250 + (Math.sin(i * 2 + 3) * 39), 130 + (Math.cos(i * 2 + 1) * 31), 380 + (Math.sin(i * 2 + 2) * 36), 420 + (Math.cos(i * 2 + 3) * 34), 460 + (Math.sin(i * 2 + 4) * 32)],
+                              y: isMobile ? 
+                                [70 + (Math.cos(i * 2) * 18), 75 + (Math.sin(i * 2) * 20), 80 + (Math.cos(i * 2 + 1) * 19), 160 + (Math.sin(i * 2 + 2) * 17), 200 + (Math.cos(i * 2 + 3) * 21), 280 + (Math.sin(i * 2 + 1) * 15), 290 + (Math.cos(i * 2 + 2) * 18), 300 + (Math.sin(i * 2 + 3) * 16), 310 + (Math.cos(i * 2 + 4) * 14)] :
+                                [90 + (Math.cos(i * 2) * 28), 95 + (Math.sin(i * 2) * 30), 100 + (Math.cos(i * 2 + 1) * 29), 200 + (Math.sin(i * 2 + 2) * 27), 250 + (Math.cos(i * 2 + 3) * 31), 340 + (Math.sin(i * 2 + 1) * 25), 350 + (Math.cos(i * 2 + 2) * 28), 360 + (Math.sin(i * 2 + 3) * 26), 370 + (Math.cos(i * 2 + 4) * 24)]
+                            }}
+                            exit={{ opacity: 0 }}
+                            transition={{
+                              duration: 3.5,
+                              times: [0, 0.12, 0.2, 0.35, 0.5, 0.65, 0.8, 0.9, 1],
+                              ease: "easeInOut",
+                              delay: i * 0.1
+                            }}
+                          />
+                        ))}
+                      </div>
                     )}
                     
                     {/* Stage 3: Bottom-Focused Scanner - Scrolls down, focuses on lower content */}
                     {eyeTrackingStage === 3 && (
-                      <motion.div
-                        className="absolute w-3 h-3 sm:w-4 sm:h-4 bg-blue-400 rounded-full shadow-lg"
-                        style={{
-                          boxShadow: '0 0 10px rgba(100, 150, 255, 0.6), 0 0 20px rgba(100, 150, 255, 0.4)'
-                        }}
-                        initial={{ opacity: 0 }}
-                        animate={{
-                          opacity: [0, 1, 0.9, 1, 0.8, 1, 0.9, 1, 0.8, 1],
-                          // Bottom-focused pattern: quick glance at top, then concentrates on lower areas
-                          x: isMobile ? [120, 80, 60, 180, 220, 140, 200, 100, 180, 160] : [250, 150, 130, 380, 450, 300, 420, 200, 380, 340],
-                          y: isMobile ? [70, 240, 280, 260, 240, 300, 280, 320, 300, 340] : [90, 290, 340, 320, 290, 360, 340, 380, 360, 400]
-                        }}
-                        exit={{ opacity: 0 }}
-                        transition={{
-                          duration: 3.5,
-                          times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.85, 1],
-                          ease: "easeInOut"
-                        }}
-                      />
+                      <div className="absolute">
+                        {/* Main Eye Tracking Dot */}
+                        <motion.div
+                          className="absolute w-4 h-4 sm:w-5 sm:h-5 bg-blue-400 rounded-full z-10"
+                          style={{
+                            boxShadow: '0 0 15px rgba(100, 150, 255, 0.8), 0 0 30px rgba(100, 150, 255, 0.6), 0 0 45px rgba(100, 150, 255, 0.4)'
+                          }}
+                          initial={{ opacity: 0 }}
+                          animate={{
+                            opacity: [0, 1, 0.9, 1, 0.8, 1, 0.9, 1, 0.8, 1],
+                            scale: [1, 1.4, 1, 1.2, 0.9, 1.5, 1.1, 1.3, 0.8, 1.2],
+                            // Bottom-focused pattern: quick glance at top, then concentrates on lower areas
+                            x: isMobile ? [120, 80, 60, 180, 220, 140, 200, 100, 180, 160] : [250, 150, 130, 380, 450, 300, 420, 200, 380, 340],
+                            y: isMobile ? [70, 280, 320, 300, 280, 340, 320, 360, 340, 380] : [90, 330, 380, 360, 330, 400, 380, 420, 400, 440]
+                          }}
+                          exit={{ opacity: 0 }}
+                          transition={{
+                            duration: 3.5,
+                            times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.85, 1],
+                            ease: "easeInOut"
+                          }}
+                        />
+                        
+                        {/* Energetic Particle Trail */}
+                        {Array.from({ length: 12 }).map((_, i) => (
+                          <motion.div
+                            key={`blue-particle-${i}`}
+                            className="absolute w-2 h-2 sm:w-3 sm:h-3 bg-blue-300 rounded-full"
+                            style={{
+                              opacity: 0.8 - (i * 0.05),
+                              filter: 'blur(1px)'
+                            }}
+                            initial={{ opacity: 0 }}
+                            animate={{
+                              opacity: [0, 0.8 - (i * 0.05), 0.6 - (i * 0.04), 0.9 - (i * 0.06), 0.4 - (i * 0.03), 0.7 - (i * 0.05), 0.5 - (i * 0.04), 0.8 - (i * 0.06), 0.3 - (i * 0.02), 0.6 - (i * 0.04)],
+                              scale: [0.7, 1.2, 0.9, 1.4, 0.8, 1.3, 1, 1.5, 0.6, 1.1],
+                              x: isMobile ? [120, 80, 60, 180, 220, 140, 200, 100, 180, 160] : [250, 150, 130, 380, 450, 300, 420, 200, 380, 340],
+                              y: isMobile ? [70, 280, 320, 300, 280, 340, 320, 360, 340, 380] : [90, 330, 380, 360, 330, 400, 380, 420, 400, 440]
+                            }}
+                            exit={{ opacity: 0 }}
+                            transition={{
+                              duration: 3.5,
+                              times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.85, 1],
+                              ease: "easeInOut",
+                              delay: i * 0.05
+                            }}
+                          />
+                        ))}
+                        
+                        {/* Electric Blue Emanation */}
+                        {Array.from({ length: 10 }).map((_, i) => (
+                          <motion.div
+                            key={`blue-emanation-${i}`}
+                            className="absolute w-1 h-1 bg-blue-200 rounded-full"
+                            style={{
+                              filter: 'blur(2px)'
+                            }}
+                            initial={{ opacity: 0 }}
+                            animate={{
+                              opacity: [0, 0.9, 0.2, 0.8, 0.3, 0.9, 0.1, 0.7, 0.4, 0.6],
+                              scale: [0.2, 3, 1, 2.8, 0.8, 3.2, 0.5, 2.5, 1.2, 2],
+                              x: isMobile ? 
+                                [120 + (Math.sin(i * 3) * 25), 80 + (Math.cos(i * 3) * 30), 60 + (Math.sin(i * 3 + 1) * 28), 180 + (Math.cos(i * 3 + 2) * 26), 220 + (Math.sin(i * 3 + 3) * 32), 140 + (Math.cos(i * 3 + 1) * 24), 200 + (Math.sin(i * 3 + 2) * 29), 100 + (Math.cos(i * 3 + 3) * 27), 180 + (Math.sin(i * 3 + 4) * 31), 160 + (Math.cos(i * 3 + 4) * 23)] : 
+                                [250 + (Math.sin(i * 3) * 40), 150 + (Math.cos(i * 3) * 45), 130 + (Math.sin(i * 3 + 1) * 43), 380 + (Math.cos(i * 3 + 2) * 41), 450 + (Math.sin(i * 3 + 3) * 47), 300 + (Math.cos(i * 3 + 1) * 39), 420 + (Math.sin(i * 3 + 2) * 44), 200 + (Math.cos(i * 3 + 3) * 42), 380 + (Math.sin(i * 3 + 4) * 46), 340 + (Math.cos(i * 3 + 4) * 38)],
+                              y: isMobile ? 
+                                [70 + (Math.cos(i * 3) * 22), 280 + (Math.sin(i * 3) * 25), 320 + (Math.cos(i * 3 + 1) * 24), 300 + (Math.sin(i * 3 + 2) * 23), 280 + (Math.cos(i * 3 + 3) * 26), 340 + (Math.sin(i * 3 + 1) * 21), 320 + (Math.cos(i * 3 + 2) * 24), 360 + (Math.sin(i * 3 + 3) * 22), 340 + (Math.cos(i * 3 + 4) * 25), 380 + (Math.sin(i * 3 + 4) * 20)] :
+                                [90 + (Math.cos(i * 3) * 35), 330 + (Math.sin(i * 3) * 40), 380 + (Math.cos(i * 3 + 1) * 38), 360 + (Math.sin(i * 3 + 2) * 36), 330 + (Math.cos(i * 3 + 3) * 41), 400 + (Math.sin(i * 3 + 1) * 34), 380 + (Math.cos(i * 3 + 2) * 37), 420 + (Math.sin(i * 3 + 3) * 35), 400 + (Math.cos(i * 3 + 4) * 39), 440 + (Math.sin(i * 3 + 4) * 33)]
+                            }}
+                            exit={{ opacity: 0 }}
+                            transition={{
+                              duration: 3.5,
+                              times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.85, 1],
+                              ease: "easeInOut",
+                              delay: i * 0.08
+                            }}
+                          />
+                        ))}
+                      </div>
                     )}
                   </AnimatePresence>
                 </div>
