@@ -746,7 +746,7 @@ function App() {
       // Stage 2: Second user session (different pattern)
       timers.push(setTimeout(() => setEyeTrackingStage(2), 4000));
       
-      // Stage 3: Third user session (building heatmap)
+      // Stage 3: Touch/tap interaction session
       timers.push(setTimeout(() => setEyeTrackingStage(3), 7500));
       
       // Stage 4: Complete heatmap revelation
@@ -2711,7 +2711,17 @@ function App() {
                 <div className={`text-center max-w-2xl px-10 sm:px-4 ${textColor}`}>
                 {/* Hide title for Ergonomics on desktop and Testing section during animation */}
                 {!(item === 'Ergonomics' && !isMobile) && !(item === 'Testing' && !eyeTrackingTextVisible) && (
-                <h2 className="text-3xl sm:text-4xl font-bold">
+                  item === 'Testing' && eyeTrackingTextVisible ? (
+                    <motion.h2 
+                      className="text-3xl sm:text-4xl font-bold"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 2 }}
+                    >
+                      {item}
+                    </motion.h2>
+                  ) : (
+                    <h2 className="text-3xl sm:text-4xl font-bold">
                       {item === 'Question' ? 
                         (questionAnswer === 'yes' ? 'UX Does Matter' :
                          returnedFrom404 ? 'Oh, so it does matter? 🙂' : 'Does UX matter for Bitcoin & Nostr?') : 
@@ -2719,7 +2729,8 @@ function App() {
                        item === 'Ergonomics' && ergonomicsState === 'revealed' ? 'That second one was annoying huh?' : 
                        item === 'Research' && !researchTextVisible ? '' :
                        item}
-                </h2>
+                    </h2>
+                  )
                 )}
                 {item === 'Question' && (
                   <>
@@ -2769,15 +2780,39 @@ function App() {
                                   exit={{ opacity: 0 }}
                                   transition={{ duration: 0.5 }}
                                 >
-                                  <motion.div
-                                    className="text-xl font-medium text-gray-800"
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -10 }}
-                                    transition={{ duration: 0.6 }}
-                                  >
-                                    New Team Chat
-                                  </motion.div>
+                                  <div className="text-center">
+                                    <motion.div
+                                      className="text-xl font-medium text-gray-800"
+                                      initial={{ opacity: 0, y: 10 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      exit={{ opacity: 0, y: -10 }}
+                                      transition={{ duration: 0.6 }}
+                                    >
+                                      New Team Chat
+                                    </motion.div>
+                                    <motion.div
+                                      className="text-sm text-gray-500 mt-2 flex items-center justify-center space-x-2"
+                                      initial={{ opacity: 0, y: 10 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      exit={{ opacity: 0, y: -10 }}
+                                      transition={{ duration: 0.6, delay: 0.2 }}
+                                    >
+                                      <div className="flex flex-col items-center space-y-2">
+                                        <span>Connecting to mesh network</span>
+                                        <div className="w-32 h-1 bg-gray-300 rounded-full overflow-hidden">
+                                          <motion.div
+                                            className="h-full bg-gray-500 rounded-full"
+                                            initial={{ width: '0%' }}
+                                            animate={{ width: '100%' }}
+                                            transition={{
+                                              duration: 4,
+                                              ease: "easeInOut"
+                                            }}
+                                          />
+                                        </div>
+                                      </div>
+                                    </motion.div>
+                                  </div>
                                 </motion.div>
                               )}
                             </AnimatePresence>
@@ -2991,9 +3026,9 @@ function App() {
                 )}
                 {item === 'Testing' && eyeTrackingTextVisible && (
                   <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 2 }}
                   >
                     <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
                       UX testing is more than presenting a product to a random person and asking what they think, though there are some uses for guerilla testing, it all starts with a carefully crafted test to rule out known biases and simulate as real world situations as possible, with well written testing scripts and documentation of the test.
@@ -3349,7 +3384,11 @@ function App() {
 
               {/* Research Progress Loader - Center Overlay */}
               {targetId === 'research' && researchCompleting && (
-                <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                <div className={`absolute z-10 pointer-events-none ${
+                  isMobile 
+                    ? 'inset-x-0 flex items-center justify-center' 
+                    : 'inset-0 flex items-center justify-center'
+                }`} style={isMobile ? { top: '100px', height: 'calc(50% - 50px)' } : {}}>
                   <motion.div
                     className={`px-6 py-4 rounded-lg backdrop-blur-sm`}
                     style={{
@@ -3372,10 +3411,10 @@ function App() {
                           exit={{ opacity: 0, y: 10 }}
                           transition={{ duration: 0.3 }}
                         >
-                          {unconsciousBehaviorStage === 1 && "Analyzing F-Pattern Scanning"}
-                          {unconsciousBehaviorStage === 2 && "Analyzing Habitual Scrolling"}
-                          {unconsciousBehaviorStage === 3 && `Analyzing ${isMobile ? 'Touch' : 'Click'} Patterns`}
-                          {unconsciousBehaviorStage === 4 && "Analysis Complete"}
+                          {unconsciousBehaviorStage === 1 && "Researching F-Pattern Scanning"}
+                          {unconsciousBehaviorStage === 2 && "Researching Habitual Scrolling"}
+                          {unconsciousBehaviorStage === 3 && `Researching ${isMobile ? 'Touch' : 'Click'} Patterns`}
+                          {unconsciousBehaviorStage === 4 && "Research Complete"}
                           {unconsciousBehaviorStage === 0 && "Research in progress..."}
                         </motion.div>
                       </AnimatePresence>
@@ -3443,7 +3482,11 @@ function App() {
 
               {/* Eye Tracking Progress Loader - Center Overlay */}
               {targetId === 'testing' && eyeTrackingActive && (
-                <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                <div className={`absolute z-10 pointer-events-none ${
+                  isMobile 
+                    ? 'inset-x-0 flex items-center justify-center' 
+                    : 'inset-0 flex items-center justify-center'
+                }`} style={isMobile ? { bottom: '100px', height: '200px' } : {}}>
                   <motion.div
                     className={`px-6 py-4 rounded-lg backdrop-blur-sm`}
                     style={{
@@ -3470,7 +3513,6 @@ function App() {
                           {eyeTrackingStage === 2 && "Recording User Session 2"}
                           {eyeTrackingStage === 3 && "Recording User Session 3"}
                           {eyeTrackingStage === 4 && "Generating Heatmap"}
-                          {eyeTrackingStage === 0 && "Eye Tracking Test Session"}
                         </motion.div>
                       </AnimatePresence>
                       
@@ -3478,20 +3520,24 @@ function App() {
                         className={`text-sm mb-2`}
                         style={{
                           color: isEven 
-                            ? `rgba(156, 163, 175, 0.9)` 
-                            : `rgba(55, 65, 81, 0.9)`
+                            ? `rgba(156, 163, 175, 0.8)` 
+                            : `rgba(55, 65, 81, 0.8)`
                         }}
                         animate={{ 
-                          opacity: [1, 0.6, 1]
+                          opacity: [1, 0.7, 1]
                         }}
                         transition={{ 
-                          duration: 2,
+                          duration: 1.5,
                           repeat: Infinity,
                           ease: "easeInOut"
                         }}
                       >
-                        Eye Tracking Study
+                        {eyeTrackingStage === 1 && "Eye Tracking Study"}
+                        {eyeTrackingStage === 2 && "Usability Study"}
+                        {eyeTrackingStage === 3 && "Touch Tracking Study"}
+                        {eyeTrackingStage === 4 && "Analysis Complete"}
                       </motion.div>
+
                       <div 
                         className={`w-32 h-2 rounded-full overflow-hidden`}
                         style={{
@@ -3663,40 +3709,47 @@ function App() {
                           transition={{ duration: 1, delay: 0.6 }}
                         />
 
-                        {/* Bottom-Focused Heavy Concentration (Stage 3 contribution) */}
-                        <motion.div
-                          className="absolute"
-                          style={{
-                            top: isMobile ? '70%' : '67%',
-                            left: isMobile ? '15%' : '20%',
-                            width: isMobile ? '60%' : '55%',
-                            height: isMobile ? '20%' : '18%',
-                            background: `radial-gradient(ellipse, rgba(0, 100, 255, ${0.4 * (heatmapIntensity / 100)}) 0%, rgba(0, 100, 255, ${0.2 * (heatmapIntensity / 100)}) 50%, transparent 100%)`,
-                            borderRadius: '50%',
-                            filter: 'blur(12px)'
-                          }}
-                          initial={{ opacity: 0, scale: 0.5 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.5 }}
-                          transition={{ duration: 1, delay: 0.8 }}
-                        />
+                        {/* Touch Interaction Hotspots (Stage 3 contribution) */}
+                        {Array.from({ length: 6 }).map((_, i) => (
+                          <motion.div
+                            key={`touch-heatmap-${i}`}
+                            className="absolute"
+                            style={{
+                              top: isMobile ? 
+                                ['25%', '40%', '60%', '35%', '70%', '50%'][i] : 
+                                ['20%', '35%', '65%', '30%', '75%', '45%'][i],
+                              left: isMobile ? 
+                                ['20%', '50%', '35%', '25%', '45%', '60%'][i] : 
+                                ['25%', '55%', '40%', '30%', '50%', '65%'][i],
+                              width: isMobile ? '15%' : '12%',
+                              height: isMobile ? '15%' : '12%',
+                              background: `radial-gradient(circle, rgba(34, 197, 94, ${0.3 * (heatmapIntensity / 100)}) 0%, rgba(34, 197, 94, ${0.15 * (heatmapIntensity / 100)}) 50%, transparent 100%)`,
+                              borderRadius: '50%',
+                              filter: 'blur(8px)'
+                            }}
+                            initial={{ opacity: 0, scale: 0.3 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.3 }}
+                            transition={{ duration: 0.8, delay: 0.8 + (i * 0.1) }}
+                          />
+                        ))}
 
-                        {/* Small Top Glance Zone (Stage 3 quick top look) */}
+                        {/* Primary Touch Target Zone (most frequent interactions) */}
                         <motion.div
                           className="absolute"
                           style={{
-                            top: isMobile ? '18%' : '15%',
-                            left: isMobile ? '25%' : '30%',
-                            width: isMobile ? '20%' : '18%',
-                            height: isMobile ? '5%' : '4%',
-                            background: `radial-gradient(ellipse, rgba(0, 100, 255, ${0.25 * (heatmapIntensity / 100)}) 0%, rgba(0, 100, 255, ${0.12 * (heatmapIntensity / 100)}) 50%, transparent 100%)`,
+                            top: isMobile ? '45%' : '42%',
+                            left: isMobile ? '35%' : '40%',
+                            width: isMobile ? '30%' : '25%',
+                            height: isMobile ? '25%' : '22%',
+                            background: `radial-gradient(ellipse, rgba(34, 197, 94, ${0.4 * (heatmapIntensity / 100)}) 0%, rgba(34, 197, 94, ${0.2 * (heatmapIntensity / 100)}) 50%, transparent 100%)`,
                             borderRadius: '50%',
-                            filter: 'blur(6px)'
+                            filter: 'blur(10px)'
                           }}
                           initial={{ opacity: 0, scale: 0.5 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.5 }}
-                          transition={{ duration: 1, delay: 1.0 }}
+                          transition={{ duration: 1, delay: 1.2 }}
                         />
                       </>
                     )}
@@ -3786,165 +3839,283 @@ function App() {
                       </div>
                     )}
                     
-                    {/* Stage 2: Z-Pattern Scanner - Top-left to top-right, diagonal, bottom-left to bottom-right */}
+                    {/* Stage 2: User Flow Test - Shows progression through app: account → login → bitcoin → receive */}
                     {eyeTrackingStage === 2 && (
                       <div className="absolute">
-                        {/* Main Eye Tracking Dot */}
-                        <motion.div
-                          className="absolute w-4 h-4 sm:w-5 sm:h-5 bg-yellow-400 rounded-full z-10"
-                          style={{
-                            boxShadow: '0 0 15px rgba(255, 255, 100, 0.8), 0 0 30px rgba(255, 255, 100, 0.6), 0 0 45px rgba(255, 255, 100, 0.4)'
-                          }}
-                          initial={{ opacity: 0 }}
-                          animate={{
-                            opacity: [0, 1, 1, 0.9, 1, 0.8, 1, 0.9, 1],
-                            scale: [1, 1.3, 1.1, 1.2, 1, 1.4, 1.1, 1.2, 1.1],
-                            // Z-Pattern: top-left → top-right → center → bottom-left → bottom-right
-                            x: isMobile ? [40, 220, 240, 140, 120, 60, 180, 200, 230] : [100, 450, 480, 300, 250, 130, 380, 420, 460],
-                            y: isMobile ? [70, 75, 80, 160, 200, 280, 290, 300, 310] : [90, 95, 100, 200, 250, 340, 350, 360, 370]
-                          }}
-                          exit={{ opacity: 0 }}
-                          transition={{
-                            duration: 3.5,
-                            times: [0, 0.12, 0.2, 0.35, 0.5, 0.65, 0.8, 0.9, 1],
-                            ease: "easeInOut"
-                          }}
-                        />
-                        
-                        {/* Particle Trail Effect */}
-                        {Array.from({ length: 10 }).map((_, i) => (
+                        {/* Flow Step Badges */}
+                        {['account', 'login', 'bitcoin', 'receive'].map((step, stepIndex) => (
                           <motion.div
-                            key={`yellow-particle-${i}`}
-                            className="absolute w-2 h-2 sm:w-3 sm:h-3 bg-yellow-300 rounded-full"
+                            key={`flow-step-${stepIndex}`}
+                            className="absolute z-10"
                             style={{
-                              opacity: 0.7 - (i * 0.06),
-                              filter: 'blur(1px)'
+                              left: isMobile ? '30px' : `${[80, 250, 420, 590][stepIndex]}px`,
+                              top: isMobile ? 
+                                `${[80, 160, 240, 320][stepIndex]}px` : 
+                                '50px'
                             }}
-                            initial={{ opacity: 0 }}
-                            animate={{
-                              opacity: [0, 0.7 - (i * 0.06), 0.6 - (i * 0.05), 0.5 - (i * 0.04), 0.7 - (i * 0.06), 0.4 - (i * 0.03), 0.6 - (i * 0.05), 0.5 - (i * 0.04), 0.6 - (i * 0.05)],
-                              scale: [0.9, 1.1, 1, 0.8, 1.2, 0.9, 1.1, 1, 1.1],
-                              x: isMobile ? [40, 220, 240, 140, 120, 60, 180, 200, 230] : [100, 450, 480, 300, 250, 130, 380, 420, 460],
-                              y: isMobile ? [70, 75, 80, 160, 200, 280, 290, 300, 310] : [90, 95, 100, 200, 250, 340, 350, 360, 370]
+                            initial={{ 
+                              opacity: 0, 
+                              scale: 0
                             }}
-                            exit={{ opacity: 0 }}
+                            animate={{ 
+                              opacity: 1, 
+                              scale: 1
+                            }}
+                            exit={{ opacity: 0, scale: 0 }}
                             transition={{
-                              duration: 3.5,
-                              times: [0, 0.12, 0.2, 0.35, 0.5, 0.65, 0.8, 0.9, 1],
-                              ease: "easeInOut",
-                              delay: i * 0.06
+                              delay: stepIndex * 0.8,
+                              duration: 0.6
                             }}
-                          />
+                          >
+                            {/* Step Badge */}
+                            <motion.div
+                              className="bg-yellow-500/90 text-black text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-lg whitespace-nowrap"
+                              style={{
+                                boxShadow: '0 2px 8px rgba(255, 193, 7, 0.3)'
+                              }}
+                              initial={{ opacity: 0, y: 5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{
+                                delay: stepIndex * 0.8 + 0.2,
+                                duration: 0.4
+                              }}
+                            >
+                              {stepIndex + 1}. {step}
+                            </motion.div>
+                          </motion.div>
                         ))}
                         
-                        {/* Sparkling Effect */}
-                        {Array.from({ length: 8 }).map((_, i) => (
+                        {/* Screen Click Effects */}
+                        {['account', 'login', 'bitcoin', 'receive'].map((step, stepIndex) => {
+                          // Define click positions as specified
+                          const clickPositions = [
+                            // First click: top right of mockup
+                            isMobile ? { x: 300, y: 50 } : { x: 500, y: 80 },
+                            // Second click: top right of mockup  
+                            isMobile ? { x: 300, y: 50 } : { x: 500, y: 80 },
+                            // Third click: middle left of mockup
+                            isMobile ? { x: 80, y: 200 } : { x: 150, y: 180 },
+                            // Fourth click: middle right of mockup
+                            isMobile ? { x: 280, y: 200 } : { x: 450, y: 180 }
+                          ];
+                          
+                          const pos = clickPositions[stepIndex];
+                          
+                          return (
+                            <motion.div
+                              key={`screen-click-${stepIndex}`}
+                              className="absolute z-20 pointer-events-none"
+                              style={{
+                                left: `${pos.x}px`,
+                                top: `${pos.y}px`
+                              }}
+                              initial={{ opacity: 0, scale: 0 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              exit={{ opacity: 0, scale: 0 }}
+                              transition={{
+                                delay: stepIndex * 0.8 + 0.1,
+                                duration: 0.3
+                              }}
+                            >
+                              {/* Click Point */}
+                              <motion.div
+                                className="absolute w-3 h-3 bg-white rounded-full border-2 border-yellow-400"
+                                style={{
+                                  boxShadow: '0 0 20px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 255, 100, 0.6)'
+                                }}
+                                initial={{ scale: 0 }}
+                                animate={{
+                                  scale: [0, 1.5, 1, 0],
+                                  opacity: [0, 1, 1, 0]
+                                }}
+                                transition={{
+                                  delay: stepIndex * 0.8 + 0.1,
+                                  duration: 0.6,
+                                  times: [0, 0.2, 0.8, 1]
+                                }}
+                              />
+                              
+                              {/* Click Ripple Effect */}
+                              <motion.div
+                                className="absolute border-2 border-white/60 rounded-full"
+                                style={{
+                                  width: '20px',
+                                  height: '20px',
+                                  left: '-8.5px',
+                                  top: '-8.5px'
+                                }}
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{
+                                  scale: [0, 3, 4],
+                                  opacity: [0, 0.8, 0]
+                                }}
+                                transition={{
+                                  delay: stepIndex * 0.8 + 0.15,
+                                  duration: 0.8,
+                                  ease: "easeOut"
+                                }}
+                              />
+                            </motion.div>
+                          );
+                        })}
+                        
+                        {/* Connection Lines between steps */}
+                        {[0, 1, 2].map((lineIndex) => (
                           <motion.div
-                            key={`yellow-sparkle-${i}`}
-                            className="absolute w-1 h-1 bg-yellow-200 rounded-full"
+                            key={`flow-line-${lineIndex}`}
+                            className={`absolute border-dashed border-yellow-400/60 ${isMobile ? 'border-l-2' : 'border-t-2'}`}
                             style={{
-                              filter: 'blur(1.5px)'
+                              left: isMobile ? '42px' : `${[165, 335, 505][lineIndex]}px`,
+                              top: isMobile ? 
+                                `${[110, 190, 270][lineIndex]}px` : 
+                                '72px',
+                              height: isMobile ? '40px' : '2px',
+                              width: isMobile ? '2px' : '115px'
                             }}
-                            initial={{ opacity: 0 }}
-                            animate={{
-                              opacity: [0, 0.8, 0.3, 0.9, 0.2, 0.7, 0.4, 0.6, 0.5],
-                              scale: [0.3, 2, 0.8, 2.5, 0.5, 2.2, 1, 1.8, 1.2],
-                              rotate: [0, 180, 90, 270, 45, 135, 225, 315, 180],
-                              x: isMobile ? 
-                                [40 + (Math.sin(i * 2) * 20), 220 + (Math.cos(i * 2) * 25), 240 + (Math.sin(i * 2 + 1) * 22), 140 + (Math.cos(i * 2 + 2) * 18), 120 + (Math.sin(i * 2 + 3) * 24), 60 + (Math.cos(i * 2 + 1) * 16), 180 + (Math.sin(i * 2 + 2) * 21), 200 + (Math.cos(i * 2 + 3) * 19), 230 + (Math.sin(i * 2 + 4) * 17)] : 
-                                [100 + (Math.sin(i * 2) * 35), 450 + (Math.cos(i * 2) * 40), 480 + (Math.sin(i * 2 + 1) * 37), 300 + (Math.cos(i * 2 + 2) * 33), 250 + (Math.sin(i * 2 + 3) * 39), 130 + (Math.cos(i * 2 + 1) * 31), 380 + (Math.sin(i * 2 + 2) * 36), 420 + (Math.cos(i * 2 + 3) * 34), 460 + (Math.sin(i * 2 + 4) * 32)],
-                              y: isMobile ? 
-                                [70 + (Math.cos(i * 2) * 18), 75 + (Math.sin(i * 2) * 20), 80 + (Math.cos(i * 2 + 1) * 19), 160 + (Math.sin(i * 2 + 2) * 17), 200 + (Math.cos(i * 2 + 3) * 21), 280 + (Math.sin(i * 2 + 1) * 15), 290 + (Math.cos(i * 2 + 2) * 18), 300 + (Math.sin(i * 2 + 3) * 16), 310 + (Math.cos(i * 2 + 4) * 14)] :
-                                [90 + (Math.cos(i * 2) * 28), 95 + (Math.sin(i * 2) * 30), 100 + (Math.cos(i * 2 + 1) * 29), 200 + (Math.sin(i * 2 + 2) * 27), 250 + (Math.cos(i * 2 + 3) * 31), 340 + (Math.sin(i * 2 + 1) * 25), 350 + (Math.cos(i * 2 + 2) * 28), 360 + (Math.sin(i * 2 + 3) * 26), 370 + (Math.cos(i * 2 + 4) * 24)]
-                            }}
-                            exit={{ opacity: 0 }}
+                            initial={isMobile ? { opacity: 0, scaleY: 0 } : { opacity: 0, scaleX: 0 }}
+                            animate={isMobile ? { opacity: 1, scaleY: 1 } : { opacity: 1, scaleX: 1 }}
                             transition={{
-                              duration: 3.5,
-                              times: [0, 0.12, 0.2, 0.35, 0.5, 0.65, 0.8, 0.9, 1],
-                              ease: "easeInOut",
-                              delay: i * 0.1
+                              delay: lineIndex * 0.8 + 0.6,
+                              duration: 0.4,
+                              transformOrigin: isMobile ? 'top' : 'left'
                             }}
                           />
                         ))}
                       </div>
                     )}
                     
-                    {/* Stage 3: Bottom-Focused Scanner - Scrolls down, focuses on lower content */}
+                    {/* Stage 3: Touch/Tap Interaction Test - Shows tap ripples and touch responses */}
                     {eyeTrackingStage === 3 && (
                       <div className="absolute">
-                        {/* Main Eye Tracking Dot */}
-                        <motion.div
-                          className="absolute w-4 h-4 sm:w-5 sm:h-5 bg-blue-400 rounded-full z-10"
-                          style={{
-                            boxShadow: '0 0 15px rgba(100, 150, 255, 0.8), 0 0 30px rgba(100, 150, 255, 0.6), 0 0 45px rgba(100, 150, 255, 0.4)'
-                          }}
-                          initial={{ opacity: 0 }}
-                          animate={{
-                            opacity: [0, 1, 0.9, 1, 0.8, 1, 0.9, 1, 0.8, 1],
-                            scale: [1, 1.4, 1, 1.2, 0.9, 1.5, 1.1, 1.3, 0.8, 1.2],
-                            // Bottom-focused pattern: quick glance at top, then concentrates on lower areas
-                            x: isMobile ? [120, 80, 60, 180, 220, 140, 200, 100, 180, 160] : [250, 150, 130, 380, 450, 300, 420, 200, 380, 340],
-                            y: isMobile ? [70, 280, 320, 300, 280, 340, 320, 360, 340, 380] : [90, 330, 380, 360, 330, 400, 380, 420, 400, 440]
-                          }}
-                          exit={{ opacity: 0 }}
-                          transition={{
-                            duration: 3.5,
-                            times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.85, 1],
-                            ease: "easeInOut"
-                          }}
-                        />
-                        
-                        {/* Energetic Particle Trail */}
-                        {Array.from({ length: 12 }).map((_, i) => (
+                        {/* Touch Ripple Effects */}
+                        {Array.from({ length: 6 }).map((_, i) => (
                           <motion.div
-                            key={`blue-particle-${i}`}
-                            className="absolute w-2 h-2 sm:w-3 sm:h-3 bg-blue-300 rounded-full"
+                            key={`touch-point-${i}`}
+                            className="absolute z-10"
                             style={{
-                              opacity: 0.8 - (i * 0.05),
-                              filter: 'blur(1px)'
+                              x: isMobile ? 
+                                [80, 200, 160, 120, 180, 240][i] : 
+                                [380, 650, 680, 410, 400, 430][i],
+                              y: isMobile ? 
+                                [120, 420, 460, 400, 440, 480][i] : 
+                                [290, 200, 250, 330, 310, 340][i]
                             }}
                             initial={{ opacity: 0 }}
-                            animate={{
-                              opacity: [0, 0.8 - (i * 0.05), 0.6 - (i * 0.04), 0.9 - (i * 0.06), 0.4 - (i * 0.03), 0.7 - (i * 0.05), 0.5 - (i * 0.04), 0.8 - (i * 0.06), 0.3 - (i * 0.02), 0.6 - (i * 0.04)],
-                              scale: [0.7, 1.2, 0.9, 1.4, 0.8, 1.3, 1, 1.5, 0.6, 1.1],
-                              x: isMobile ? [120, 80, 60, 180, 220, 140, 200, 100, 180, 160] : [250, 150, 130, 380, 450, 300, 420, 200, 380, 340],
-                              y: isMobile ? [70, 280, 320, 300, 280, 340, 320, 360, 340, 380] : [90, 330, 380, 360, 330, 400, 380, 420, 400, 440]
-                            }}
+                            animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            transition={{
-                              duration: 3.5,
-                              times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.85, 1],
-                              ease: "easeInOut",
-                              delay: i * 0.05
-                            }}
-                          />
+                          >
+                            {/* Touch Point */}
+                            <motion.div
+                              className="absolute w-3 h-3 sm:w-4 sm:h-4 bg-green-400 rounded-full"
+                              style={{
+                                boxShadow: '0 0 10px rgba(34, 197, 94, 0.8)'
+                              }}
+                              initial={{ opacity: 0, scale: 0 }}
+                              animate={{
+                                opacity: [0, 1, 1, 0],
+                                scale: [0, 1.2, 1, 0.8]
+                              }}
+                              transition={{
+                                duration: 0.8,
+                                delay: i * 0.5,
+                                repeat: 4,
+                                repeatDelay: 2.2
+                              }}
+                            />
+                            
+                            {/* Primary Ripple Effect */}
+                            <motion.div
+                              className="absolute border-2 border-green-400 rounded-full"
+                              style={{
+                                width: '20px',
+                                height: '20px',
+                                left: '-8px',
+                                top: '-8px'
+                              }}
+                              initial={{ 
+                                opacity: 0, 
+                                scale: 0.5,
+                                borderColor: 'rgba(34, 197, 94, 0.8)'
+                              }}
+                              animate={{
+                                opacity: [0, 0.8, 0.4, 0],
+                                scale: [0.5, 2, 3.5, 4],
+                                borderColor: [
+                                  'rgba(34, 197, 94, 0.8)',
+                                  'rgba(34, 197, 94, 0.4)', 
+                                  'rgba(34, 197, 94, 0.2)',
+                                  'rgba(34, 197, 94, 0)'
+                                ]
+                              }}
+                              transition={{
+                                duration: 1.2,
+                                delay: i * 0.5,
+                                repeat: 4,
+                                repeatDelay: 2.2,
+                                ease: "easeOut"
+                              }}
+                            />
+                            
+                            {/* Secondary Ripple */}
+                            <motion.div
+                              className="absolute border border-green-300 rounded-full"
+                              style={{
+                                width: '10px',
+                                height: '10px',
+                                left: '-3px',
+                                top: '-3px'
+                              }}
+                              initial={{ 
+                                opacity: 0, 
+                                scale: 0.8,
+                                borderColor: 'rgba(74, 222, 128, 0.6)'
+                              }}
+                              animate={{
+                                opacity: [0, 0.6, 0.3, 0],
+                                scale: [0.8, 1.5, 2.5, 3],
+                                borderColor: [
+                                  'rgba(74, 222, 128, 0.6)',
+                                  'rgba(74, 222, 128, 0.3)', 
+                                  'rgba(74, 222, 128, 0.1)',
+                                  'rgba(74, 222, 128, 0)'
+                                ]
+                              }}
+                              transition={{
+                                duration: 1,
+                                delay: i * 0.5 + 0.1,
+                                repeat: 4,
+                                repeatDelay: 2.2,
+                                ease: "easeOut"
+                              }}
+                            />
+                          </motion.div>
                         ))}
                         
-                        {/* Electric Blue Emanation */}
-                        {Array.from({ length: 10 }).map((_, i) => (
+                        {/* Touch Response Indicators */}
+                        {Array.from({ length: 4 }).map((_, i) => (
                           <motion.div
-                            key={`blue-emanation-${i}`}
-                            className="absolute w-1 h-1 bg-blue-200 rounded-full"
+                            key={`touch-response-${i}`}
+                            className="absolute w-2 h-2 bg-green-500 rounded-full"
                             style={{
-                              filter: 'blur(2px)'
-                            }}
-                            initial={{ opacity: 0 }}
-                            animate={{
-                              opacity: [0, 0.9, 0.2, 0.8, 0.3, 0.9, 0.1, 0.7, 0.4, 0.6],
-                              scale: [0.2, 3, 1, 2.8, 0.8, 3.2, 0.5, 2.5, 1.2, 2],
+                              filter: 'blur(1px)',
                               x: isMobile ? 
-                                [120 + (Math.sin(i * 3) * 25), 80 + (Math.cos(i * 3) * 30), 60 + (Math.sin(i * 3 + 1) * 28), 180 + (Math.cos(i * 3 + 2) * 26), 220 + (Math.sin(i * 3 + 3) * 32), 140 + (Math.cos(i * 3 + 1) * 24), 200 + (Math.sin(i * 3 + 2) * 29), 100 + (Math.cos(i * 3 + 3) * 27), 180 + (Math.sin(i * 3 + 4) * 31), 160 + (Math.cos(i * 3 + 4) * 23)] : 
-                                [250 + (Math.sin(i * 3) * 40), 150 + (Math.cos(i * 3) * 45), 130 + (Math.sin(i * 3 + 1) * 43), 380 + (Math.cos(i * 3 + 2) * 41), 450 + (Math.sin(i * 3 + 3) * 47), 300 + (Math.cos(i * 3 + 1) * 39), 420 + (Math.sin(i * 3 + 2) * 44), 200 + (Math.cos(i * 3 + 3) * 42), 380 + (Math.sin(i * 3 + 4) * 46), 340 + (Math.cos(i * 3 + 4) * 38)],
+                                [100, 220, 140, 190][i] : 
+                                [395, 670, 405, 425][i],
                               y: isMobile ? 
-                                [70 + (Math.cos(i * 3) * 22), 280 + (Math.sin(i * 3) * 25), 320 + (Math.cos(i * 3 + 1) * 24), 300 + (Math.sin(i * 3 + 2) * 23), 280 + (Math.cos(i * 3 + 3) * 26), 340 + (Math.sin(i * 3 + 1) * 21), 320 + (Math.cos(i * 3 + 2) * 24), 360 + (Math.sin(i * 3 + 3) * 22), 340 + (Math.cos(i * 3 + 4) * 25), 380 + (Math.sin(i * 3 + 4) * 20)] :
-                                [90 + (Math.cos(i * 3) * 35), 330 + (Math.sin(i * 3) * 40), 380 + (Math.cos(i * 3 + 1) * 38), 360 + (Math.sin(i * 3 + 2) * 36), 330 + (Math.cos(i * 3 + 3) * 41), 400 + (Math.sin(i * 3 + 1) * 34), 380 + (Math.cos(i * 3 + 2) * 37), 420 + (Math.sin(i * 3 + 3) * 35), 400 + (Math.cos(i * 3 + 4) * 39), 440 + (Math.sin(i * 3 + 4) * 33)]
+                                [160, 450, 430, 470][i] : 
+                                [305, 220, 315, 335][i]
                             }}
-                            exit={{ opacity: 0 }}
+                            initial={{ opacity: 0, scale: 0 }}
+                            animate={{
+                              opacity: [0, 0.8, 0.4, 0.9, 0],
+                              scale: [0, 2, 1, 2.5, 0],
+                            }}
                             transition={{
-                              duration: 3.5,
-                              times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.85, 1],
-                              ease: "easeInOut",
-                              delay: i * 0.08
+                              duration: 1.5,
+                              delay: i * 0.8 + 0.3,
+                              repeat: 3,
+                              repeatDelay: 2.5,
+                              ease: "easeOut"
                             }}
                           />
                         ))}
@@ -4042,8 +4213,16 @@ function App() {
                       <>
                         {/* Primary fingerprint zone with graphic on left */}
                         <motion.div
-                          className="absolute right-8 sm:right-16 md:right-24 lg:right-32 flex items-start space-x-3"
-                          style={{ bottom: 'calc(32rem - 100px)' }} // 100px higher than before
+                          className={`absolute flex items-start space-x-3 ${
+                            isMobile 
+                              ? 'left-1/2 transform -translate-x-1/2' 
+                              : 'right-8 sm:right-16 md:right-24 lg:right-32'
+                          }`}
+                          style={{ 
+                            bottom: isMobile 
+                              ? 'calc(12rem + 20px)' // Higher position to avoid overlap
+                              : 'calc(32rem - 100px)' // Original desktop position
+                          }}
                           initial={{ opacity: 0, scale: 0 }}
                           animate={{ 
                             opacity: 1, 
@@ -4117,10 +4296,11 @@ function App() {
                           </motion.div>
                         </motion.div>
                         
-                        {/* Secondary fingerprint zone */}
-                        <motion.div
-                          className="absolute left-8 sm:left-16 md:left-24 lg:left-32 flex items-start space-x-2"
-                          style={{ bottom: 'calc(48rem - 100px)' }} // 100px higher than before
+                        {/* Secondary fingerprint zone - Desktop only */}
+                        {!isMobile && (
+                          <motion.div
+                            className="absolute left-8 sm:left-16 md:left-24 lg:left-32 flex items-start space-x-2"
+                            style={{ bottom: 'calc(48rem - 100px)' }} // 100px higher than before
                           initial={{ opacity: 0, scale: 0 }}
                           animate={{ 
                             opacity: 1, 
@@ -4187,28 +4367,30 @@ function App() {
                              <p className="text-xs text-white/60 mt-0.5">{isMobile ? 'Occasional taps' : 'Less frequent clicks'}</p>
                           </motion.div>
                         </motion.div>
+                        )}
                         
-                        {/* Main Label - Repositioned */}
-                        <motion.div
-                          className="absolute left-1/2 transform -translate-x-1/2 rounded-lg backdrop-blur-sm border border-white/20 px-4 py-3 text-center"
-                          style={{ 
-                            bottom: 'calc(12rem - 100px)', // 100px higher than before
-                            backgroundColor: 'rgba(255, 255, 255, 0.1)'
-                          }}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 10 }}
-                          transition={{ duration: 0.6, delay: 0.8 }}
-                        >
-                          <motion.p 
-                            className="font-medium mb-1 text-white text-sm"
-                            animate={{ opacity: [1, 0.7, 1] }}
-                            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                        {/* Main Label - Mobile Only */}
+                        {isMobile && (
+                          <motion.div
+                            className="absolute left-1/2 transform -translate-x-1/2 rounded-lg backdrop-blur-sm border border-white/20 px-4 py-3 text-center"
+                            style={{ 
+                              bottom: 'calc(12rem - 100px)', // 100px higher than before
+                              backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                            }}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 10 }}
+                            transition={{ duration: 0.6, delay: 0.8 }}
                           >
-                            {isMobile ? 'Unconscious Touch Patterns' : 'Primary Click Patterns'}
-                          </motion.p>
-                          <p className="text-xs text-white/80">{isMobile ? 'Users tap here without thinking' : 'Users click here most frequently'}</p>
-                        </motion.div>
+                            <motion.p 
+                              className="font-medium text-white text-sm"
+                              animate={{ opacity: [1, 0.7, 1] }}
+                              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                            >
+                              Users tap here without thinking
+                            </motion.p>
+                          </motion.div>
+                        )}
                       </>
                     )}
                   </AnimatePresence>
