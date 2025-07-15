@@ -2136,11 +2136,15 @@ function App() {
                   }}
                 >
                   {slides[slideIndex].type === 'image' ? (
-                    <img
-                      src={(slides[slideIndex] as { src: string }).src}
-                      alt={(slides[slideIndex] as { alt: string }).alt}
-                      className="w-full h-full object-contain scale-[67.5%] sm:scale-75"
-                    />
+                    <div className="relative w-full h-full">
+                      <img
+                        src={(slides[slideIndex] as { src: string }).src}
+                        alt={(slides[slideIndex] as { alt: string }).alt}
+                        className="w-full h-full object-contain scale-[67.5%] sm:scale-75"
+                      />
+                      
+
+                    </div>
                   ) : (
                     <div className="w-full max-w-2xl text-center px-4">
                       <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
@@ -2628,6 +2632,7 @@ function App() {
               {targetId === 'ergonomics' && isMobile && thumbFlowStage > 0 && thumbFlowStage <= 4 && (
                 <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50">
                   <motion.div
+                    layout
                     className={`px-6 py-4 rounded-lg backdrop-blur-sm transition-all duration-300`}
                     style={{
                       backgroundColor: isEven 
@@ -2639,7 +2644,10 @@ function App() {
                       opacity: 0.4 + (thumbFlowProgress / 100) * 0.6,
                       scale: 0.9 + (thumbFlowProgress / 100) * 0.1,
                     }}
-                    transition={{ duration: 0.3 }}
+                    transition={{ 
+                      duration: 0.3,
+                      layout: { duration: 0.3, ease: "easeInOut" }
+                    }}
                   >
                     <div className="flex flex-col items-center">
                       <motion.div 
@@ -3105,6 +3113,7 @@ function App() {
                           {thumbFlowStage > 0 && thumbFlowStage <= 4 && (
                             <div className="mt-6">
                               <motion.div
+                                layout
                                 className={`px-6 py-4 rounded-lg backdrop-blur-sm transition-all duration-300`}
                                 style={{
                                   backgroundColor: isEven 
@@ -3116,7 +3125,10 @@ function App() {
                                   opacity: 0.4 + (thumbFlowProgress / 100) * 0.6,
                                   scale: 0.9 + (thumbFlowProgress / 100) * 0.1,
                                 }}
-                                transition={{ duration: 0.3 }}
+                                transition={{ 
+                                  duration: 0.3,
+                                  layout: { duration: 0.3, ease: "easeInOut" }
+                                }}
                               >
                                 <div className="flex flex-col items-center">
                                   <motion.div 
@@ -3390,6 +3402,7 @@ function App() {
                     : 'inset-0 flex items-center justify-center'
                 }`} style={isMobile ? { top: '100px', height: 'calc(50% - 50px)' } : {}}>
                   <motion.div
+                    layout
                     className={`px-6 py-4 rounded-lg backdrop-blur-sm`}
                     style={{
                       backgroundColor: isEven 
@@ -3398,7 +3411,10 @@ function App() {
                     }}
                     initial={{ opacity: 1, scale: 1 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0 }}
+                    transition={{ 
+                      duration: 0,
+                      layout: { duration: 0.3, ease: "easeInOut" }
+                    }}
                   >
                     <div className="flex flex-col items-center">
                       {/* Dynamic Pattern Label */}
@@ -3488,6 +3504,7 @@ function App() {
                     : 'inset-0 flex items-center justify-center'
                 }`} style={isMobile ? { bottom: '100px', height: '200px' } : {}}>
                   <motion.div
+                    layout
                     className={`px-6 py-4 rounded-lg backdrop-blur-sm`}
                     style={{
                       backgroundColor: isEven 
@@ -3496,7 +3513,10 @@ function App() {
                     }}
                     initial={{ opacity: 1, scale: 1 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0 }}
+                    transition={{ 
+                      duration: 0,
+                      layout: { duration: 0.3, ease: "easeInOut" }
+                    }}
                   >
                     <div className="flex flex-col items-center">
                       {/* Dynamic Session Label */}
@@ -3598,15 +3618,75 @@ function App() {
                       transition={{ duration: 0.6 }}
                     >
                       {/* Simulated interface elements */}
-                      <div className="p-3 sm:p-6 md:p-8">
-                        {/* Header area */}
-                        <div className="h-3 sm:h-4 bg-white/20 rounded mb-2 sm:mb-4 w-3/4"></div>
-                        <div className="h-2 sm:h-3 bg-white/15 rounded mb-3 sm:mb-6 w-1/2"></div>
-                        
-                        {/* Placeholder image */}
-                        <div className="h-16 sm:h-20 md:h-24 bg-white/10 rounded mb-3 sm:mb-4 w-full flex items-center justify-center">
-                          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-white/20 rounded"></div>
+                      <div className="p-3 sm:p-6 md:p-8 relative">
+                        {/* Header area with account icon */}
+                        <div className="flex justify-between items-center mb-2 sm:mb-4">
+                          {/* Bitcoin App Text - Top Left */}
+                          <motion.div
+                            className="text-white/80 font-medium text-xs sm:text-sm"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.3, duration: 0.6 }}
+                          >
+                            Bitcoin App
+                          </motion.div>
+                          {/* Account icon top right */}
+                           <div className="w-6 h-6 sm:w-8 sm:h-8 bg-white/30 rounded-full flex items-center justify-center">
+                             <svg className="w-3 h-3 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="none">
+                               <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" fill="rgba(255,255,255,0.6)"/>
+                               <path d="M12 14C7.58172 14 4 17.5817 4 22H20C20 17.5817 16.4183 14 12 14Z" fill="rgba(255,255,255,0.6)"/>
+                             </svg>
+                           </div>
                         </div>
+                        <div className="h-2 sm:h-3 bg-white/15 rounded mb-6 sm:mb-8 w-1/2"></div>
+                        
+                                                 {/* Big chart beneath header */}
+                         <div className="h-32 sm:h-40 md:h-48 bg-white/8 rounded-lg mb-4 sm:mb-6 w-full relative overflow-hidden">
+                           {/* Chart background */}
+                           <div className="absolute inset-2 sm:inset-3 md:inset-4">
+                             {/* Chart lines */}
+                             <div className="absolute bottom-0 left-0 w-full h-full flex items-end justify-between px-2">
+                               {Array.from({ length: 8 }).map((_, i) => (
+                                 <div 
+                                   key={i}
+                                   className="bg-white/20 rounded-t"
+                                   style={{ 
+                                     width: '8%',
+                                     height: `${[30, 60, 45, 80, 35, 70, 55, 40][i]}%`
+                                   }}
+                                 />
+                               ))}
+                             </div>
+                           </div>
+                         </div>
+                        
+                                                 {/* Wallet account type graphic */}
+                         <div className="flex space-x-3 sm:space-x-4 mb-4 sm:mb-6">
+                           <div className="bg-white/6 rounded-lg p-4 sm:p-5 flex-1">
+                             <div className="flex items-center space-x-3">
+                               {/* Wallet icon */}
+                               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/15 rounded-lg flex items-center justify-center">
+                                 <div className="w-4 h-3 sm:w-5 sm:h-4 border border-white/30 rounded-sm relative">
+                                   <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-1 border border-white/30 rounded-t-sm"></div>
+                                 </div>
+                               </div>
+                               {/* Account info */}
+                               <div className="flex-1">
+                                 <div className="h-2 sm:h-3 bg-white/20 rounded w-3/4 mb-1"></div>
+                                 <div className="h-1.5 sm:h-2 bg-white/15 rounded w-1/2"></div>
+                               </div>
+                               {/* Balance/amount */}
+                               <div className="text-right">
+                                 <div className="h-2 sm:h-3 bg-white/25 rounded w-12 sm:w-16 mb-1"></div>
+                                 <div className="h-1.5 sm:h-2 bg-white/15 rounded w-8 sm:w-10"></div>
+                               </div>
+                             </div>
+                           </div>
+                           {/* Button mockup */}
+                           <div className="bg-white/20 rounded-lg px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-center min-w-[80px] sm:min-w-[100px]">
+                             <div className="h-2 sm:h-3 bg-white/30 rounded w-8 sm:w-12"></div>
+                           </div>
+                         </div>
                         
                         {/* Content blocks */}
                         <div className="space-y-1.5 sm:space-y-3">
@@ -3620,15 +3700,68 @@ function App() {
                           <div className="h-6 sm:h-8 bg-white/25 rounded w-20 sm:w-28"></div>
                         </div>
                         
-                        {/* Secondary image/content */}
-                        <div className="mt-4 sm:mt-8">
-                          <div className="h-12 sm:h-16 bg-white/8 rounded mb-2 sm:mb-3 w-full"></div>
-                          <div className="space-y-1.5 sm:space-y-2">
-                            <div className="h-2 sm:h-3 bg-white/10 rounded w-full"></div>
-                            <div className="h-2 sm:h-3 bg-white/10 rounded w-3/4"></div>
-                            <div className="h-2 sm:h-3 bg-white/10 rounded w-2/3"></div>
-                          </div>
-                        </div>
+                        
+                        {/* Tab Bar Mockup - Bottom (Mobile Only) */}
+                        {isMobile && (
+                          <motion.div
+                            className="absolute left-1/2 transform -translate-x-1/2 w-4/5 max-w-xs"
+                            style={{ bottom: '-12px' }}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.8, duration: 0.6 }}
+                          >
+                            {/* Tab Bar Background */}
+                            <div className="w-full h-10 bg-white/6 rounded flex items-center justify-around px-2">
+                              {/* Home Tab - Active */}
+                              <div className="flex flex-col items-center space-y-1">
+                                <div className="w-4 h-4 bg-white/25 rounded flex items-center justify-center">
+                                  <div className="w-2 h-2 bg-white/60 rounded"></div>
+                                </div>
+                                <div className="w-5 h-0.5 bg-white/30 rounded"></div>
+                              </div>
+                              
+                              {/* Wallet Tab */}
+                              <div className="flex flex-col items-center space-y-1">
+                                <div className="w-4 h-4 bg-white/15 rounded flex items-center justify-center">
+                                  <div className="w-2.5 h-2 border border-white/30 rounded-sm relative">
+                                    <div className="absolute -top-0.5 left-1/2 transform -translate-x-1/2 w-1.5 h-0.5 border border-white/30 rounded-t"></div>
+                                  </div>
+                                </div>
+                                <div className="w-5 h-0.5 bg-white/20 rounded"></div>
+                              </div>
+                              
+                              {/* Send Tab */}
+                              <div className="flex flex-col items-center space-y-1">
+                                <div className="w-4 h-4 bg-white/15 rounded flex items-center justify-center">
+                                  <div className="w-1.5 h-1.5 border border-white/30 rounded-full relative">
+                                    <div className="absolute -top-1 -right-1 w-1 h-0.5 border-t border-r border-white/30 rotate-45"></div>
+                                  </div>
+                                </div>
+                                <div className="w-5 h-0.5 bg-white/20 rounded"></div>
+                              </div>
+                              
+                              {/* Receive Tab */}
+                              <div className="flex flex-col items-center space-y-1">
+                                <div className="w-4 h-4 bg-white/15 rounded flex items-center justify-center">
+                                  <div className="w-1.5 h-1.5 border border-white/30 rounded-full relative">
+                                    <div className="absolute -bottom-1 -left-1 w-1 h-0.5 border-b border-l border-white/30 -rotate-45"></div>
+                                  </div>
+                                </div>
+                                <div className="w-5 h-0.5 bg-white/20 rounded"></div>
+                              </div>
+                              
+                              {/* Settings Tab */}
+                              <div className="flex flex-col items-center space-y-1">
+                                <div className="w-4 h-4 bg-white/15 rounded flex items-center justify-center space-x-0.5">
+                                  <div className="w-0.5 h-0.5 bg-white/30 rounded-full"></div>
+                                  <div className="w-0.5 h-0.5 bg-white/30 rounded-full"></div>
+                                  <div className="w-0.5 h-0.5 bg-white/30 rounded-full"></div>
+                                </div>
+                                <div className="w-5 h-0.5 bg-white/20 rounded"></div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
                       </div>
                     </motion.div>
                   )}
@@ -3887,16 +4020,35 @@ function App() {
                         
                         {/* Screen Click Effects */}
                         {['account', 'login', 'bitcoin', 'receive'].map((step, stepIndex) => {
-                          // Define click positions as specified
+                          // Calculate mockup dimensions based on responsive breakpoints
+                          const containerPadding = isMobile ? 16 : (typeof window !== 'undefined' && window.innerWidth >= 768 ? 96 : 64);
+                          const contentPadding = isMobile ? 12 : (typeof window !== 'undefined' && window.innerWidth >= 768 ? 32 : 24);
+                          const mockupLeft = containerPadding;
+                          const mockupRight = (typeof window !== 'undefined' ? window.innerWidth : 1200) - containerPadding;
+                          const mockupTop = 32 + containerPadding;
+                          
+                          // Define click positions based on exact mockup layout
                           const clickPositions = [
-                            // First click: top right of mockup
-                            isMobile ? { x: 300, y: 50 } : { x: 500, y: 80 },
-                            // Second click: top right of mockup  
-                            isMobile ? { x: 300, y: 50 } : { x: 500, y: 80 },
-                            // Third click: middle left of mockup
-                            isMobile ? { x: 80, y: 200 } : { x: 150, y: 180 },
-                            // Fourth click: middle right of mockup
-                            isMobile ? { x: 280, y: 200 } : { x: 450, y: 180 }
+                            // First click: account icon (top right of header)
+                            { 
+                              x: mockupRight - contentPadding - 32, // Account icon position
+                              y: mockupTop + contentPadding + 16    // Header height + icon center
+                            },
+                            // Second click: account icon (same position)
+                            { 
+                              x: mockupRight - contentPadding - 32, 
+                              y: mockupTop + contentPadding + 16
+                            },
+                            // Third click: wallet icon (inside wallet container on left)
+                            { 
+                              x: mockupLeft + contentPadding + 40,   // Wallet icon center in container
+                              y: mockupTop + contentPadding + (isMobile ? 200 : 260) // Position in wallet section
+                            },
+                            // Fourth click: button mockup (right side of wallet row)
+                            { 
+                              x: mockupRight - contentPadding - 60,  // Button center position
+                              y: mockupTop + contentPadding + (isMobile ? 200 : 260) // Same row as wallet
+                            }
                           ];
                           
                           const pos = clickPositions[stepIndex];
@@ -3970,14 +4122,14 @@ function App() {
                                 `${[110, 190, 270][lineIndex]}px` : 
                                 '72px',
                               height: isMobile ? '40px' : '2px',
-                              width: isMobile ? '2px' : '115px'
+                              width: isMobile ? '2px' : '115px',
+                              transformOrigin: isMobile ? 'top' : 'left'
                             }}
                             initial={isMobile ? { opacity: 0, scaleY: 0 } : { opacity: 0, scaleX: 0 }}
                             animate={isMobile ? { opacity: 1, scaleY: 1 } : { opacity: 1, scaleX: 1 }}
                             transition={{
                               delay: lineIndex * 0.8 + 0.6,
-                              duration: 0.4,
-                              transformOrigin: isMobile ? 'top' : 'left'
+                              duration: 0.4
                             }}
                           />
                         ))}
@@ -4506,6 +4658,7 @@ function App() {
               {rhodopsinMessage && !dismissedLoaders.includes(targetId) && currentSection === targetId && (
                 <div className="fixed left-0 right-0 flex justify-center z-20" style={{ bottom: '100px' }}>
                   <motion.button
+                    layout
                     onClick={() => setRhodopsinModalOpen(true)}
                     className={`px-6 py-4 rounded-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer`}
                     style={{
@@ -4518,7 +4671,10 @@ function App() {
                       opacity: 0.4 + (rhodopsinProgress / 100) * 0.6,
                       scale: 0.9 + (rhodopsinProgress / 100) * 0.1,
                     }}
-                    transition={{ duration: 0.3 }}
+                    transition={{ 
+                      duration: 0.3,
+                      layout: { duration: 0.3, ease: "easeInOut" }
+                    }}
                     whileHover={{
                       backgroundColor: isEven 
                         ? `rgba(255, 255, 255, ${0.05 + (rhodopsinProgress / 100) * 0.2})` 
