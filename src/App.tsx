@@ -877,11 +877,6 @@ function App() {
   }, [currentAppIndex]);
 
   useEffect(() => {
-    const sections = ['header', 'services', 'research', 'testing', 'contact'];
-    // ... existing code ...
-  }, [currentSection]);
-
-  useEffect(() => {
     if (currentSection === 'research' && !researchCompleting && !researchTextVisible) {
       const timers: NodeJS.Timeout[] = [];
       setResearchCompleting(true);
