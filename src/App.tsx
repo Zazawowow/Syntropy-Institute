@@ -1,12 +1,7 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence, LayoutGroup, useAnimation } from 'framer-motion';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { wrap } from 'popmotion';
 import './App.css';
-import { createPortal } from 'react-dom';
-import {
-  ChevronsRight,
-  ChevronDown,
-} from 'lucide-react';
 
 const letter = {
   hidden: { opacity: 0, y: 10 },
@@ -302,7 +297,6 @@ function App() {
 
   // Detect if mobile for button text  
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [lastScrollTop, setLastScrollTop] = useState(0);
 
   useEffect(() => {
     const checkMobile = () => {
