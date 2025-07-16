@@ -543,7 +543,7 @@ function App() {
             clearInterval(interval);
             return 100; // Keep at 100% instead of hiding
           }
-          return prev + (100 / (20 * 10)); // 20 seconds, 10 updates per second
+          return prev + (100 / (24 * 10)); // 24 seconds, 10 updates per second
         });
       }, 100);
 
@@ -626,37 +626,42 @@ function App() {
   // Conversation animation for Dialectics section
   useEffect(() => {
     if (currentSection === 'dialectics' && dialecticsState === 'conversation') {
+      const timers: NodeJS.Timeout[] = [];
       setConversationProgress(0);
       setTypingIndicator({ visible: false, side: 'left' });
       
       const animateConversation = () => {
-        // First message appears after mesh network loader completes (5 seconds)
-        setTimeout(() => {
+        // First message appears after mesh network loader completes (2.5 seconds)
+        timers.push(setTimeout(() => {
           setConversationProgress(1);
-        }, 5000);
+        }, 2500));
         
         // Subsequent messages with typing indicators
         for (let i = 1; i < conversationMessages.length; i++) {
-          const messageTime = 5000 + (i * 2000); // 5000, 7000, 9000, 11000
-          const typingTime = messageTime - 1000; // 1000 before each message
+          const messageTime = 2500 + (i * 1000);
+          const typingTime = messageTime - 500;
           
           // Show typing indicator
-          setTimeout(() => {
+          timers.push(setTimeout(() => {
             setTypingIndicator({ 
               visible: true, 
               side: conversationMessages[i].side as 'left' | 'right' 
             });
-          }, typingTime);
+          }, typingTime));
           
           // Show message and hide typing
-          setTimeout(() => {
+          timers.push(setTimeout(() => {
             setTypingIndicator({ visible: false, side: 'left' });
             setConversationProgress(i + 1);
-          }, messageTime);
+          }, messageTime));
         }
       };
       
       animateConversation();
+
+      return () => {
+        timers.forEach(clearTimeout);
+      };
     }
   }, [currentSection, dialecticsState]);
 
@@ -703,37 +708,37 @@ function App() {
         setShowAppResearch(true);
       }, 800));
       
-      // Show apps one by one - 2 seconds each, with 0.5s fade out
-      timers.push(setTimeout(() => setCurrentAppIndex(0), 1500));
-      timers.push(setTimeout(() => setCurrentAppIndex(1), 4000));
-      timers.push(setTimeout(() => setCurrentAppIndex(2), 6500));
-      timers.push(setTimeout(() => setCurrentAppIndex(3), 9000));
+      // Show apps one by one - 1.25s each, with 0.25s fade out
+      timers.push(setTimeout(() => setCurrentAppIndex(0), 1000));
+      timers.push(setTimeout(() => setCurrentAppIndex(1), 2500));
+      timers.push(setTimeout(() => setCurrentAppIndex(2), 4000));
+      timers.push(setTimeout(() => setCurrentAppIndex(3), 5500));
 
       // End Stage 1, Start Stage 2
       timers.push(setTimeout(() => {
         setResearchStage(2);
         setShowAppResearch(false);
         setShowDitloResearch(true);
-      }, 11500));
+      }, 7000));
       
       // Show DITLO items one at a time (not accumulative)
-      timers.push(setTimeout(() => setCurrentDitloIndex(0), 12500));
-      timers.push(setTimeout(() => setCurrentDitloIndex(1), 15000));
-      timers.push(setTimeout(() => setCurrentDitloIndex(2), 17500));
-      timers.push(setTimeout(() => setCurrentDitloIndex(3), 20000));
-      timers.push(setTimeout(() => setCurrentDitloIndex(4), 22500));
+      timers.push(setTimeout(() => setCurrentDitloIndex(0), 7000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(1), 9500));
+      timers.push(setTimeout(() => setCurrentDitloIndex(2), 12000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(3), 14500));
+      timers.push(setTimeout(() => setCurrentDitloIndex(4), 17000));
       
       // End Stage 2, Complete Research
       timers.push(setTimeout(() => {
         setResearchStage(3);
         setShowDitloResearch(false);
-      }, 25000));
+      }, 19500));
       
       // Hide loader and show final content
       timers.push(setTimeout(() => {
         setResearchCompleting(false);
         setResearchTextVisible(true);
-      }, 26000));
+      }, 20500));
       
       return () => {
         timers.forEach(clearTimeout);
@@ -758,7 +763,7 @@ function App() {
             clearInterval(interval);
             return 100;
           }
-          return prev + (100 / (26 * 10)); // 26 seconds, 10 updates per second
+          return prev + (100 / (21.5 * 10)); // 21.5 seconds, 10 updates per second
         });
       }, 100);
 
@@ -863,12 +868,68 @@ function App() {
 
   useEffect(() => {
     setAnalysisComplete(false);
+    if (currentAppIndex > -1) {
+      const timer = setTimeout(() => {
+        setAnalysisComplete(true);
+      }, 1250);
+      return () => clearTimeout(timer);
+    }
   }, [currentAppIndex]);
 
   useEffect(() => {
     const sections = ['header', 'services', 'research', 'testing', 'contact'];
     // ... existing code ...
   }, [currentSection]);
+
+  useEffect(() => {
+    if (currentSection === 'research' && !researchCompleting && !researchTextVisible) {
+      const timers: NodeJS.Timeout[] = [];
+      setResearchCompleting(true);
+      setResearchStage(1);
+
+      // Start Stage 1: App Research Phase
+      timers.push(setTimeout(() => {
+        setResearchStage(1);
+        setShowAppResearch(true);
+      }, 800));
+      
+      // Show apps one by one - 1.25s each, with 0.25s fade out
+      timers.push(setTimeout(() => setCurrentAppIndex(0), 1000));
+      timers.push(setTimeout(() => setCurrentAppIndex(1), 2500));
+      timers.push(setTimeout(() => setCurrentAppIndex(2), 4000));
+      timers.push(setTimeout(() => setCurrentAppIndex(3), 5500));
+
+      // End Stage 1, Start Stage 2
+      timers.push(setTimeout(() => {
+        setResearchStage(2);
+        setShowAppResearch(false);
+        setShowDitloResearch(true);
+      }, 7000));
+      
+      // Show DITLO items one at a time (not accumulative)
+      timers.push(setTimeout(() => setCurrentDitloIndex(0), 7000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(1), 9500));
+      timers.push(setTimeout(() => setCurrentDitloIndex(2), 12000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(3), 14500));
+      timers.push(setTimeout(() => setCurrentDitloIndex(4), 17000));
+      
+      // End Stage 2, Complete Research
+      timers.push(setTimeout(() => {
+        setResearchStage(3);
+        setShowDitloResearch(false);
+      }, 19500));
+      
+      // Hide loader and show final content
+      timers.push(setTimeout(() => {
+        setResearchCompleting(false);
+        setResearchTextVisible(true);
+      }, 20500));
+      
+      return () => {
+        timers.forEach(clearTimeout);
+      };
+    }
+  }, [currentSection, researchCompleting, researchTextVisible]);
 
   return (
     <div className="bg-white font-orbitron">
@@ -2870,7 +2931,7 @@ function App() {
                                             initial={{ width: '0%' }}
                                             animate={{ width: '100%' }}
                                             transition={{
-                                              duration: 4,
+                                              duration: 2,
                                               ease: "easeInOut"
                                             }}
                                           />
@@ -3034,7 +3095,7 @@ function App() {
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 2.5, ease: "easeInOut" }}
+                    transition={{ duration: 1.25, ease: "easeInOut" }}
                   >
                     <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
                       Deep interviews with target and non target archetypes. Day in the life and affinity mapping, and most simply, understanding the user before they even use your product so it's tuned to their habits, unconciouss interactions, and expectations.
@@ -4251,16 +4312,25 @@ function App() {
                         className="fixed inset-0 flex flex-col items-center justify-center space-y-4"
                           initial={{ opacity: 0 }}
                         animate={{ opacity: isActive && !analysisComplete ? 1 : 0 }}
-                        transition={{ duration: analysisComplete ? 0.5 : 1.5, ease: "easeInOut" }}
+                        transition={{ duration: 0.25, ease: 'easeInOut' }}
+                        onAnimationComplete={() => {
+                          if (!isActive && analysisComplete) {
+                            setAnalysisComplete(false);
+                            setCurrentAppIndex(-1);
+                            setCurrentDitloIndex(-1);
+                            setShowAppResearch(false);
+                            setShowDitloResearch(false);
+                          }
+                        }}
                       >
                         {/* App Icon */}
                         <motion.div
-                          className={`w-24 h-24 rounded-3xl flex items-center justify-center text-4xl shadow-2xl overflow-hidden ${app.color}`}
+                          className={`w-24 h-24 rounded-3xl flex items-center justify-center text-4xl shadow-2xl overflow-hidden`}
                           animate={{ 
-                            scale: isActive ? [1, 1.05, 1] : 1,
-                            rotate: isActive ? [0, 2, -2, 0] : 0
+                            scale: isActive && !analysisComplete ? [1, 1.05, 1] : 1,
+                            rotate: isActive && !analysisComplete ? [0, 2, -2, 0] : 0
                           }}
-                          transition={{ 
+                          transition={{
                             scale: { duration: 4, repeat: Infinity, ease: "easeInOut" },
                             rotate: { duration: 1.2, ease: "easeInOut" }
                           }}
@@ -4269,43 +4339,22 @@ function App() {
                             src={app.icon}
                             alt={app.name}
                             className="w-full h-full object-cover"
-                          animate={{ 
-                              scale: isActive ? [1, 1.05, 1] : 1
-                          }}
-                          transition={{ 
-                              duration: 3, 
-                              repeat: Infinity, 
-                              ease: "easeInOut" 
-                            }}
                           />
                         </motion.div>
                         
                         {/* App Name */}
-                          <motion.div
+                        <motion.div
                           className="text-xl font-bold text-white text-center"
                           initial={{ y: 10, opacity: 0 }}
-                            animate={{ 
-                            y: isActive ? 0 : 10,
-                            opacity: isActive ? 1 : 0
-                            }}
-                            transition={{ 
-                            duration: 1.2,
-                            delay: 0.5,
-                              ease: "easeInOut" 
-                            }}
-                          >
+                          animate={{ y: 0, opacity: 1 }}
+                          transition={{ duration: 0.25, ease: "easeInOut" }}
+                        >
                           {app.name}
-                          </motion.div>
-                          
+                        </motion.div>
+                        
                         {/* Analyzing indicator */}
                         {isActive && (
-                          <motion.div
-                            className="flex flex-col items-center space-y-2 mt-4"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.5 }}
-                          >
+                          <div className="h-10 mt-4 flex items-center justify-center">
                             <AnimatePresence mode="wait">
                               {!analysisComplete ? (
                                 <motion.div
@@ -4320,7 +4369,7 @@ function App() {
                                       className="h-full bg-white/70"
                                       initial={{ width: '0%' }}
                                       animate={{ width: '100%' }}
-                                      transition={{ duration: 2, ease: 'linear' }}
+                                      transition={{ duration: 1.25, ease: 'linear' }}
                                     />
                                   </div>
                                 </motion.div>
@@ -4337,9 +4386,9 @@ function App() {
                                 </motion.div>
                               )}
                             </AnimatePresence>
-                          </motion.div>
+                          </div>
                         )}
-                      </motion.div>
+                        </motion.div>
                     );
                   })}
                 </>
@@ -4347,108 +4396,79 @@ function App() {
 
               {/* DITLO Research Animation - Research Section */}
               {targetId === 'research' && showDitloResearch && (
-                <div className="fixed inset-0 pointer-events-none z-0 flex flex-col items-center justify-center space-y-4">
-                  {[
-                    { text: 'Wakes up', icon: '🌅', time: '7:00 AM' },
-                    { text: 'Checks phone', icon: '📱', time: '7:05 AM' },
-                    { text: 'Spends day on multiscreen setup', icon: '💻', time: '9:00 AM' },
-                    { text: 'Needs to keep in touch on breaks', icon: '☕', time: '12:00 PM' },
-                    { text: 'Switches phone off in evenings', icon: '🌙', time: '10:00 PM' }
-                  ].map((item, index) => {
-                    const isActive = index === currentDitloIndex;
-                    
-                    return (
-                          <motion.div
-                        key={index}
-                        className={`flex items-center space-x-4 p-4 rounded-xl backdrop-blur-sm transition-all duration-500 ${
-                          isActive 
-                            ? 'bg-white/20 text-white border border-white/30 shadow-2xl' 
-                            : 'bg-white/5 text-white/30 border border-white/10'
-                        }`}
-                        style={{
-                          width: '100%',
-                          maxWidth: '500px'
-                        }}
-                        initial={{ 
-                          opacity: 0,
-                          scale: 0.9
-                        }}
-                          animate={{ 
-                          opacity: isActive ? 1 : 0.3,
-                          scale: isActive ? 1 : 0.9
-                          }}
-                          transition={{ 
-                          duration: 2,
-                          ease: "easeInOut"
-                          }}
-                        >
-                        {/* Time indicator */}
-                          <motion.div
-                          className={`text-xs font-mono px-3 py-2 rounded-lg ${
-                            isActive 
-                              ? 'bg-white/30 text-white shadow-lg' 
-                              : 'bg-white/10 text-white/50'
-                          }`}
-                            animate={{ 
-                            scale: isActive ? 1 : 0.8 
-                          }}
-                          transition={{ delay: 0.1 }}
-                        >
-                          {item.time}
-                          </motion.div>
-                          
-                        {/* Icon */}
-                          <motion.div
-                          className={`text-2xl ${
-                            isActive ? 'filter drop-shadow-lg' : ''
-                          }`}
-                          animate={{ 
-                            rotate: isActive ? 0 : -45,
-                            opacity: isActive ? 1 : 0.4
-                          }}
-                          transition={{ 
-                            type: "spring",
-                            stiffness: 300,
-                            damping: 15,
-                            delay: 0.2 
-                          }}
-                             >
-                          {item.icon}
-                          </motion.div>
+                <div className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center">
+                  <div className="flex flex-col items-center px-6 sm:px-0">
+                    <motion.h2
+                      className="text-2xl font-bold text-white mb-8 text-center"
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.8, ease: 'easeInOut' }}
+                    >
+                      Stakeholder Interview Results
+                    </motion.h2>
+                    <div className="relative w-full max-w-lg" style={{ height: '400px' }}>
+                      {[
+                        { text: 'Wakes up', icon: '🌅', time: '7:00 AM' },
+                        { text: 'Checks phone', icon: '📱', time: '7:05 AM' },
+                        { text: 'Spends day on multiscreen setup', icon: '💻', time: '9:00 AM' },
+                        { text: 'Needs to keep in touch on breaks', icon: '☕', time: '12:00 PM' },
+                        { text: 'Switches phone off in evenings', icon: '🌙', time: '10:00 PM' }
+                      ].map((item, index) => {
+                        const position = index - currentDitloIndex;
+                        const isActive = index === currentDitloIndex;
+                        const yOffset = isMobile ? -100 : 0;
                         
-                        {/* Text */}
-                          <motion.div
-                          className={`flex-1 font-medium ${
-                            isActive ? 'text-white' : 'text-white/40'
-                          }`}
-                          animate={{ 
-                            opacity: isActive ? 1 : 0.5 
-                          }}
-                          transition={{ delay: 0.3 }}
+                        return (
+                            <motion.div
+                            key={index}
+                            className={`absolute inset-x-0 flex items-center space-x-4 p-4 rounded-xl backdrop-blur-sm transition-colors duration-500 ${
+                              isActive 
+                                ? 'bg-white/20 text-white border border-white/30 shadow-2xl' 
+                                : 'bg-white/5 text-white/30 border border-white/10'
+                            }`}
+                            style={{
+                              top: '50%',
+                            }}
+                            initial={{ opacity: 0, scale: 1, y: '0%' }}
+                            animate={{
+                              y: `calc(-50% + ${position * 80 + yOffset}px)`,
+                              scale: 1,
+                              opacity: isActive ? 1 : Math.max(0, 0.6 - Math.abs(position) * 0.2),
+                              zIndex: isActive ? 10 : 5 - Math.abs(position),
+                            }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 40 }}
                           >
-                          {item.text}
+                            {/* Time indicator */}
+                            <motion.div 
+                              className={`text-xs font-mono px-3 py-2 rounded-lg transition-colors duration-500 ${
+                                isActive 
+                                  ? 'bg-white/30 text-white shadow-lg' 
+                                  : 'bg-white/10 text-white/50'
+                              }`}
+                            >
+                              {item.time}
+                            </motion.div>
+                            
+                            {/* Icon */}
+                            <motion.div
+                              className={`text-2xl ${
+                                isActive ? 'filter drop-shadow-lg' : ''
+                              }`}
+                               >
+                              {item.icon}
+                            </motion.div>
+                          
+                            {/* Text */}
+                            <motion.div
+                              className="flex-1"
+                            >
+                              {item.text}
+                            </motion.div>
                           </motion.div>
-                        
-                        {/* Active pulse indicator */}
-                        {isActive && (
-                          <motion.div
-                            className="w-3 h-3 bg-green-400 rounded-full"
-                            initial={{ scale: 0 }}
-                            animate={{ 
-                              scale: [0, 1.3, 1],
-                              opacity: [0, 1, 0.8]
-                            }}
-                            transition={{ 
-                              duration: 0.6,
-                              times: [0, 0.6, 1],
-                              repeat: Infinity,
-                              repeatDelay: 1
-                            }}
-                          />
-                    )}
-                      </motion.div>
-                    );
-                  })}
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -4602,9 +4622,9 @@ function App() {
                           ease: "easeInOut"
                         }}
                       >
-                        {researchStage === 1 ? 'Researching Common Apps' : 
-                         researchStage === 2 ? 'Researching Day in the Life' : 
-                         'Research Complete'}
+                        {researchStage === 2 ? 'Researching Day in the Life' :
+                         researchStage === 3 ? 'Research Complete' :
+                         'Researching Common Apps'}
                       </motion.div>
                       <div 
                         className={`w-32 h-2 rounded-full overflow-hidden`}
