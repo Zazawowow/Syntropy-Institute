@@ -1024,65 +1024,65 @@ function App() {
         setShowIntroText(true);
       }, 0));
       
-      // Fade out intro text (2 seconds)
+      // Fade out intro text (1 second)
       timers.push(setTimeout(() => {
         setShowIntroText(false);
-      }, 2000));
+      }, 1000));
       
       // Stage 2: Value Scoring table - starts after intro fades out
       timers.push(setTimeout(() => {
         setPredictionStage(2);
-      }, 2500));
+      }, 1500));
       
       // Show value scoring items one by one (every 1600ms) - original timing
-      timers.push(setTimeout(() => setValueScoringProgress(1), 3100)); // Detrimental
-      timers.push(setTimeout(() => setValueScoringProgress(2), 4700)); // No Value
-      timers.push(setTimeout(() => setValueScoringProgress(3), 6300)); // Some Value  
-      timers.push(setTimeout(() => setValueScoringProgress(4), 7900)); // Market leading
+      timers.push(setTimeout(() => setValueScoringProgress(1), 2100)); // Detrimental
+      timers.push(setTimeout(() => setValueScoringProgress(2), 3700)); // No Value
+      timers.push(setTimeout(() => setValueScoringProgress(3), 5300)); // Some Value  
+      timers.push(setTimeout(() => setValueScoringProgress(4), 6900)); // Market leading
       
       // Fade out value scoring (original timing)
       timers.push(setTimeout(() => {
         setPredictionStage(0);
-      }, 10500));
+      }, 9500));
       
       // Stage 3: Calculation animation - starts after scoring completely fades out
       timers.push(setTimeout(() => {
         setPredictionStage(3);
         setShowCalculation(true);
         setCalculationTextIndex(0);
-      }, 11500));
+      }, 10500));
       
       // Change calculation text every 1.2 seconds
-      timers.push(setTimeout(() => setCalculationTextIndex(1), 12700)); // Value to existing users
-      timers.push(setTimeout(() => setCalculationTextIndex(2), 13900)); // Value to the business
+      timers.push(setTimeout(() => setCalculationTextIndex(1), 11700)); // Value to existing users
+      timers.push(setTimeout(() => setCalculationTextIndex(2), 12900)); // Value to the business
       
       // Fade out calculation
       timers.push(setTimeout(() => {
         setShowCalculation(false);
-      }, 15000));
+      }, 14000));
       
       // Stage 4: Priority list - starts after calculation completely fades out
       timers.push(setTimeout(() => {
         setPredictionStage(4);
         setShowPriorities(true);
-      }, 15500));
+      }, 14500));
       
       // Show priorities one by one (2 second delays)
-      timers.push(setTimeout(() => setPriorityProgress(1), 16000)); // Priority 1
-      timers.push(setTimeout(() => setPriorityProgress(2), 18000)); // Priority 2 (2 second delay)
-      timers.push(setTimeout(() => setPriorityProgress(3), 20000)); // Priority 3 (2 second delay)
+      timers.push(setTimeout(() => setPriorityProgress(1), 15000)); // Priority 1
+      timers.push(setTimeout(() => setPriorityProgress(2), 17000)); // Priority 2 (2 second delay)
+      timers.push(setTimeout(() => setPriorityProgress(3), 19000)); // Priority 3 (2 second delay)
       
       // Fade out priorities (3 seconds after all priorities have loaded)
       timers.push(setTimeout(() => {
         setShowPriorities(false);
-      }, 23000));
+      }, 22000));
       
       // Stage 5: Final content - starts after priorities completely fade out
       timers.push(setTimeout(() => {
         setPredictionStage(5);
         setShowPredictionContent(true);
         setCompletedSections(prev => [...prev, 'prediction']);
-      }, 23500));
+      }, 22500));
       
       return () => {
         timers.forEach(clearTimeout);
@@ -3935,17 +3935,17 @@ function App() {
                             exit={{ opacity: 0, scale: 0.95 }}
                             transition={{ duration: 0.8 }}
                           >
-                            <div className="w-full max-w-4xl mx-auto">
+                            <div className="w-full max-w-6xl mx-6 md:mx-auto">
                           <div className="space-y-4">
                             {[
                               { label: 'Detrimental', checks: ['X', 'X', 'X', 'X'] },
                               { label: 'No Value', checks: ['✓', 'X', 'X', 'X'] },
                               { label: 'Some Value', checks: ['X', 'X', 'X', 'X'] },
-                              { label: 'Market leading', checks: ['X', '✓', '✓', '✓'] }
+                              { label: 'Leading', checks: ['X', '✓', '✓', '✓'] }
                             ].map((row, rowIndex) => (
                               <motion.div
                                 key={row.label}
-                                className={`flex items-center justify-between p-4 rounded-lg border transition-all duration-300 ${
+                                className={`flex items-center justify-between px-6 py-4 rounded-lg border transition-all duration-300 ${
                                   isEven 
                                     ? 'bg-white/5 border-white/10 hover:bg-white/10' 
                                     : 'bg-black/5 border-black/10 hover:bg-black/10'
@@ -3977,7 +3977,7 @@ function App() {
                                 >
                                   {row.label}
                                 </motion.span>
-                                <div className="flex space-x-4">
+                                <div className="flex space-x-6">
                                   {row.checks.map((check, checkIndex) => (
                                     <motion.div
                                       key={checkIndex}
@@ -4007,12 +4007,22 @@ function App() {
                                           className="text-black"
                                         >
                                           <motion.path 
-                                            d="m9 12 2 2 4-4" 
+                                            d="m7 12 3 3" 
                                             initial={{ pathLength: 0 }}
                                             animate={{ pathLength: valueScoringProgress > rowIndex ? 1 : 0 }}
                                             transition={{ 
-                                              duration: 0.6, 
+                                              duration: 0.4, 
                                               delay: 0.6 + (checkIndex * 0.15),
+                                              ease: "easeInOut"
+                                            }}
+                                          />
+                                          <motion.path 
+                                            d="m10 15 7-7" 
+                                            initial={{ pathLength: 0 }}
+                                            animate={{ pathLength: valueScoringProgress > rowIndex ? 1 : 0 }}
+                                            transition={{ 
+                                              duration: 0.4, 
+                                              delay: 0.7 + (checkIndex * 0.15),
                                               ease: "easeInOut"
                                             }}
                                           />
