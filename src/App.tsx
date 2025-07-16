@@ -85,6 +85,44 @@ function App() {
   const [typingIndicator, setTypingIndicator] = useState<{ visible: boolean; side: 'left' | 'right' }>({ visible: false, side: 'left' });
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [contactForm, setContactForm] = useState({ email: '', subject: '', message: '' });
+  const [uxIssuesFixed, setUxIssuesFixed] = useState(false);
+  const [themePreferenceModalOpen, setThemePreferenceModalOpen] = useState(false);
+  const [themePreference, setThemePreference] = useState<'light' | 'dark' | null>(null);
+  
+  // Helper functions for theme-aware colors
+  const getBlackColor = () => uxIssuesFixed ? '#0a0a0a' : '#000000';
+  const getWhiteColor = () => uxIssuesFixed ? '#FAFAFA' : '#ffffff';
+  
+  const getThemeBg = () => {
+    if (!uxIssuesFixed) return shouldInvertNav() ? 'bg-black' : 'bg-white';
+    return themePreference === 'dark' ? 'bg-[#0a0a0a]' : 'bg-[#FAFAFA]';
+  };
+  
+  const getThemeText = () => {
+    if (!uxIssuesFixed) return shouldInvertNav() ? 'text-white' : 'text-black';
+    return themePreference === 'dark' ? 'text-[#FAFAFA]' : 'text-[#0a0a0a]';
+  };
+  
+  const getOppositeBg = () => {
+    if (!uxIssuesFixed) return shouldInvertNav() ? 'bg-white' : 'bg-black';
+    return themePreference === 'dark' ? 'bg-[#FAFAFA]' : 'bg-[#0a0a0a]';
+  };
+  
+  const getOppositeText = () => {
+    if (!uxIssuesFixed) return shouldInvertNav() ? 'text-black' : 'text-white';
+    return themePreference === 'dark' ? 'text-[#0a0a0a]' : 'text-[#FAFAFA]';
+  };
+  
+  // Helper functions for backward compatibility and sections
+  const getSectionBg = (isEven: boolean) => {
+    if (!uxIssuesFixed) return isEven ? 'bg-black' : 'bg-white';
+    return isEven ? (themePreference === 'dark' ? 'bg-[#0a0a0a]' : 'bg-[#FAFAFA]') : (themePreference === 'dark' ? 'bg-[#FAFAFA]' : 'bg-[#0a0a0a]');
+  };
+  
+  const getSectionText = (isEven: boolean) => {
+    if (!uxIssuesFixed) return isEven ? 'text-white' : 'text-black';
+    return isEven ? (themePreference === 'dark' ? 'text-[#FAFAFA]' : 'text-[#0a0a0a]') : (themePreference === 'dark' ? 'text-[#0a0a0a]' : 'text-[#FAFAFA]');
+  };
   
   // Research loader states
   const [researchCompleting, setResearchCompleting] = useState(false);
@@ -455,6 +493,21 @@ function App() {
     setModalOpen(false);
     setPathwayDiagramClicked(false);
     setModalOpenedBy(null);
+  };
+
+  // Handle fixing UX issues
+  const handleFixIssues = () => {
+    setUxIssuesFixed(true);
+    setThemePreferenceModalOpen(true);
+    handleModalClose();
+  };
+  
+  // Handle theme preference selection
+  const handleThemePreference = (preference: 'light' | 'dark') => {
+    setThemePreference(preference);
+    setThemePreferenceModalOpen(false);
+    // Hide sad face modal after theme selection
+    setModalOpen(false);
   };
 
   // Handle contact form submission
@@ -1092,10 +1145,10 @@ function App() {
   }, [currentSection, completedSections]);
 
   return (
-    <div className="bg-white font-orbitron">
+    <div className={`${getThemeBg()} font-orbitron`}>
       {/* --- 404 Page --- */}
       {show404 && (
-        <div className="fixed inset-0 bg-white z-[100]">
+        <div className={`fixed inset-0 ${getThemeBg()} z-[100]`}>
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
               <div className="relative inline-block bg-white rounded-lg p-4">
@@ -1121,7 +1174,7 @@ function App() {
               >
                 <button
                   onClick={handleReturnFrom404}
-                  className="px-8 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300"
+                  className={`px-8 py-3 ${getOppositeBg()} ${getOppositeText()} rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300`}
                 >
                   Ok, I'm Sorry
                 </button>
@@ -1133,13 +1186,13 @@ function App() {
       
       {/* --- Sticky Header --- */}
       <header className={`sticky top-0 z-50 transition-colors duration-300 ${
-        shouldInvertNav() ? 'bg-black' : 'bg-white'
+        shouldInvertNav() ? getOppositeBg() : getThemeBg()
       }`} style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="relative flex h-16 items-center justify-between px-4 sm:h-24 sm:block sm:px-0">
           <a href="#anatomy" onClick={(e) => handleLinkClick(e, 'anatomy')}>
             <motion.div
               className={`text-lg font-bold sm:absolute sm:top-8 sm:left-8 sm:text-2xl transition-colors duration-300 ${
-                shouldInvertNav() ? 'text-white' : 'text-black'
+                shouldInvertNav() ? getOppositeText() : getThemeText()
               }`}
               initial={{ opacity: 0 }}
               animate={{ opacity: step >= 5 ? 1 : 0 }}
@@ -1151,7 +1204,7 @@ function App() {
 
           {/* Desktop Navigation */}
           <nav className={`hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 ${
-            shouldInvertNav() ? 'text-white' : 'text-black'
+            shouldInvertNav() ? getOppositeText() : getThemeText()
           } relative`}>
             {navItems.map((item, index) => {
               const appearStep = 6 + index;
@@ -1215,13 +1268,13 @@ function App() {
               }}
             >
               <motion.span className={`mb-1 h-0.5 w-6 transition-colors duration-300 ${
-                shouldInvertNav() ? 'bg-white' : 'bg-black'
+                shouldInvertNav() ? getOppositeText() : getThemeText()
               }`} animate={{ rotate: mobileMenuOpen ? 45 : 0, y: mobileMenuOpen ? 6 : 0 }} />
               <motion.span className={`mb-1 h-0.5 w-6 transition-colors duration-300 ${
-                shouldInvertNav() ? 'bg-white' : 'bg-black'
+                shouldInvertNav() ? getOppositeText() : getThemeText()
               }`} animate={{ opacity: mobileMenuOpen ? 0 : 1 }} />
               <motion.span className={`h-0.5 w-6 transition-colors duration-300 ${
-                shouldInvertNav() ? 'bg-white' : 'bg-black'
+                shouldInvertNav() ? getOppositeText() : getThemeText()
               }`} animate={{ rotate: mobileMenuOpen ? -45 : 0, y: mobileMenuOpen ? -6 : 0 }} />
             </motion.button>
           )}
@@ -1233,7 +1286,7 @@ function App() {
           {mobileMenuFixed && (
             <motion.button
               className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 flex h-12 w-12 flex-col items-center justify-center rounded-full shadow-lg sm:hidden ${
-                shouldInvertNav() ? 'bg-secondary-black' : 'bg-white'
+                shouldInvertNav() ? 'bg-secondary-black' : getThemeBg()
               }`}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               initial={{ opacity: 0, scale: 0, y: 20 }}
@@ -1244,13 +1297,13 @@ function App() {
               whileTap={{ scale: 0.95 }}
             >
               <motion.span className={`mb-1 h-0.5 w-6 transition-colors duration-300 ${
-                shouldInvertNav() ? 'bg-white' : 'bg-black'
+                shouldInvertNav() ? getOppositeText() : getThemeText()
               }`} animate={{ rotate: mobileMenuOpen ? 45 : 0, y: mobileMenuOpen ? 6 : 0 }} />
               <motion.span className={`mb-1 h-0.5 w-6 transition-colors duration-300 ${
-                shouldInvertNav() ? 'bg-white' : 'bg-black'
+                shouldInvertNav() ? getOppositeText() : getThemeText()
               }`} animate={{ opacity: mobileMenuOpen ? 0 : 1 }} />
               <motion.span className={`h-0.5 w-6 transition-colors duration-300 ${
-                shouldInvertNav() ? 'bg-white' : 'bg-black'
+                shouldInvertNav() ? getOppositeText() : getThemeText()
               }`} animate={{ rotate: mobileMenuOpen ? -45 : 0, y: mobileMenuOpen ? -6 : 0 }} />
             </motion.button>
           )}
@@ -1261,7 +1314,7 @@ function App() {
         {mobileMenuOpen && (
           <motion.div
             className={`sm:hidden fixed inset-0 z-40 flex flex-col items-center justify-center transition-colors duration-300 ${
-              shouldInvertNav() ? 'bg-black' : 'bg-white'
+              shouldInvertNav() ? getOppositeBg() : getThemeBg()
             }`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -1276,8 +1329,8 @@ function App() {
                   onClick={(e) => handleLinkClick(e, targetId)}
                   className={`text-2xl font-medium mb-8 cursor-pointer transition-colors ${
                     shouldInvertNav() 
-                      ? 'text-white hover:text-gray-300' 
-                      : 'text-black hover:text-gray-600'
+                      ? `${getOppositeText()} hover:text-gray-300` 
+                      : `${getThemeText()} hover:text-gray-600`
                   }`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -1295,8 +1348,8 @@ function App() {
               }}
               className={`mt-8 px-6 py-3 rounded-lg text-lg font-semibold transition-colors ${
                 shouldInvertNav() 
-                  ? 'bg-white text-black hover:bg-gray-200' 
-                  : 'bg-black text-white hover:bg-gray-800'
+                  ? `${getThemeBg()} ${getThemeText()} hover:bg-gray-200` 
+                  : `${getOppositeBg()} ${getOppositeText()} hover:bg-gray-800`
               }`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1410,7 +1463,7 @@ function App() {
            >
                          <motion.div
                className={`rounded-lg p-6 max-w-md w-full mx-4 relative ${
-                 shouldInvertNav() ? 'bg-black text-white border border-white/20' : 'bg-white text-black'
+                 shouldInvertNav() ? `${getOppositeBg()} ${getOppositeText()} border border-white/20` : `${getThemeBg()} ${getThemeText()}`
                }`}
                initial={{ scale: 0.8, opacity: 0, y: 50 }}
                animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -1568,11 +1621,11 @@ function App() {
                    // UX Mistakes Modal Buttons
                    <>
                  <button 
-                   onClick={handleModalClose}
+                   onClick={handleFixIssues}
                    className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
                      shouldInvertNav() 
-                       ? 'bg-white text-black hover:bg-gray-200' 
-                       : 'bg-black text-white hover:bg-gray-800'
+                       ? `${getThemeBg()} ${getThemeText()} hover:bg-gray-200` 
+                       : `${getOppositeBg()} ${getOppositeText()} hover:bg-gray-800`
                    }`}
                  >
                    Fix these issues
@@ -2132,6 +2185,50 @@ function App() {
         )}
       </AnimatePresence>
 
+      {/* --- Theme Preference Modal --- */}
+      <AnimatePresence>
+        {themePreferenceModalOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="bg-white text-black rounded-lg p-6 max-w-md w-full mx-4 relative"
+              initial={{ scale: 0.8, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 50 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-2xl font-bold mb-6 text-center text-black">
+                Choose Your Preference
+              </h2>
+              
+              <p className="text-base leading-relaxed text-gray-700 mb-6 text-center">
+                Now that we've fixed the harsh contrast, would you prefer a light or dark theme with our improved colors?
+              </p>
+              
+              <div className="flex flex-col space-y-3">
+                <button 
+                  onClick={() => handleThemePreference('light')}
+                  className="w-full px-6 py-4 bg-[#FAFAFA] text-[#0a0a0a] rounded-lg font-medium hover:bg-gray-100 transition-colors border border-gray-200"
+                >
+                  ☀️ Light Theme
+                </button>
+                <button 
+                  onClick={() => handleThemePreference('dark')}
+                  className="w-full px-6 py-4 bg-[#0a0a0a] text-[#FAFAFA] rounded-lg font-medium hover:bg-gray-800 transition-colors border border-gray-700"
+                >
+                  🌙 Dark Theme
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* --- Contact Form Modal --- */}
       <AnimatePresence>
         {contactModalOpen && (
@@ -2319,7 +2416,7 @@ function App() {
 
       <main className="-mt-16 sm:-mt-24">
         {/* --- App Anatomy Section (First Fold) --- */}
-        <section id="anatomy" className="snap-section flex items-center justify-center overflow-hidden relative px-4 sm:px-0 bg-white snap-start">
+        <section id="anatomy" className={`snap-section flex items-center justify-center overflow-hidden relative px-4 sm:px-0 ${getThemeBg()} snap-start`}>
           <div className="absolute inset-0 flex items-center justify-center">
             <LayoutGroup>
               <AnimatePresence mode="wait">
@@ -2357,7 +2454,7 @@ function App() {
                     className="flex flex-col items-center justify-center text-center w-full"
                   >
                     <motion.div
-                      className="text-3xl sm:text-6xl md:text-8xl font-bold text-black flex justify-center w-full tracking-wide md:tracking-wider"
+                      className={`text-3xl sm:text-6xl md:text-8xl font-bold ${getThemeText()} flex justify-center w-full tracking-wide md:tracking-wider`}
                       variants={sentenceRightToLeft}
                       initial="hidden"
                       animate="visible"
@@ -2409,7 +2506,7 @@ function App() {
                         </motion.span>
                       ))}
                     </motion.div>
-                    <motion.div className="text-2xl sm:text-5xl md:text-7xl font-bold text-black flex flex-wrap justify-center w-full mt-4">
+                    <motion.div className={`text-2xl sm:text-5xl md:text-7xl font-bold ${getThemeText()} flex flex-wrap justify-center w-full mt-4`}>
                       <motion.span layoutId="ue-0" className="inline-block">U</motion.span>
                       <motion.span layoutId="ue-13" className="inline-block">X</motion.span>
                     </motion.div>
@@ -2419,7 +2516,7 @@ function App() {
                 {step === 4 && (
                   <motion.div
                     key="proux-center"
-                    className="text-6xl sm:text-8xl md:text-9xl font-bold flex items-center text-black"
+                    className={`text-6xl sm:text-8xl md:text-9xl font-bold flex items-center ${getThemeText()}`}
                   >
                     <motion.span layoutId="char-proux-0" transition={{ type: "spring", stiffness: 200, damping: 25 }}>P</motion.span>
                     <motion.span layoutId="char-proux-1" transition={{ type: "spring", stiffness: 200, damping: 25 }}>R</motion.span>
@@ -2432,7 +2529,7 @@ function App() {
                 {step >= 5 && (
                   <motion.div
                     key="proux-fade-out"
-                    className="text-6xl sm:text-8xl md:text-9xl font-bold text-black"
+                    className={`text-6xl sm:text-8xl md:text-9xl font-bold ${getThemeText()}`}
                     initial={{ opacity: 1 }}
                     animate={{ opacity: 0, scale: 0.5 }}
                     transition={{ duration: 0.5 }}
@@ -2968,8 +3065,8 @@ function App() {
         {navItems.slice(1).map((item, index) => {
           const targetId = item.toLowerCase().replace(/\s+/g, '-');
           const isEven = index % 2 === 0;
-          const bgColor = isEven ? 'bg-black' : 'bg-white';
-          const textColor = isEven ? 'text-white' : 'text-black';
+          const bgColor = getSectionBg(isEven);
+                      const textColor = getSectionText(isEven);
           const subTextColor = isEven ? 'text-gray-300' : 'text-gray-700';
           // const loaderTextColor = isEven ? 'text-gray-500' : 'text-gray-400';
           // const loaderBgColor = isEven ? 'bg-gray-800' : 'bg-gray-200';
