@@ -2097,6 +2097,28 @@ function App() {
         )}
       </AnimatePresence>
 
+      {/* --- Get In Touch Button (Desktop Only) --- */}
+      <AnimatePresence>
+        {!isMobile && (
+          <motion.button
+            onClick={() => setContactModalOpen(true)}
+            className={`fixed bottom-6 left-6 z-40 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 ${
+              shouldInvertNav() 
+                ? 'bg-white text-black shadow-lg hover:bg-gray-200' 
+                : 'bg-black text-white shadow-lg hover:bg-gray-800'
+            }`}
+            initial={{ opacity: 0, scale: 0, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0, y: 20 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Get In Touch
+          </motion.button>
+        )}
+      </AnimatePresence>
+
       <main className="-mt-16 sm:-mt-24">
         {/* --- App Anatomy Section (First Fold) --- */}
         <section id="anatomy" className="snap-section flex items-center justify-center overflow-hidden relative px-4 sm:px-0 bg-white snap-start">
