@@ -927,8 +927,14 @@ function App() {
         <div className="fixed inset-0 bg-white z-[100]">
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <h1 className="text-8xl sm:text-9xl font-bold text-black mb-8">404</h1>
-              <p className="text-xl sm:text-2xl text-gray-600 max-w-md mx-auto leading-relaxed">
+              <div className="relative inline-block">
+                <img 
+                  src="/404.png"
+                  alt="404"
+                  className="w-80 h-32 sm:w-96 sm:h-40 md:w-[30rem] md:h-48 lg:w-[36rem] lg:h-56 mb-8 object-contain"
+                />
+              </div>
+              <p className="text-xl sm:text-2xl text-gray-600 max-w-md mx-auto leading-relaxed px-6 sm:px-0">
                 You're reason to be here couldn't be found
               </p>
             </div>
