@@ -105,6 +105,7 @@ function App() {
   const [heatmapIntensity, setHeatmapIntensity] = useState(0);
   const [eyeTrackingTextVisible, setEyeTrackingTextVisible] = useState(false);
   const [mockupFadingOut, setMockupFadingOut] = useState(false);
+  const [ditloFadingOut, setDitloFadingOut] = useState(false);
   
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
@@ -625,14 +626,14 @@ function App() {
       setTypingIndicator({ visible: false, side: 'left' });
       
       const animateConversation = () => {
-        // First message appears after mesh network loader completes (4 seconds)
+        // First message appears after mesh network loader completes (2 seconds)
         timers.push(setTimeout(() => {
           setConversationProgress(1);
-        }, 4000));
+        }, 2000));
         
         // Subsequent messages with typing indicators
         for (let i = 1; i < conversationMessages.length; i++) {
-          const messageTime = 4000 + (i * 1000);
+          const messageTime = 2000 + (i * 2000);
           const typingTime = messageTime - 500;
           
           // Show typing indicator
@@ -690,6 +691,7 @@ function App() {
       setCurrentDitloIndex(-1);
       setShowAppResearch(false);
       setShowDitloResearch(false);
+      setDitloFadingOut(false);
       
       const timers: NodeJS.Timeout[] = [];
       
@@ -702,37 +704,42 @@ function App() {
         setShowAppResearch(true);
       }, 800));
       
-      // Show apps one by one - 1.25s each, with 0.25s fade out
+      // Show apps one by one - 1s each
       timers.push(setTimeout(() => setCurrentAppIndex(0), 1000));
-      timers.push(setTimeout(() => setCurrentAppIndex(1), 2500));
-      timers.push(setTimeout(() => setCurrentAppIndex(2), 4000));
-      timers.push(setTimeout(() => setCurrentAppIndex(3), 5500));
+      timers.push(setTimeout(() => setCurrentAppIndex(1), 2000));
+      timers.push(setTimeout(() => setCurrentAppIndex(2), 3000));
+      timers.push(setTimeout(() => setCurrentAppIndex(3), 4000));
 
       // End Stage 1, Start Stage 2
       timers.push(setTimeout(() => {
         setResearchStage(2);
         setShowAppResearch(false);
         setShowDitloResearch(true);
-      }, 7000));
+      }, 5000));
       
       // Show DITLO items one at a time (not accumulative)
-      timers.push(setTimeout(() => setCurrentDitloIndex(0), 7000));
-      timers.push(setTimeout(() => setCurrentDitloIndex(1), 9500));
-      timers.push(setTimeout(() => setCurrentDitloIndex(2), 12000));
-      timers.push(setTimeout(() => setCurrentDitloIndex(3), 14500));
-      timers.push(setTimeout(() => setCurrentDitloIndex(4), 17000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(0), 5000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(1), 7000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(2), 9000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(3), 11000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(4), 13000));
+      
+      // Start fade out of DITLO content
+      timers.push(setTimeout(() => {
+        setDitloFadingOut(true);
+      }, 14000));
       
       // End Stage 2, Complete Research
       timers.push(setTimeout(() => {
         setResearchStage(3);
         setShowDitloResearch(false);
-      }, 19500));
+      }, 15000));
       
       // Hide loader and show final content
       timers.push(setTimeout(() => {
         setResearchCompleting(false);
         setResearchTextVisible(true);
-      }, 20500));
+      }, 16000));
       
       return () => {
         timers.forEach(clearTimeout);
@@ -745,6 +752,7 @@ function App() {
       setCurrentDitloIndex(-1);
       setShowAppResearch(false);
       setShowDitloResearch(false);
+      setDitloFadingOut(false);
     }
   }, [currentSection]);
 
@@ -757,7 +765,7 @@ function App() {
             clearInterval(interval);
             return 100;
           }
-          return prev + (100 / (21.5 * 10)); // 21.5 seconds, 10 updates per second
+          return prev + (100 / (16 * 10)); // 16 seconds, 10 updates per second
         });
       }, 100);
 
@@ -865,7 +873,7 @@ function App() {
     if (currentAppIndex > -1) {
       const timer = setTimeout(() => {
         setAnalysisComplete(true);
-      }, 1250);
+      }, 1000);
       return () => clearTimeout(timer);
     }
   }, [currentAppIndex]);
@@ -882,37 +890,42 @@ function App() {
         setShowAppResearch(true);
       }, 800));
       
-      // Show apps one by one - 1.25s each, with 0.25s fade out
+      // Show apps one by one - 1s each
       timers.push(setTimeout(() => setCurrentAppIndex(0), 1000));
-      timers.push(setTimeout(() => setCurrentAppIndex(1), 2500));
-      timers.push(setTimeout(() => setCurrentAppIndex(2), 4000));
-      timers.push(setTimeout(() => setCurrentAppIndex(3), 5500));
+      timers.push(setTimeout(() => setCurrentAppIndex(1), 2000));
+      timers.push(setTimeout(() => setCurrentAppIndex(2), 3000));
+      timers.push(setTimeout(() => setCurrentAppIndex(3), 4000));
 
       // End Stage 1, Start Stage 2
       timers.push(setTimeout(() => {
         setResearchStage(2);
         setShowAppResearch(false);
         setShowDitloResearch(true);
-      }, 7000));
+      }, 5000));
       
       // Show DITLO items one at a time (not accumulative)
-      timers.push(setTimeout(() => setCurrentDitloIndex(0), 7000));
-      timers.push(setTimeout(() => setCurrentDitloIndex(1), 9500));
-      timers.push(setTimeout(() => setCurrentDitloIndex(2), 12000));
-      timers.push(setTimeout(() => setCurrentDitloIndex(3), 14500));
-      timers.push(setTimeout(() => setCurrentDitloIndex(4), 17000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(0), 5000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(1), 7000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(2), 9000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(3), 11000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(4), 13000));
+      
+      // Start fade out of DITLO content
+      timers.push(setTimeout(() => {
+        setDitloFadingOut(true);
+      }, 14000));
       
       // End Stage 2, Complete Research
       timers.push(setTimeout(() => {
         setResearchStage(3);
         setShowDitloResearch(false);
-      }, 19500));
+      }, 15000));
       
       // Hide loader and show final content
       timers.push(setTimeout(() => {
         setResearchCompleting(false);
         setResearchTextVisible(true);
-      }, 20500));
+      }, 16000));
       
       return () => {
         timers.forEach(clearTimeout);
@@ -2879,6 +2892,19 @@ function App() {
                     >
                       {item}
                     </motion.h2>
+                  ) : item === 'Research' && researchTextVisible ? (
+                    <motion.h2 
+                      className="text-3xl sm:text-4xl font-bold"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ 
+                        duration: 1.2, 
+                        ease: "easeOut",
+                        delay: 0.2
+                      }}
+                    >
+                      {item}
+                    </motion.h2>
                   ) : (
                     <h2 className="text-3xl sm:text-4xl font-bold">
                       {item === 'Question' ? 
@@ -2964,7 +2990,7 @@ function App() {
                                             initial={{ width: '0%' }}
                                             animate={{ width: '100%' }}
                                             transition={{
-                                              duration: 4,
+                                              duration: 2,
                                               ease: "easeInOut"
                                             }}
                                           />
@@ -3131,7 +3157,7 @@ function App() {
                     transition={{ duration: 1.25, ease: "easeInOut" }}
                   >
                     <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                      Deep interviews with target and non target archetypes. Day in the life and affinity mapping, and most simply, understanding the user before they even use your product so it's tuned to their habits, unconciouss interactions, and expectations.
+                      Deep interviews with target and non target archetypes. Day in the life and affinity mapping. Put simply, understanding the user before they even use your product so it's tuned to their habits, unconciouss interactions, and expectations.
                     </p>
                   </motion.div>
                 )}
@@ -4359,12 +4385,17 @@ function App() {
                         {/* App Icon */}
                         <motion.div
                           className={`w-24 h-24 rounded-3xl flex items-center justify-center text-4xl shadow-2xl overflow-hidden`}
+                          initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ 
-                            scale: isActive && !analysisComplete ? [1, 1.05, 1] : 1,
+                            opacity: isActive ? 1 : 0,
+                            scale: isActive && !analysisComplete ? [0.8, 1.05, 1] : (isActive ? 1 : 0.8),
                             rotate: isActive && !analysisComplete ? [0, 2, -2, 0] : 0
                           }}
                           transition={{
-                            scale: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+                            opacity: { duration: 0.4, ease: "easeInOut" },
+                            scale: isActive && !analysisComplete ? 
+                              { duration: 4, repeat: Infinity, ease: "easeInOut" } : 
+                              { duration: 0.4, ease: "easeInOut" },
                             rotate: { duration: 1.2, ease: "easeInOut" }
                           }}
                         >
@@ -4372,6 +4403,9 @@ function App() {
                             src={app.icon}
                             alt={app.name}
                             className="w-full h-full object-cover"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: isActive ? 1 : 0 }}
+                            transition={{ duration: 0.3, ease: "easeInOut", delay: 0.1 }}
                           />
                         </motion.div>
                         
@@ -4379,48 +4413,89 @@ function App() {
                         <motion.div
                           className="text-xl font-bold text-white text-center"
                           initial={{ y: 10, opacity: 0 }}
-                          animate={{ y: 0, opacity: 1 }}
-                          transition={{ duration: 0.25, ease: "easeInOut" }}
+                          animate={{ 
+                            y: isActive ? 0 : 10, 
+                            opacity: isActive ? 1 : 0 
+                          }}
+                          transition={{ 
+                            duration: 0.4, 
+                            ease: "easeInOut",
+                            delay: isActive ? 0.2 : 0
+                          }}
                         >
                           {app.name}
                         </motion.div>
                         
                         {/* Analyzing indicator */}
-                        {isActive && (
-                          <div className="h-10 mt-4 flex items-center justify-center">
+                        <motion.div 
+                          className="h-10 mt-4 flex items-center justify-center"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ 
+                            opacity: isActive ? 1 : 0,
+                            y: isActive ? 0 : 10
+                          }}
+                          transition={{ 
+                            duration: 0.5, 
+                            ease: "easeInOut",
+                            delay: isActive ? 0.4 : 0
+                          }}
+                        >
+                          {isActive && (
                             <AnimatePresence mode="wait">
                               {!analysisComplete ? (
                                 <motion.div
                                   key="analyzing"
                                   className="text-center"
-                                  exit={{ opacity: 0 }}
-                                  transition={{ duration: 0.2 }}
+                                  initial={{ opacity: 0, scale: 0.9 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  exit={{ opacity: 0, scale: 0.9 }}
+                                  transition={{ duration: 0.3, ease: "easeInOut" }}
                                 >
-                                  <span className="text-white/70 text-sm">Analyzing...</span>
-                                  <div className="w-24 h-1 bg-white/20 rounded-full overflow-hidden mt-2">
+                                  <motion.span 
+                                    className="text-white/70 text-sm"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.4, delay: 0.1 }}
+                                  >
+                                    Analyzing...
+                                  </motion.span>
+                                  <motion.div 
+                                    className="w-24 h-1 bg-white/20 rounded-full overflow-hidden mt-2"
+                                    initial={{ opacity: 0, scaleX: 0.8 }}
+                                    animate={{ opacity: 1, scaleX: 1 }}
+                                    transition={{ duration: 0.4, delay: 0.2 }}
+                                  >
                                     <motion.div
                                       className="h-full bg-white/70"
                                       initial={{ width: '0%' }}
                                       animate={{ width: '100%' }}
-                                      transition={{ duration: 1.25, ease: 'linear' }}
+                                      transition={{ duration: 1, ease: 'linear', delay: 0.3 }}
                                     />
-                                  </div>
+                                  </motion.div>
                                 </motion.div>
                               ) : (
                                 <motion.div
                                   key="complete"
                                   className="text-center"
-                                  initial={{ opacity: 0 }}
-                                  animate={{ opacity: 1 }}
-                                  transition={{ duration: 0.2 }}
+                                  initial={{ opacity: 0, scale: 0.9 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  exit={{ opacity: 0, scale: 0.9 }}
+                                  transition={{ duration: 0.3, ease: "easeInOut" }}
                                 >
-                                  <span className="text-white/70 text-sm">Complete</span>
+                                  <motion.span 
+                                    className="text-white/70 text-sm"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.3 }}
+                                  >
+                                    Complete
+                                  </motion.span>
                                   <div className="w-24 h-1 mt-2" />
                                 </motion.div>
                               )}
                             </AnimatePresence>
-                          </div>
-                        )}
+                          )}
+                        </motion.div>
                         </motion.div>
                     );
                   })}
@@ -4430,16 +4505,19 @@ function App() {
               {/* DITLO Research Animation - Research Section */}
               {targetId === 'research' && showDitloResearch && (
                 <div className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center">
-                  <div className="flex flex-col items-center px-6 sm:px-0">
+                  <div className="flex flex-col items-center mx-6 sm:mx-0 w-full">
                     <motion.h2
                       className="text-2xl font-bold text-white mb-8 text-center"
                       initial={{ opacity: 0, y: -20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.8, ease: 'easeInOut' }}
+                      animate={{ 
+                        opacity: ditloFadingOut ? 0 : 1, 
+                        y: ditloFadingOut ? -20 : 0 
+                      }}
+                      transition={{ duration: ditloFadingOut ? 0.8 : 0.8, ease: 'easeInOut' }}
                     >
                       Interview Insights
                     </motion.h2>
-                    <div className="relative w-full max-w-lg" style={{ height: '400px' }}>
+                    <div className="relative w-full sm:w-[30%]" style={{ height: '400px' }}>
                       {[
                         { text: 'Wakes up', icon: '🌅', time: '7:00 AM' },
                         { text: 'Checks phone', icon: '📱', time: '7:05 AM' },
@@ -4466,10 +4544,15 @@ function App() {
                             animate={{
                               y: `calc(-50% + ${position * 80 + yOffset}px)`,
                               scale: 1,
-                              opacity: isActive ? 1 : Math.max(0, 0.6 - Math.abs(position) * 0.2),
+                              opacity: ditloFadingOut ? 0 : (isActive ? 1 : Math.max(0, 0.6 - Math.abs(position) * 0.2)),
                               zIndex: isActive ? 10 : 5 - Math.abs(position),
                             }}
-                            transition={{ type: 'spring', stiffness: 400, damping: 40 }}
+                            transition={{ 
+                              type: 'spring', 
+                              stiffness: 400, 
+                              damping: 40,
+                              opacity: ditloFadingOut ? { duration: 0.8, ease: 'easeInOut' } : { type: 'spring', stiffness: 400, damping: 40 }
+                            }}
                           >
                             {/* Time indicator */}
                             <motion.div 
