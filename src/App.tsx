@@ -4886,7 +4886,7 @@ function App() {
               </div>
 
               {/* Research Loader - Fixed position 100px from bottom */}
-              {targetId === 'research' && researchCompleting && (
+              {targetId === 'research' && researchCompleting && !completedSections.includes('research') && (
                 <div className="fixed left-0 right-0 flex justify-center z-20" style={{ bottom: '100px' }}>
                   <motion.button
                     layout
