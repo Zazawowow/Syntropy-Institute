@@ -940,7 +940,7 @@ function App() {
         <div className="fixed inset-0 bg-white z-[100]">
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <div className="relative inline-block">
+              <div className="relative inline-block bg-white rounded-lg p-4">
                 <img 
                   src="/404.jpg"
                   alt="404"
