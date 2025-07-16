@@ -57,9 +57,8 @@ function App() {
   const [currentSection, setCurrentSection] = useState('anatomy');
   const [modalOpen, setModalOpen] = useState(false);
   const [rhodopsinProgress, setRhodopsinProgress] = useState(0);
-  const [footnoteVisible, setFootnoteVisible] = useState(false);
-  const [footnoteTextChanged, setFootnoteTextChanged] = useState(false);
   const [rhodopsinModalOpen, setRhodopsinModalOpen] = useState(false);
+  const [footnoteVisible, setFootnoteVisible] = useState(false);
   const [dismissedLoaders, setDismissedLoaders] = useState<string[]>([]);
   const [questionAnswer, setQuestionAnswer] = useState<'yes' | 'no' | null>(null);
   const [show404, setShow404] = useState(false);
@@ -637,25 +636,17 @@ function App() {
     if (step >= 6 && slideIndex === 5) {
       // Reset states when entering third quote
       setFootnoteVisible(false);
-      setFootnoteTextChanged(false);
       
       // Show footnote after 2 seconds
       const showTimer = setTimeout(() => {
         setFootnoteVisible(true);
       }, 2000);
       
-      // Change text after 6 seconds total (2s + 4s)
-      const changeTimer = setTimeout(() => {
-        setFootnoteTextChanged(true);
-      }, 6000);
-      
       return () => {
         clearTimeout(showTimer);
-        clearTimeout(changeTimer);
       };
     } else {
       setFootnoteVisible(false);
-      setFootnoteTextChanged(false);
     }
   }, [step, slideIndex]);
 
