@@ -107,6 +107,55 @@ function App() {
   const [mockupFadingOut, setMockupFadingOut] = useState(false);
   const [ditloFadingOut, setDitloFadingOut] = useState(false);
   
+  // Track which sections are completed and should show end state
+  const [completedSections, setCompletedSections] = useState<string[]>([]);
+  
+  // Function to restart animation for a specific section
+  const refreshSection = (sectionId: string) => {
+    // Remove section from completed list to trigger animation
+    setCompletedSections(prev => prev.filter(id => id !== sectionId));
+    
+    // Reset section-specific states
+    if (sectionId === 'research') {
+      setResearchCompleting(false);
+      setResearchTextVisible(false);
+      setResearchProgress(0);
+      setCurrentAppIndex(-1);
+      setCurrentDitloIndex(-1);
+      setShowAppResearch(false);
+      setShowDitloResearch(false);
+      setDitloFadingOut(false);
+      setResearchStage(1);
+    } else if (sectionId === 'testing') {
+      setEyeTrackingStage(0);
+      setEyeTrackingActive(false);
+      setEyeTrackingTextVisible(false);
+      setEyeTrackingProgress(0);
+      setHeatmapIntensity(0);
+      setMockupFadingOut(false);
+    } else if (sectionId === 'dialectics') {
+      setDialecticsState('conversation');
+      setConversationProgress(0);
+      setTypingIndicator({ visible: false, side: 'left' });
+    } else if (sectionId === 'question') {
+      setRhodopsinProgress(0);
+    } else if (sectionId === 'ergonomics') {
+      setThumbFlowStage(0);
+      setThumbFlowProgress(0);
+      setErgonomicsState('button');
+    }
+    
+    // Small delay to ensure state is reset before triggering animation
+    setTimeout(() => {
+      if (sectionId === 'research') {
+        setResearchCompleting(true);
+      } else if (sectionId === 'testing') {
+        setEyeTrackingActive(true);
+      }
+      // Question and Ergonomics animations trigger automatically when their conditions are met
+    }, 100);
+  };
+  
   const slides = [
     { type: 'image', src: '/screen-1.png', alt: 'Proux application screenshot 1' },
     { type: 'quote', text: 'Think about ergonomics when designing apps. It\'s a simple step that will make your product more delightful.' },
@@ -531,11 +580,24 @@ function App() {
   // Rhodopsin progress animation
   useEffect(() => {
     if (currentSection === 'question') {
+      // Check if section is already completed - if so, show end state
+      if (completedSections.includes('question')) {
+        setRhodopsinProgress(100);
+        return;
+      }
+      
       setRhodopsinProgress(0);
       const interval = setInterval(() => {
         setRhodopsinProgress(prev => {
           if (prev >= 100) {
             clearInterval(interval);
+            // Mark as completed when animation finishes
+            setCompletedSections(prevCompleted => {
+              if (!prevCompleted.includes('question')) {
+                return [...prevCompleted, 'question'];
+              }
+              return prevCompleted;
+            });
             return 100; // Keep at 100% instead of hiding
           }
           return prev + (100 / (24 * 10)); // 24 seconds, 10 updates per second
@@ -546,7 +608,7 @@ function App() {
     } else {
       setRhodopsinProgress(0);
     }
-  }, [currentSection]);
+  }, [currentSection, completedSections]);
 
   // Footnote timing for third quote
   useEffect(() => {
@@ -621,6 +683,13 @@ function App() {
   // Conversation animation for Dialectics section
   useEffect(() => {
     if (currentSection === 'dialectics' && dialecticsState === 'conversation') {
+      // Check if section is already completed - if so, show end state
+      if (completedSections.includes('dialectics')) {
+        setDialecticsState('content');
+        setConversationProgress(conversationMessages.length);
+        return;
+      }
+      
       const timers: NodeJS.Timeout[] = [];
       setConversationProgress(0);
       setTypingIndicator({ visible: false, side: 'left' });
@@ -648,6 +717,12 @@ function App() {
           timers.push(setTimeout(() => {
             setTypingIndicator({ visible: false, side: 'left' });
             setConversationProgress(i + 1);
+            // Mark as completed when last message is shown
+            if (i + 1 === conversationMessages.length) {
+              setTimeout(() => {
+                setCompletedSections(prev => [...prev, 'dialectics']);
+              }, 1000); // Small delay before marking complete
+            }
           }, messageTime));
         }
       };
@@ -658,7 +733,7 @@ function App() {
         timers.forEach(clearTimeout);
       };
     }
-  }, [currentSection, dialecticsState]);
+  }, [currentSection, dialecticsState, completedSections]);
 
   // Reset dialectics state when leaving section
   useEffect(() => {
@@ -683,6 +758,15 @@ function App() {
   // Research animation sequence
   useEffect(() => {
     if (currentSection === 'research') {
+      // Check if section is already completed - if so, show end state
+      if (completedSections.includes('research')) {
+        setResearchTextVisible(true);
+        setResearchCompleting(false);
+        setShowAppResearch(false);
+        setShowDitloResearch(false);
+        return;
+      }
+      
       // Reset all states when entering research section
       setResearchCompleting(false);
       setResearchTextVisible(false);
@@ -704,42 +788,43 @@ function App() {
         setShowAppResearch(true);
       }, 800));
       
-      // Show apps one by one - 1s each
+      // Show apps one by one - 1.25s each
       timers.push(setTimeout(() => setCurrentAppIndex(0), 1000));
-      timers.push(setTimeout(() => setCurrentAppIndex(1), 2000));
-      timers.push(setTimeout(() => setCurrentAppIndex(2), 3000));
-      timers.push(setTimeout(() => setCurrentAppIndex(3), 4000));
+      timers.push(setTimeout(() => setCurrentAppIndex(1), 2500));
+      timers.push(setTimeout(() => setCurrentAppIndex(2), 4000));
+      timers.push(setTimeout(() => setCurrentAppIndex(3), 5500));
 
       // End Stage 1, Start Stage 2
       timers.push(setTimeout(() => {
         setResearchStage(2);
         setShowAppResearch(false);
         setShowDitloResearch(true);
-      }, 5000));
+      }, 7000));
       
       // Show DITLO items one at a time (not accumulative)
-      timers.push(setTimeout(() => setCurrentDitloIndex(0), 5000));
-      timers.push(setTimeout(() => setCurrentDitloIndex(1), 7000));
-      timers.push(setTimeout(() => setCurrentDitloIndex(2), 9000));
-      timers.push(setTimeout(() => setCurrentDitloIndex(3), 11000));
-      timers.push(setTimeout(() => setCurrentDitloIndex(4), 13000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(0), 7000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(1), 9000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(2), 11000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(3), 13000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(4), 15000));
       
       // Start fade out of DITLO content
       timers.push(setTimeout(() => {
         setDitloFadingOut(true);
-      }, 14000));
+      }, 16000));
       
       // End Stage 2, Complete Research
       timers.push(setTimeout(() => {
         setResearchStage(3);
         setShowDitloResearch(false);
-      }, 15000));
+      }, 17000));
       
       // Hide loader and show final content
       timers.push(setTimeout(() => {
         setResearchCompleting(false);
         setResearchTextVisible(true);
-      }, 16000));
+        setCompletedSections(prev => [...prev, 'research']);
+      }, 18000));
       
       return () => {
         timers.forEach(clearTimeout);
@@ -754,7 +839,7 @@ function App() {
       setShowDitloResearch(false);
       setDitloFadingOut(false);
     }
-  }, [currentSection]);
+  }, [currentSection, completedSections]);
 
   // Effect to update research progress bar
   useEffect(() => {
@@ -765,7 +850,7 @@ function App() {
             clearInterval(interval);
             return 100;
           }
-          return prev + (100 / (16 * 10)); // 16 seconds, 10 updates per second
+          return prev + (100 / (18 * 10)); // 18 seconds, 10 updates per second
         });
       }, 100);
 
@@ -776,6 +861,14 @@ function App() {
   // Eye tracking animation for Testing section
   useEffect(() => {
     if (currentSection === 'testing') {
+      // Check if section is already completed - if so, show end state
+      if (completedSections.includes('testing')) {
+        setEyeTrackingTextVisible(true);
+        setEyeTrackingActive(false);
+        setEyeTrackingStage(0);
+        return;
+      }
+      
       // Reset all states when entering testing section
       setEyeTrackingStage(0);
       setEyeTrackingActive(false);
@@ -811,6 +904,7 @@ function App() {
         setEyeTrackingStage(0); // Reset stage
         setEyeTrackingActive(false); // Hide loader
         setEyeTrackingTextVisible(true); // Show final text
+        setCompletedSections(prev => [...prev, 'testing']);
       }, 13500));
       
       return () => {
@@ -824,7 +918,7 @@ function App() {
       setHeatmapIntensity(0);
       setMockupFadingOut(false);
     }
-  }, [currentSection]);
+  }, [currentSection, completedSections]);
 
   // Eye tracking progress animation
   useEffect(() => {
@@ -873,7 +967,7 @@ function App() {
     if (currentAppIndex > -1) {
       const timer = setTimeout(() => {
         setAnalysisComplete(true);
-      }, 1000);
+      }, 1250);
       return () => clearTimeout(timer);
     }
   }, [currentAppIndex]);
@@ -890,42 +984,42 @@ function App() {
         setShowAppResearch(true);
       }, 800));
       
-      // Show apps one by one - 1s each
+      // Show apps one by one - 1.25s each
       timers.push(setTimeout(() => setCurrentAppIndex(0), 1000));
-      timers.push(setTimeout(() => setCurrentAppIndex(1), 2000));
-      timers.push(setTimeout(() => setCurrentAppIndex(2), 3000));
-      timers.push(setTimeout(() => setCurrentAppIndex(3), 4000));
+      timers.push(setTimeout(() => setCurrentAppIndex(1), 2500));
+      timers.push(setTimeout(() => setCurrentAppIndex(2), 4000));
+      timers.push(setTimeout(() => setCurrentAppIndex(3), 5500));
 
       // End Stage 1, Start Stage 2
       timers.push(setTimeout(() => {
         setResearchStage(2);
         setShowAppResearch(false);
         setShowDitloResearch(true);
-      }, 5000));
+      }, 7000));
       
       // Show DITLO items one at a time (not accumulative)
-      timers.push(setTimeout(() => setCurrentDitloIndex(0), 5000));
-      timers.push(setTimeout(() => setCurrentDitloIndex(1), 7000));
-      timers.push(setTimeout(() => setCurrentDitloIndex(2), 9000));
-      timers.push(setTimeout(() => setCurrentDitloIndex(3), 11000));
-      timers.push(setTimeout(() => setCurrentDitloIndex(4), 13000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(0), 7000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(1), 9000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(2), 11000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(3), 13000));
+      timers.push(setTimeout(() => setCurrentDitloIndex(4), 15000));
       
       // Start fade out of DITLO content
       timers.push(setTimeout(() => {
         setDitloFadingOut(true);
-      }, 14000));
+      }, 16000));
       
       // End Stage 2, Complete Research
       timers.push(setTimeout(() => {
         setResearchStage(3);
         setShowDitloResearch(false);
-      }, 15000));
+      }, 17000));
       
       // Hide loader and show final content
       timers.push(setTimeout(() => {
         setResearchCompleting(false);
         setResearchTextVisible(true);
-      }, 16000));
+      }, 18000));
       
       return () => {
         timers.forEach(clearTimeout);
@@ -2091,9 +2185,11 @@ function App() {
                           : 'text-gray-700 hover:text-black hover:bg-gray-100'
                       }`}
                     >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2L2 7v10c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V7l-10-5z"/>
-                        <path d="M9 12l2 2 4-4"/>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                        <rect x="2" y="7" width="20" height="13" rx="1"/>
+                        <path d="M8 7V4"/>
+                        <path d="M16 7V4"/>
                       </svg>
                       <span className="text-sm font-medium">Portfolio</span>
                     </a>
@@ -2884,33 +2980,101 @@ function App() {
                 {/* Hide title for Ergonomics on desktop and Testing section during animation */}
                 {!(item === 'Ergonomics' && !isMobile) && !(item === 'Testing' && !eyeTrackingTextVisible) && (
                   item === 'Testing' && eyeTrackingTextVisible ? (
-                    <motion.h2 
-                      className="text-3xl sm:text-4xl font-bold"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 2 }}
-                    >
-                      {item}
-                    </motion.h2>
+                    <div className="flex flex-col items-center">
+                      {/* Refresh icon for Testing section */}
+                      <motion.button
+                        onClick={() => refreshSection(targetId)}
+                        className={`mb-4 p-2 rounded-full transition-colors hover:scale-110 ${
+                          isEven ? 'text-white/60 hover:text-white hover:bg-white/10' : 'text-black/60 hover:text-black hover:bg-black/10'
+                        }`}
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5, delay: 2.5 }}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        title="Restart animation"
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                          <path d="M21 3v5h-5"/>
+                          <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                          <path d="M3 21v-5h5"/>
+                        </svg>
+                      </motion.button>
+                      <motion.h2 
+                        className="text-3xl sm:text-4xl font-bold"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 2 }}
+                      >
+                        {item}
+                      </motion.h2>
+                    </div>
                   ) : item === 'Research' && researchTextVisible ? (
-                    <motion.h2 
-                      className="text-3xl sm:text-4xl font-bold"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ 
-                        duration: 1.2, 
-                        ease: "easeOut",
-                        delay: 0.2
-                      }}
-                    >
-                      {item}
-                    </motion.h2>
+                    <div className="flex flex-col items-center">
+                      {/* Refresh icon for Research section */}
+                      <motion.button
+                        onClick={() => refreshSection(targetId)}
+                        className={`mb-4 p-2 rounded-full transition-colors hover:scale-110 ${
+                          isEven ? 'text-white/60 hover:text-white hover:bg-white/10' : 'text-black/60 hover:text-black hover:bg-black/10'
+                        }`}
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5, delay: 1.7 }}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        title="Restart animation"
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                          <path d="M21 3v5h-5"/>
+                          <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                          <path d="M3 21v-5h5"/>
+                        </svg>
+                      </motion.button>
+                      <motion.h2 
+                        className="text-3xl sm:text-4xl font-bold"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ 
+                          duration: 1.2, 
+                          ease: "easeOut",
+                          delay: 0.2
+                        }}
+                      >
+                        {item}
+                      </motion.h2>
+                    </div>
+                  ) : item === 'Dialectics' && dialecticsState === 'content' ? (
+                    <div className="flex flex-col items-center">
+                      {/* Refresh icon for Dialectics section */}
+                      <motion.button
+                        onClick={() => refreshSection(targetId)}
+                        className={`mb-4 p-2 rounded-full transition-colors hover:scale-110 ${
+                          isEven ? 'text-white/60 hover:text-white hover:bg-white/10' : 'text-black/60 hover:text-black hover:bg-black/10'
+                        }`}
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5, delay: 0.5 }}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        title="Restart animation"
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                          <path d="M21 3v5h-5"/>
+                          <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                          <path d="M3 21v-5h5"/>
+                        </svg>
+                      </motion.button>
+                      <h2 className="text-3xl sm:text-4xl font-bold">UX is a dialectic</h2>
+                    </div>
                   ) : (
                     <h2 className="text-3xl sm:text-4xl font-bold">
                       {item === 'Question' ? 
                         (questionAnswer === 'yes' ? 'UX Does Matter' :
                          returnedFrom404 ? 'Oh, so it does matter? 🙂' : 'Does UX matter for Bitcoin & Nostr?') : 
-                       item === 'Dialectics' ? (dialecticsState === 'content' ? 'UX is a dialectic' : '') :
+                       item === 'Dialectics' ? '' :
                        item === 'Ergonomics' && ergonomicsState === 'revealed' ? 'That second one was annoying huh?' : 
                        item === 'Research' && !researchTextVisible ? '' :
                        item}
@@ -3272,9 +3436,37 @@ function App() {
                       // Desktop Layout - Side-by-side with phone mockup
                       <div className="flex items-center justify-center gap-12 mt-8 w-full max-w-6xl mx-auto">
                         <div className="flex-1 max-w-md">
-                          <h2 className={`text-3xl sm:text-4xl font-bold mb-6 text-left ${textColor}`}>
-                            Ergonomics
-                          </h2>
+                          <div className="flex flex-col">
+                            {/* Refresh icon for Ergonomics section */}
+                            {thumbFlowStage >= 5 && (
+                              <motion.button
+                                onClick={() => {
+                                  setThumbFlowStage(0);
+                                  setThumbFlowProgress(0);
+                                  setErgonomicsState('button');
+                                }}
+                                className={`self-start mb-4 p-2 rounded-full transition-colors hover:scale-110 ${
+                                  isEven ? 'text-white/60 hover:text-white hover:bg-white/10' : 'text-black/60 hover:text-black hover:bg-black/10'
+                                }`}
+                                initial={{ opacity: 0, scale: 0 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.5, delay: 0.5 }}
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.95 }}
+                                title="Restart animation"
+                              >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                                  <path d="M21 3v5h-5"/>
+                                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                                  <path d="M3 21v-5h5"/>
+                                </svg>
+                              </motion.button>
+                            )}
+                            <h2 className={`text-3xl sm:text-4xl font-bold mb-6 text-left ${textColor}`}>
+                              Ergonomics
+                            </h2>
+                          </div>
                           {ergonomicsState === 'revealed' && (
                             <p className={`text-base lg:text-lg leading-relaxed text-left ${subTextColor}`}>
                               Utilise thumb flow, habituated interactions, and best practices to make sure that your app is performant and isn't causing fatigue due to poor, unvalidated interface choices.
@@ -4788,10 +4980,9 @@ function App() {
               {/* Rhodopsin Loader - Fixed position 100px from bottom - Only show on current section */}
               {rhodopsinMessage && !dismissedLoaders.includes(targetId) && currentSection === targetId && (
                 <div className="fixed left-0 right-0 flex justify-center z-20" style={{ bottom: '100px' }}>
-                  <motion.button
+                  <motion.div
                     layout
-                    onClick={() => setRhodopsinModalOpen(true)}
-                    className={`px-6 py-4 rounded-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 cursor-pointer`}
+                    className={`px-6 py-4 rounded-lg backdrop-blur-sm transition-all duration-300 cursor-pointer relative`}
                     style={{
                       backgroundColor: isEven 
                         ? `rgba(255, 255, 255, ${0.03 + (rhodopsinProgress / 100) * 0.15})` 
@@ -4871,7 +5062,40 @@ function App() {
                         {Math.round(Math.max(0, rhodopsinProgress))}% Complete
                       </motion.div>
                     </div>
-                  </motion.button>
+                    
+                    {/* Refresh icon when rhodopsin animation is complete */}
+                    {rhodopsinProgress >= 100 && (
+                      <motion.button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          refreshSection(targetId);
+                        }}
+                        className={`absolute top-2 right-2 p-1 rounded-full transition-colors hover:scale-110 ${
+                          isEven ? 'text-white/60 hover:text-white hover:bg-white/10' : 'text-black/60 hover:text-black hover:bg-black/10'
+                        }`}
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5, delay: 0.5 }}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        title="Restart animation"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                          <path d="M21 3v5h-5"/>
+                          <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                          <path d="M3 21v-5h5"/>
+                        </svg>
+                      </motion.button>
+                    )}
+                    
+                    {/* Click handler for the main area */}
+                    <motion.button
+                      onClick={() => setRhodopsinModalOpen(true)}
+                      className="absolute inset-0 w-full h-full"
+                      whileHover={{ scale: 1.05 }}
+                    />
+                  </motion.div>
                 </div>
               )}
             </section>
