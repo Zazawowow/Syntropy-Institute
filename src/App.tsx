@@ -81,6 +81,7 @@ function App() {
   const [mobileMenuFixed, setMobileMenuFixed] = useState(false);
   const [historicalMistakesButtonClicked, setHistoricalMistakesButtonClicked] = useState(false);
   const [menuMoving, setMenuMoving] = useState(false);
+  const [showCustomizationMessage, setShowCustomizationMessage] = useState(false);
   const [showHistoricalMistakesButton, setShowHistoricalMistakesButton] = useState(false);
   const [typingIndicator, setTypingIndicator] = useState<{ visible: boolean; side: 'left' | 'right' }>({ visible: false, side: 'left' });
   const [contactModalOpen, setContactModalOpen] = useState(false);
@@ -721,7 +722,7 @@ function App() {
             if (i + 1 === conversationMessages.length) {
               setTimeout(() => {
                 setCompletedSections(prev => [...prev, 'dialectics']);
-              }, 1000); // Small delay before marking complete
+              }, 3000); // Longer delay after the last message before marking complete
             }
           }, messageTime));
         }
@@ -972,60 +973,7 @@ function App() {
     }
   }, [currentAppIndex]);
 
-  useEffect(() => {
-    if (currentSection === 'research' && !researchCompleting && !researchTextVisible) {
-      const timers: NodeJS.Timeout[] = [];
-      setResearchCompleting(true);
-      setResearchStage(1);
 
-      // Start Stage 1: App Research Phase
-      timers.push(setTimeout(() => {
-        setResearchStage(1);
-        setShowAppResearch(true);
-      }, 800));
-      
-      // Show apps one by one - 1.25s each
-      timers.push(setTimeout(() => setCurrentAppIndex(0), 1000));
-      timers.push(setTimeout(() => setCurrentAppIndex(1), 2500));
-      timers.push(setTimeout(() => setCurrentAppIndex(2), 4000));
-      timers.push(setTimeout(() => setCurrentAppIndex(3), 5500));
-
-      // End Stage 1, Start Stage 2
-      timers.push(setTimeout(() => {
-        setResearchStage(2);
-        setShowAppResearch(false);
-        setShowDitloResearch(true);
-      }, 7000));
-      
-      // Show DITLO items one at a time (not accumulative)
-      timers.push(setTimeout(() => setCurrentDitloIndex(0), 7000));
-      timers.push(setTimeout(() => setCurrentDitloIndex(1), 9000));
-      timers.push(setTimeout(() => setCurrentDitloIndex(2), 11000));
-      timers.push(setTimeout(() => setCurrentDitloIndex(3), 13000));
-      timers.push(setTimeout(() => setCurrentDitloIndex(4), 15000));
-      
-      // Start fade out of DITLO content
-      timers.push(setTimeout(() => {
-        setDitloFadingOut(true);
-      }, 16000));
-      
-      // End Stage 2, Complete Research
-      timers.push(setTimeout(() => {
-        setResearchStage(3);
-        setShowDitloResearch(false);
-      }, 17000));
-      
-      // Hide loader and show final content
-      timers.push(setTimeout(() => {
-        setResearchCompleting(false);
-        setResearchTextVisible(true);
-      }, 18000));
-      
-      return () => {
-        timers.forEach(clearTimeout);
-      };
-    }
-  }, [currentSection, researchCompleting, researchTextVisible]);
 
   return (
     <div className="bg-white font-orbitron">
@@ -1144,10 +1092,10 @@ function App() {
                 scale: menuMoving ? 1.5 : 1,
               }}
               transition={{ 
-                duration: menuMoving ? 1.5 : 0.3,
+                duration: menuMoving ? 0.8 : 0.3,
                 type: menuMoving ? "spring" : "tween",
-                stiffness: menuMoving ? 100 : 200,
-                damping: menuMoving ? 20 : 25
+                stiffness: menuMoving ? 150 : 200,
+                damping: menuMoving ? 25 : 25
               }}
             >
               <motion.span className={`mb-1 h-0.5 w-6 transition-colors duration-300 ${
@@ -1168,10 +1116,9 @@ function App() {
         <AnimatePresence>
           {mobileMenuFixed && (
             <motion.button
-              className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 flex h-12 w-12 flex-col items-center justify-center rounded-full shadow-lg sm:hidden"
-              style={{
-                backgroundColor: shouldInvertNav() ? '#000000' : '#ffffff',
-              }}
+              className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 flex h-12 w-12 flex-col items-center justify-center rounded-full shadow-lg sm:hidden ${
+                shouldInvertNav() ? 'bg-secondary-black' : 'bg-white'
+              }`}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               initial={{ opacity: 0, scale: 0, y: 20 }}
               animate={{ opacity: step >= 6 ? 1 : 0, scale: 1, y: 0 }}
@@ -1253,9 +1200,7 @@ function App() {
               setModalOpenedBy('sad-face');
               setModalOpen(true);
             }}
-            className={`fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-all duration-300 hover:scale-110 hover:rotate-12 ${
-              shouldInvertNav() ? 'bg-secondary-black text-white shadow-lg' : 'bg-white text-black shadow-lg'
-            }`}
+            className="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-all duration-300 hover:scale-110 hover:rotate-12 bg-secondary-black text-white shadow-lg"
             initial={{ opacity: 0, scale: 0, rotate: -180 }}
             animate={{ opacity: 1, scale: 1, rotate: 0 }}
             exit={{ opacity: 0, scale: 0, rotate: 180 }}
@@ -1463,13 +1408,13 @@ function App() {
                    </button>
                    
                    {/* Pathway Diagram */}
-                   <div className="mt-4 pt-4 border-t border-opacity-20 border-gray-400">
+                   <div className={`mt-4 pt-4 border-t bg-[#1d1d1d] -mx-6 -mb-6 px-6 pb-4 rounded-b-lg ${
+                     shouldInvertNav() ? 'border-white/20' : 'border-gray-200'
+                   }`}>
                      {!pathwayDiagramClicked ? (
                        <button
                          onClick={() => setPathwayDiagramClicked(true)}
-                         className={`text-xs leading-relaxed transition-colors hover:opacity-80 text-left w-full ${
-                           shouldInvertNav() ? 'text-gray-400' : 'text-gray-500'
-                         }`}
+                         className="text-xs leading-relaxed transition-colors hover:opacity-80 text-left w-full text-gray-300"
                        >
                          <div className="space-y-1">
                            {modalOpenedBy === 'sad-face' && (
@@ -1489,17 +1434,11 @@ function App() {
                          </div>
                    </button>
                      ) : (
-                       <div className={`text-xs text-center italic transition-opacity ${
-                         shouldInvertNav() ? 'text-gray-400' : 'text-gray-500'
-                       }`}>
+                       <div className="text-xs text-center italic transition-opacity text-gray-300">
                          <p className="mb-2">
                            You can get here two ways, which isn't best practice, but sometimes two pathways are ok to cover all bases
                          </p>
-                         <div className={`inline-block px-3 py-1.5 rounded-lg border text-xs ${
-                           shouldInvertNav() 
-                             ? 'bg-gray-800/30 border-gray-600/50 text-gray-300' 
-                             : 'bg-gray-50/80 border-gray-200/60 text-gray-600'
-                         }`}>
+                         <div className="inline-block px-3 py-1.5 rounded-lg border text-xs bg-gray-800/30 border-gray-600/50 text-gray-300">
                            {modalOpenedBy === 'sad-face' 
                              ? 'Other path = Mmm, Comfortable Button'
                              : 'Other path = Angry Face Button'
@@ -1878,39 +1817,82 @@ function App() {
                 shouldInvertNav() ? 'text-white' : 'text-black'
               }`}>Historical Mistakes</h2>
               
-              <div className="space-y-4 mb-6">
-                <p className={`text-base leading-relaxed ${
-                  shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  When we transitioned from desktop to mobile a lot of ideas were transferred that no longer made sense.
-                </p>
-                <p className={`text-base leading-relaxed ${
-                  shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  Information Hierarchy made sense on desktop but not ergonomically on mobile, especially after screens got bigger than 3.5".
-                </p>
-                <p className={`text-base leading-relaxed ${
-                  shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  This is a horrible place for a menu button but it persists because someone decided that day one.
-                </p>
-                <p className={`text-base leading-relaxed ${
-                  shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
-                }`}>
-                  Over time bad UX gets habituated by users and is harder to undo.
-                </p>
-              </div>
+              <AnimatePresence mode="wait">
+                {showCustomizationMessage ? (
+                  <motion.div
+                    key="customization"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-4 mb-6 text-center"
+                  >
+                    <motion.p 
+                      className={`text-lg font-semibold ${
+                        shouldInvertNav() ? 'text-white' : 'text-black'
+                      }`}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.1 }}
+                    >
+                      Customising experience based on user preferences
+                    </motion.p>
+                    <motion.div
+                      className="w-32 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mx-auto"
+                      initial={{ width: 0 }}
+                      animate={{ width: 128 }}
+                      transition={{ duration: 1.5, ease: "easeInOut" }}
+                    />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="original"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-4 mb-6"
+                  >
+                    <p className={`text-base leading-relaxed ${
+                      shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                    }`}>
+                      When we transitioned from desktop to mobile a lot of ideas were transferred that no longer made sense.
+                    </p>
+                    <p className={`text-base leading-relaxed ${
+                      shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                    }`}>
+                      Information Hierarchy made sense on desktop but not ergonomically on mobile, especially after screens got bigger than 3.5".
+                    </p>
+                    <p className={`text-base leading-relaxed ${
+                      shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                    }`}>
+                      This is a horrible place for a menu button but it persists because someone decided that day one.
+                    </p>
+                    <p className={`text-base leading-relaxed ${
+                      shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                    }`}>
+                      Over time bad UX gets habituated by users and is harder to undo.
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
               
-              <div className="flex flex-col space-y-3">
+              {!showCustomizationMessage && (
+                <div className="flex flex-col space-y-3">
                 <button 
                   onClick={() => {
-                    setMenuMoving(true);
-                    setHistoricalMistakesModalOpen(false);
-                    // Start the animation sequence
+                    setShowCustomizationMessage(true);
+                    // Show customization message for 2 seconds, then proceed
                     setTimeout(() => {
-                      setMobileMenuFixed(true);
-                      setMenuMoving(false);
-                    }, 1500); // Duration of the movement animation
+                      setShowCustomizationMessage(false);
+                      setMenuMoving(true);
+                      setHistoricalMistakesModalOpen(false);
+                      // Start the animation sequence
+                      setTimeout(() => {
+                        setMobileMenuFixed(true);
+                        setMenuMoving(false);
+                      }, 800); // Duration of the movement animation
+                    }, 2000); // Show customization message for 2 seconds
                   }}
                   className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
                     shouldInvertNav() 
@@ -1931,6 +1913,7 @@ function App() {
                   No I like it
                 </button>
               </div>
+              )}
             </motion.div>
           </motion.div>
         )}
@@ -2074,10 +2057,11 @@ function App() {
                     required
                     value={contactForm.email}
                     onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
+                    placeholder="satoshi@protocolux.com"
                     className={`w-full px-3 py-2 rounded-lg border transition-colors ${
                       shouldInvertNav() 
-                        ? 'bg-gray-800 border-gray-600 text-white focus:border-gray-400' 
-                        : 'bg-white border-gray-300 text-black focus:border-gray-500'
+                        ? 'bg-gray-800 border-gray-600 text-white focus:border-gray-400 placeholder:text-gray-500' 
+                        : 'bg-white border-gray-300 text-black focus:border-gray-500 placeholder:text-gray-400'
                     } focus:outline-none`}
                   />
                 </div>
@@ -2093,10 +2077,11 @@ function App() {
                     required
                     value={contactForm.subject}
                     onChange={(e) => setContactForm(prev => ({ ...prev, subject: e.target.value }))}
+                    placeholder="UX Matters"
                     className={`w-full px-3 py-2 rounded-lg border transition-colors ${
                       shouldInvertNav() 
-                        ? 'bg-gray-800 border-gray-600 text-white focus:border-gray-400' 
-                        : 'bg-white border-gray-300 text-black focus:border-gray-500'
+                        ? 'bg-gray-800 border-gray-600 text-white focus:border-gray-400 placeholder:text-gray-500' 
+                        : 'bg-white border-gray-300 text-black focus:border-gray-500 placeholder:text-gray-400'
                     } focus:outline-none`}
                   />
                 </div>
@@ -2112,10 +2097,11 @@ function App() {
                     rows={4}
                     value={contactForm.message}
                     onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
+                    placeholder="More information"
                     className={`w-full px-3 py-2 rounded-lg border transition-colors resize-none ${
                       shouldInvertNav() 
-                        ? 'bg-gray-800 border-gray-600 text-white focus:border-gray-400' 
-                        : 'bg-white border-gray-300 text-black focus:border-gray-500'
+                        ? 'bg-gray-800 border-gray-600 text-white focus:border-gray-400 placeholder:text-gray-500' 
+                        : 'bg-white border-gray-300 text-black focus:border-gray-500 placeholder:text-gray-400'
                     } focus:outline-none`}
                   />
                 </div>
@@ -2135,7 +2121,7 @@ function App() {
               </form>
               
               {/* Or connect on section */}
-              <div className={`mt-6 pt-6 border-t ${
+              <div className={`mt-6 pt-4 border-t bg-[#1d1d1d] -mx-6 -mb-6 px-6 pb-4 rounded-b-lg ${
                 shouldInvertNav() ? 'border-white/20' : 'border-gray-200'
               }`}>
                 <div className="flex flex-col items-center space-y-3">
@@ -2144,11 +2130,7 @@ function App() {
                       href="https://signal.me/#eu/OMbm5xbezTKaXYSUqblWuZfrd-FTo5oFGJiQ6WLcx21N0wAi2IxOLqHmZIjrEsj1"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
-                        shouldInvertNav() 
-                          ? 'text-gray-300 hover:text-white hover:bg-gray-800' 
-                          : 'text-gray-700 hover:text-black hover:bg-gray-100'
-                      }`}
+                      className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors text-gray-300 hover:text-white hover:bg-gray-800"
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12.002 2C6.486 2 2.002 6.484 2.002 12s4.484 10 9.998 10c1.386 0 2.711-.301 3.906-.838L20.002 22l-.838-4.096C20.301 16.711 22.002 14.386 22.002 12c0-5.516-4.484-10-9.998-10zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"/>
@@ -2160,11 +2142,7 @@ function App() {
                       href="https://primal.net/Zazawowow"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
-                        shouldInvertNav() 
-                          ? 'text-gray-300 hover:text-white hover:bg-gray-800' 
-                          : 'text-gray-700 hover:text-black hover:bg-gray-100'
-                      }`}
+                      className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors text-gray-300 hover:text-white hover:bg-gray-800"
                     >
                       <img 
                         src="/nostr_logo_prpl.svg" 
@@ -2179,11 +2157,7 @@ function App() {
                       href="https://www.zazawowow.co.uk"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors ${
-                        shouldInvertNav() 
-                          ? 'text-gray-300 hover:text-white hover:bg-gray-800' 
-                          : 'text-gray-700 hover:text-black hover:bg-gray-100'
-                      }`}
+                      className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors text-gray-300 hover:text-white hover:bg-gray-800"
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
@@ -2408,11 +2382,24 @@ function App() {
                   ) : (
                     <div className="w-full max-w-2xl text-center px-4">
                       <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
-                        Takeaway
+                        {slideIndex === 1 ? 'Whitenoise Takeaway' :
+                         slideIndex === 3 ? 'Primal Takeaway' :
+                         slideIndex === 5 ? 'Strike Takeaway' :
+                         'Takeaway'}
                       </h3>
                       <p className="text-xl sm:text-2xl italic text-gray-800 leading-relaxed">
                         "{(slides[slideIndex] as { text: string }).text}"
                       </p>
+                      {slideIndex === 1 && (
+                        <motion.p 
+                          className="text-lg sm:text-xl font-bold text-gray-900 mt-6"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.5, delay: 3 }}
+                        >
+                          Whitenoise is 🔥 though
+                        </motion.p>
+                      )}
                       {slideIndex === 3 && (
                         <motion.p 
                           className="text-lg sm:text-xl font-bold text-gray-900 mt-6"
@@ -2431,8 +2418,9 @@ function App() {
               {/* --- Animated Arrow (Right) --- */}
               <AnimatePresence key={`annotations-${slideIndex}`}>
                 {showAnnotations && (
-                  <motion.div
-                    className="absolute z-20 pointer-events-none"
+                  <motion.button
+                    onClick={() => setBreakdownModalIdentifier(slideIndex)}
+                    className="absolute z-20 cursor-pointer hover:scale-105 transition-transform"
                     style={isMobile ? {
                       top: slideIndex === 2 ? 'calc(50% - 50px)' : '23%',
                       right: '5%',
@@ -2535,15 +2523,16 @@ function App() {
                         )}
                       </motion.div>
                     </div>
-                  </motion.div>
+                  </motion.button>
                 )}
               </AnimatePresence>
 
               {/* --- Mirrored Arrow (Left) --- */}
               <AnimatePresence key={`left-annotation-${slideIndex}`}>
                 {showAnnotations && (
-                  <motion.div
-                    className="absolute z-20 pointer-events-none"
+                  <motion.button
+                    onClick={() => setBreakdownModalIdentifier(slideIndex)}
+                    className="absolute z-20 cursor-pointer hover:scale-105 transition-transform"
                     style={isMobile ? {
                       top: slideIndex === 4 ? 'auto' : (slideIndex === 2 ? 'calc(50% - 50px)' : '23%'),
                       bottom: slideIndex === 4 ? '20%' : 'auto',
@@ -2650,15 +2639,16 @@ function App() {
                         )}
                       </motion.div>
                     </div>
-                  </motion.div>
+                  </motion.button>
                 )}
               </AnimatePresence>
 
               {/* --- New Top-Left Annotation (Screen 3) --- */}
               <AnimatePresence key={`top-left-annotation-${slideIndex}`}>
                 {showAnnotations && slideIndex === 4 && (
-                  <motion.div
-                    className="absolute z-20 pointer-events-none"
+                  <motion.button
+                    onClick={() => setBreakdownModalIdentifier(slideIndex)}
+                    className="absolute z-20 cursor-pointer hover:scale-105 transition-transform"
                     style={isMobile ? {
                       top: '23%',
                       left: '5%',
@@ -2748,7 +2738,7 @@ function App() {
                         <div>for anything</div>
                       </motion.div>
                     </div>
-                  </motion.div>
+                  </motion.button>
                 )}
               </AnimatePresence>
 
@@ -2793,17 +2783,8 @@ function App() {
             animate={{ opacity: footnoteVisible ? 1 : 0 }}
             transition={{ duration: 0.5 }}
           >
-            <p className="text-xs sm:text-sm text-gray-600 italic text-center max-w-md">
-              It's a successful app, so, does it matter?<br />
-              <motion.span
-                key={footnoteTextChanged ? 'changed' : 'original'}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 4, ease: "easeInOut" }}
-              >
-                {footnoteTextChanged ? '(is this distracting?)' : '(is this text too small?)'}
-              </motion.span>
+            <p className="text-lg sm:text-xl font-bold text-gray-900 text-center max-w-md">
+              It's a successful app, so, does it matter?
             </p>
           </motion.div>
 
@@ -3067,7 +3048,18 @@ function App() {
                           <path d="M3 21v-5h5"/>
                         </svg>
                       </motion.button>
-                      <h2 className="text-3xl sm:text-4xl font-bold">UX is a dialectic</h2>
+                      <motion.h2 
+                        className="text-3xl sm:text-4xl font-bold"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ 
+                          duration: 0.8, 
+                          ease: "easeOut",
+                          delay: 0.2
+                        }}
+                      >
+                        UX is a dialectic
+                      </motion.h2>
                     </div>
                   ) : (
                     <h2 className="text-3xl sm:text-4xl font-bold">
@@ -3294,23 +3286,37 @@ function App() {
 
                       </div>
                     ) : (
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
-                      >
-                        <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
+                      <div>
+                        <motion.p 
+                          className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ 
+                            duration: 0.8, 
+                            ease: [0.25, 0.1, 0.25, 1],
+                            delay: 0.6
+                          }}
+                        >
                           There is no "right" in user experience, there is just the length of conversation you go to in making your design decisions, based on the unique scenarios and characteristics of your product, team, and its users. Hypothesis, Antithesis, Synthesis.
-                        </p>
-                        <div className="mt-6 flex justify-center">
+                        </motion.p>
+                        <motion.div 
+                          className="mt-6 flex justify-center"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ 
+                            duration: 0.8, 
+                            ease: [0.25, 0.1, 0.25, 1],
+                            delay: 1.0
+                          }}
+                        >
                           <button 
                             onClick={() => setContactModalOpen(true)}
                             className="px-8 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors duration-300"
                           >
                             Start That Conversation Today
                           </button>
-                        </div>
-                      </motion.div>
+                        </motion.div>
+                      </div>
                     )}
                   </>
                 )}
@@ -3423,7 +3429,7 @@ function App() {
                               }}
                             >
                               {ergonomicsState === 'revealed' && isMobile
-                                ? (thumbFlowStage >= 5 ? '🗝️ Thumbflow Key' : 'Mmm, Comfortable 😊')
+                                ? (thumbFlowStage >= 5 ? '🗝️  Thumbflow Key' : 'Mmm, Comfortable 😊')
                                 : ergonomicsState === 'moved' 
                                   ? 'Ok, Now Tap Me'
                                   : 'Tap me'
