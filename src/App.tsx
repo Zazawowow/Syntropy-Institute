@@ -4437,7 +4437,7 @@ function App() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.8, ease: 'easeInOut' }}
                     >
-                      Stakeholder Interview Results
+                      Interview Insights
                     </motion.h2>
                     <div className="relative w-full max-w-lg" style={{ height: '400px' }}>
                       {[
