@@ -3950,10 +3950,10 @@ function App() {
                                     ? 'bg-white/5 border-white/10 hover:bg-white/10' 
                                     : 'bg-black/5 border-black/10 hover:bg-black/10'
                                 }`}
-                                initial={{ opacity: 0, x: -30, scale: 0.95 }}
+                                initial={{ opacity: 0, y: 30, scale: 0.95 }}
                                 animate={{ 
                                   opacity: valueScoringProgress > rowIndex ? 1 : 0,
-                                  x: valueScoringProgress > rowIndex ? 0 : -30,
+                                  y: valueScoringProgress > rowIndex ? 0 : 30,
                                   scale: valueScoringProgress > rowIndex ? 1 : 0.95
                                 }}
                                 transition={{ 
@@ -3963,11 +3963,11 @@ function App() {
                                 }}
                               >
                                 <motion.span 
-                                  className={`font-medium text-base ${textColor}`}
-                                  initial={{ opacity: 0, x: -10 }}
+                                  className={`font-medium text-base whitespace-nowrap flex-shrink-0 mr-8 ${textColor}`}
+                                  initial={{ opacity: 0, y: 10 }}
                                   animate={{ 
                                     opacity: valueScoringProgress > rowIndex ? 1 : 0,
-                                    x: valueScoringProgress > rowIndex ? 0 : -10
+                                    y: valueScoringProgress > rowIndex ? 0 : 10
                                   }}
                                   transition={{ 
                                     duration: 0.6, 
