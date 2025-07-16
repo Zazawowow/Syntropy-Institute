@@ -108,6 +108,16 @@ function App() {
   const [mockupFadingOut, setMockupFadingOut] = useState(false);
   const [ditloFadingOut, setDitloFadingOut] = useState(false);
   
+  // Prediction animation states
+  const [predictionStage, setPredictionStage] = useState(0); // 0 = none, 1 = intro text, 2 = value scoring, 3 = calculation, 4 = priorities, 5 = final content
+  const [showIntroText, setShowIntroText] = useState(false);
+  const [valueScoringProgress, setValueScoringProgress] = useState(0);
+  const [showCalculation, setShowCalculation] = useState(false);
+  const [calculationTextIndex, setCalculationTextIndex] = useState(0);
+  const [showPriorities, setShowPriorities] = useState(false);
+  const [priorityProgress, setPriorityProgress] = useState(0);
+  const [showPredictionContent, setShowPredictionContent] = useState(false);
+  
   // Track which sections are completed and should show end state
   const [completedSections, setCompletedSections] = useState<string[]>([]);
   
@@ -144,6 +154,17 @@ function App() {
       setThumbFlowStage(0);
       setThumbFlowProgress(0);
       setErgonomicsState('button');
+    } else if (sectionId === 'prediction') {
+      // Immediately hide all content to prevent layout shifts
+      setPredictionStage(0);
+      setShowIntroText(false);
+      setValueScoringProgress(0);
+      setShowCalculation(false);
+      setShowPriorities(false);
+      setPriorityProgress(0);
+      setShowPredictionContent(false);
+      // Remove from completed sections to ensure useEffect triggers
+      setCompletedSections(prev => prev.filter(id => id !== 'prediction'));
     }
     
     // Small delay to ensure state is reset before triggering animation
@@ -153,7 +174,7 @@ function App() {
       } else if (sectionId === 'testing') {
         setEyeTrackingActive(true);
       }
-      // Question and Ergonomics animations trigger automatically when their conditions are met
+      // Question, Ergonomics, and Prediction animations trigger automatically when their conditions are met
     }, 100);
   };
   
@@ -974,7 +995,110 @@ function App() {
     }
   }, [currentAppIndex]);
 
+  // Prediction animation sequence
+  useEffect(() => {
+    if (currentSection === 'prediction') {
+      // Check if section is already completed - if so, show end state
+      if (completedSections.includes('prediction')) {
+        setShowPredictionContent(true);
+        setPredictionStage(0);
+        setShowCalculation(false);
+        setShowPriorities(false);
+        return;
+      }
+      
+      const timers: NodeJS.Timeout[] = [];
+      
+      // Reset all states
+      setPredictionStage(0);
+      setShowIntroText(false);
+      setValueScoringProgress(0);
+      setShowCalculation(false);
+      setShowPriorities(false);
+      setPriorityProgress(0);
+      setShowPredictionContent(false);
 
+      // Stage 1: Intro text - starts immediately
+      timers.push(setTimeout(() => {
+        setPredictionStage(1);
+        setShowIntroText(true);
+      }, 0));
+      
+      // Fade out intro text (2 seconds)
+      timers.push(setTimeout(() => {
+        setShowIntroText(false);
+      }, 2000));
+      
+      // Stage 2: Value Scoring table - starts after intro fades out
+      timers.push(setTimeout(() => {
+        setPredictionStage(2);
+      }, 2500));
+      
+      // Show value scoring items one by one (every 1600ms) - original timing
+      timers.push(setTimeout(() => setValueScoringProgress(1), 3100)); // Detrimental
+      timers.push(setTimeout(() => setValueScoringProgress(2), 4700)); // No Value
+      timers.push(setTimeout(() => setValueScoringProgress(3), 6300)); // Some Value  
+      timers.push(setTimeout(() => setValueScoringProgress(4), 7900)); // Market leading
+      
+      // Fade out value scoring (original timing)
+      timers.push(setTimeout(() => {
+        setPredictionStage(0);
+      }, 10500));
+      
+      // Stage 3: Calculation animation - starts after scoring completely fades out
+      timers.push(setTimeout(() => {
+        setPredictionStage(3);
+        setShowCalculation(true);
+        setCalculationTextIndex(0);
+      }, 11500));
+      
+      // Change calculation text every 1.2 seconds
+      timers.push(setTimeout(() => setCalculationTextIndex(1), 12700)); // Value to existing users
+      timers.push(setTimeout(() => setCalculationTextIndex(2), 13900)); // Value to the business
+      
+      // Fade out calculation
+      timers.push(setTimeout(() => {
+        setShowCalculation(false);
+      }, 15000));
+      
+      // Stage 4: Priority list - starts after calculation completely fades out
+      timers.push(setTimeout(() => {
+        setPredictionStage(4);
+        setShowPriorities(true);
+      }, 15500));
+      
+      // Show priorities one by one (2 second delays)
+      timers.push(setTimeout(() => setPriorityProgress(1), 16000)); // Priority 1
+      timers.push(setTimeout(() => setPriorityProgress(2), 18000)); // Priority 2 (2 second delay)
+      timers.push(setTimeout(() => setPriorityProgress(3), 20000)); // Priority 3 (2 second delay)
+      
+      // Fade out priorities (3 seconds after all priorities have loaded)
+      timers.push(setTimeout(() => {
+        setShowPriorities(false);
+      }, 23000));
+      
+      // Stage 5: Final content - starts after priorities completely fade out
+      timers.push(setTimeout(() => {
+        setPredictionStage(5);
+        setShowPredictionContent(true);
+        setCompletedSections(prev => [...prev, 'prediction']);
+      }, 23500));
+      
+      return () => {
+        timers.forEach(clearTimeout);
+      };
+    } else {
+      // Reset when leaving section
+      setPredictionStage(0);
+      setShowIntroText(false);
+      setValueScoringProgress(0);
+      setShowCalculation(false);
+      setCalculationTextIndex(0);
+      setShowPriorities(false);
+      setPriorityProgress(0);
+      setShowPredictionContent(false);
+    }
+  }, [currentSection, completedSections]);
 
   return (
     <div className="bg-white font-orbitron">
@@ -1806,20 +1930,20 @@ function App() {
               onClick={(e) => e.stopPropagation()}
             >
               {!showCustomizationMessage && (
-                <button
-                  onClick={() => setHistoricalMistakesModalOpen(false)}
-                  className={`absolute top-4 right-4 text-xl transition-colors ${
-                    shouldInvertNav() ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                >
-                  ×
-                </button>
+              <button
+                onClick={() => setHistoricalMistakesModalOpen(false)}
+                className={`absolute top-4 right-4 text-xl transition-colors ${
+                  shouldInvertNav() ? 'text-gray-400 hover:text-gray-200' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                ×
+              </button>
               )}
               
               {!showCustomizationMessage && (
-                <h2 className={`text-2xl font-bold mb-6 ${
-                  shouldInvertNav() ? 'text-white' : 'text-black'
-                }`}>Historical Mistakes</h2>
+              <h2 className={`text-2xl font-bold mb-6 ${
+                shouldInvertNav() ? 'text-white' : 'text-black'
+              }`}>Historical Mistakes</h2>
               )}
               
               <AnimatePresence mode="wait">
@@ -1858,44 +1982,44 @@ function App() {
                     transition={{ duration: 0.3 }}
                     className="space-y-4 mb-6"
                   >
-                    <p className={`text-base leading-relaxed ${
-                      shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
-                      When we transitioned from desktop to mobile a lot of ideas were transferred that no longer made sense.
-                    </p>
-                    <p className={`text-base leading-relaxed ${
-                      shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
-                      Information Hierarchy made sense on desktop but not ergonomically on mobile, especially after screens got bigger than 3.5".
-                    </p>
-                    <p className={`text-base leading-relaxed ${
-                      shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
-                      This is a horrible place for a menu button but it persists because someone decided that day one.
-                    </p>
-                    <p className={`text-base leading-relaxed ${
-                      shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
-                      Over time bad UX gets habituated by users and is harder to undo.
-                    </p>
+                <p className={`text-base leading-relaxed ${
+                  shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  When we transitioned from desktop to mobile a lot of ideas were transferred that no longer made sense.
+                </p>
+                <p className={`text-base leading-relaxed ${
+                  shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  Information Hierarchy made sense on desktop but not ergonomically on mobile, especially after screens got bigger than 3.5".
+                </p>
+                <p className={`text-base leading-relaxed ${
+                  shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  This is a horrible place for a menu button but it persists because someone decided that day one.
+                </p>
+                <p className={`text-base leading-relaxed ${
+                  shouldInvertNav() ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  Over time bad UX gets habituated by users and is harder to undo.
+                </p>
                   </motion.div>
                 )}
               </AnimatePresence>
               
               {!showCustomizationMessage && (
-                <div className="flex flex-col space-y-3">
+              <div className="flex flex-col space-y-3">
                 <button 
                   onClick={() => {
                     setShowCustomizationMessage(true);
                     // Show customization message for 2 seconds, then proceed
                     setTimeout(() => {
                       setShowCustomizationMessage(false);
-                      setMenuMoving(true);
-                      setHistoricalMistakesModalOpen(false);
-                      // Start the animation sequence
-                      setTimeout(() => {
-                        setMobileMenuFixed(true);
-                        setMenuMoving(false);
+                    setMenuMoving(true);
+                    setHistoricalMistakesModalOpen(false);
+                    // Start the animation sequence
+                    setTimeout(() => {
+                      setMobileMenuFixed(true);
+                      setMenuMoving(false);
                       }, 800); // Duration of the movement animation
                     }, 2000); // Show customization message for 2 seconds
                   }}
@@ -2987,14 +3111,14 @@ function App() {
                           <path d="M3 21v-5h5"/>
                         </svg>
                       </motion.button>
-                      <motion.h2 
-                        className="text-3xl sm:text-4xl font-bold"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 2 }}
-                      >
-                        {item}
-                      </motion.h2>
+                    <motion.h2 
+                      className="text-3xl sm:text-4xl font-bold"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 2 }}
+                    >
+                      {item}
+                    </motion.h2>
                     </div>
                   ) : item === 'Research' && researchTextVisible ? (
                     <div className="flex flex-col items-center">
@@ -3018,18 +3142,18 @@ function App() {
                           <path d="M3 21v-5h5"/>
                         </svg>
                       </motion.button>
-                      <motion.h2 
-                        className="text-3xl sm:text-4xl font-bold"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ 
-                          duration: 1.2, 
-                          ease: "easeOut",
-                          delay: 0.2
-                        }}
-                      >
-                        {item}
-                      </motion.h2>
+                    <motion.h2 
+                      className="text-3xl sm:text-4xl font-bold"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ 
+                        duration: 1.2, 
+                        ease: "easeOut",
+                        delay: 0.2
+                      }}
+                    >
+                      {item}
+                    </motion.h2>
                     </div>
                   ) : item === 'Dialectics' && dialecticsState === 'content' ? (
                     <div className="flex flex-col items-center">
@@ -3074,6 +3198,7 @@ function App() {
                        item === 'Dialectics' ? '' :
                        item === 'Ergonomics' && ergonomicsState === 'revealed' ? 'That second one was annoying huh?' : 
                        item === 'Research' && !researchTextVisible ? '' :
+                       item === 'Prediction' ? '' :
                        item}
                     </h2>
                   )
@@ -3294,8 +3419,8 @@ function App() {
                       <div>
                         <motion.p 
                           className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
                           transition={{ 
                             duration: 0.8, 
                             ease: [0.25, 0.1, 0.25, 1],
@@ -3320,7 +3445,7 @@ function App() {
                           >
                             Start That Conversation Today
                           </button>
-                        </motion.div>
+                      </motion.div>
                       </div>
                     )}
                   </>
@@ -3474,9 +3599,9 @@ function App() {
                                 </svg>
                               </motion.button>
                             )}
-                            <h2 className={`text-3xl sm:text-4xl font-bold mb-6 text-left ${textColor}`}>
-                              Ergonomics
-                            </h2>
+                          <h2 className={`text-3xl sm:text-4xl font-bold mb-6 text-left ${textColor}`}>
+                            Ergonomics
+                          </h2>
                           </div>
                           {ergonomicsState === 'revealed' && (
                             <p className={`text-base lg:text-lg leading-relaxed text-left ${subTextColor}`}>
@@ -3767,9 +3892,465 @@ function App() {
                   </>
                 )}
                 {item === 'Prediction' && (
-                  <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
+                  <div className="relative min-h-[600px] flex items-center justify-center w-full">
+                    {/* Fixed container to prevent layout shifts */}
+                    <div className="relative w-full flex flex-col items-center justify-center">
+                      
+                      {/* Intro Text Animation */}
+                      <AnimatePresence>
+                        {showIntroText && (
+                          <motion.div
+                            className="flex items-center justify-center w-full"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ 
+                              duration: 0.8,
+                              ease: [0.25, 0.1, 0.25, 1]
+                            }}
+                          >
+                            <motion.h3 
+                              className={`text-4xl sm:text-5xl font-bold text-center ${textColor}`}
+                              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                              animate={{ opacity: 1, y: 0, scale: 1 }}
+                              exit={{ opacity: 0, y: -10, scale: 1.05 }}
+                              transition={{ 
+                                duration: 0.8, 
+                                ease: [0.25, 0.1, 0.25, 1]
+                              }}
+                            >
+                              Value Scoring
+                            </motion.h3>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {/* Value Scoring Animation */}
+                      <AnimatePresence>
+                        {predictionStage === 2 && (
+                          <motion.div
+                            className="flex items-center justify-center w-full"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.8 }}
+                          >
+                            <div className="w-full max-w-4xl mx-auto">
+                          <div className="space-y-4">
+                            {[
+                              { label: 'Detrimental', checks: ['X', 'X', 'X', 'X'] },
+                              { label: 'No Value', checks: ['✓', 'X', 'X', 'X'] },
+                              { label: 'Some Value', checks: ['X', 'X', 'X', 'X'] },
+                              { label: 'Market leading', checks: ['X', '✓', '✓', '✓'] }
+                            ].map((row, rowIndex) => (
+                              <motion.div
+                                key={row.label}
+                                className={`flex items-center justify-between p-4 rounded-lg border transition-all duration-300 ${
+                                  isEven 
+                                    ? 'bg-white/5 border-white/10 hover:bg-white/10' 
+                                    : 'bg-black/5 border-black/10 hover:bg-black/10'
+                                }`}
+                                initial={{ opacity: 0, x: -30, scale: 0.95 }}
+                                animate={{ 
+                                  opacity: valueScoringProgress > rowIndex ? 1 : 0,
+                                  x: valueScoringProgress > rowIndex ? 0 : -30,
+                                  scale: valueScoringProgress > rowIndex ? 1 : 0.95
+                                }}
+                                transition={{ 
+                                  duration: 0.8, 
+                                  delay: 0.2,
+                                  ease: [0.25, 0.1, 0.25, 1]
+                                }}
+                              >
+                                <motion.span 
+                                  className={`font-medium text-base ${textColor}`}
+                                  initial={{ opacity: 0, x: -10 }}
+                                  animate={{ 
+                                    opacity: valueScoringProgress > rowIndex ? 1 : 0,
+                                    x: valueScoringProgress > rowIndex ? 0 : -10
+                                  }}
+                                  transition={{ 
+                                    duration: 0.6, 
+                                    delay: 0.1,
+                                    ease: "easeOut"
+                                  }}
+                                >
+                                  {row.label}
+                                </motion.span>
+                                <div className="flex space-x-4">
+                                  {row.checks.map((check, checkIndex) => (
+                                    <motion.div
+                                      key={checkIndex}
+                                      className="w-6 h-6 flex items-center justify-center"
+                                      initial={{ opacity: 0, scale: 0, rotate: -90 }}
+                                      animate={{ 
+                                        opacity: valueScoringProgress > rowIndex ? 1 : 0,
+                                        scale: valueScoringProgress > rowIndex ? 1 : 0,
+                                        rotate: valueScoringProgress > rowIndex ? 0 : -90
+                                      }}
+                                      transition={{ 
+                                        duration: 0.5, 
+                                        delay: 0.5 + (checkIndex * 0.15),
+                                        ease: [0.68, -0.55, 0.265, 1.55]
+                                      }}
+                                    >
+                                      {check === '✓' ? (
+                                        <svg 
+                                          width="20" 
+                                          height="20" 
+                                          viewBox="0 0 24 24" 
+                                          fill="none" 
+                                          stroke="currentColor" 
+                                          strokeWidth="3" 
+                                          strokeLinecap="round" 
+                                          strokeLinejoin="round"
+                                          className="text-black"
+                                        >
+                                          <motion.path 
+                                            d="m9 12 2 2 4-4" 
+                                            initial={{ pathLength: 0 }}
+                                            animate={{ pathLength: valueScoringProgress > rowIndex ? 1 : 0 }}
+                                            transition={{ 
+                                              duration: 0.6, 
+                                              delay: 0.6 + (checkIndex * 0.15),
+                                              ease: "easeInOut"
+                                            }}
+                                          />
+                                        </svg>
+                                      ) : (
+                                        <svg 
+                                          width="20" 
+                                          height="20" 
+                                          viewBox="0 0 24 24" 
+                                          fill="none" 
+                                          stroke="currentColor" 
+                                          strokeWidth="3" 
+                                          strokeLinecap="round" 
+                                          strokeLinejoin="round"
+                                          className="text-black"
+                                        >
+                                          <motion.path 
+                                            d="m18 6-12 12" 
+                                            initial={{ pathLength: 0 }}
+                                            animate={{ pathLength: valueScoringProgress > rowIndex ? 1 : 0 }}
+                                            transition={{ 
+                                              duration: 0.4, 
+                                              delay: 0.6 + (checkIndex * 0.15),
+                                              ease: "easeInOut"
+                                            }}
+                                          />
+                                          <motion.path 
+                                            d="m6 6 12 12" 
+                                            initial={{ pathLength: 0 }}
+                                            animate={{ pathLength: valueScoringProgress > rowIndex ? 1 : 0 }}
+                                            transition={{ 
+                                              duration: 0.4, 
+                                              delay: 0.7 + (checkIndex * 0.15),
+                                              ease: "easeInOut"
+                                            }}
+                                          />
+                                        </svg>
+                                      )}
+                                    </motion.div>
+                                  ))}
+                                </div>
+                              </motion.div>
+                            ))}
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Calculation Animation */}
+                    <AnimatePresence>
+                      {showCalculation && (
+                        <motion.div
+                          className="flex items-center justify-center w-full"
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          transition={{ 
+                            duration: 0.8,
+                            ease: [0.25, 0.1, 0.25, 1]
+                          }}
+                        >
+                          <motion.div
+                            layout
+                            className={`px-6 py-4 rounded-lg backdrop-blur-sm transition-all duration-300`}
+                            style={{
+                              backgroundColor: isEven 
+                                ? `rgba(255, 255, 255, 0.1)` 
+                                : `rgba(0, 0, 0, 0.1)`,
+                            }}
+                            initial={{ opacity: 0.3, scale: 0.9 }}
+                            animate={{ 
+                              opacity: 1,
+                              scale: 1,
+                            }}
+                            transition={{ 
+                              duration: 0.3,
+                              layout: { duration: 0.3, ease: "easeInOut" }
+                            }}
+                          >
+                            <div className="flex flex-col items-center">
+                              <motion.div 
+                                className={`text-sm mb-2`}
+                                style={{
+                                  color: isEven 
+                                    ? `rgba(156, 163, 175, 0.8)` 
+                                    : `rgba(55, 65, 81, 0.8)`
+                                }}
+                                animate={{ 
+                                  opacity: [1, 0.6, 1]
+                                }}
+                                transition={{ 
+                                  duration: 2,
+                                  repeat: Infinity,
+                                  ease: "easeInOut"
+                                }}
+                              >
+                                Calculating priorities...
+                              </motion.div>
+                              
+                              <div 
+                                className={`w-32 h-2 rounded-full overflow-hidden`}
+                                style={{
+                                  backgroundColor: isEven 
+                                    ? `rgba(17, 24, 39, 0.7)` 
+                                    : `rgba(229, 231, 235, 0.7)`
+                                }}
+                              >
+                                <motion.div
+                                  className={`h-full rounded-full`}
+                                  style={{
+                                    backgroundColor: isEven 
+                                      ? `rgba(75, 85, 99, 0.8)` 
+                                      : `rgba(75, 85, 99, 0.8)`
+                                  }}
+                                  initial={{ width: '0%' }}
+                                  animate={{ width: '100%' }}
+                                  transition={{ 
+                                    duration: 2.8, 
+                                    ease: [0.25, 0.1, 0.25, 1],
+                                    delay: 0.2
+                                  }}
+                                />
+                              </div>
+                              
+                              <motion.div 
+                                className={`text-xs mt-1`}
+                                style={{
+                                  color: isEven 
+                                    ? `rgba(156, 163, 175, 0.8)` 
+                                    : `rgba(55, 65, 81, 0.8)`
+                                }}
+                                animate={{ 
+                                  opacity: [1, 0.7, 1]
+                                }}
+                                transition={{ 
+                                  duration: 1.5,
+                                  repeat: Infinity,
+                                  ease: "easeInOut"
+                                }}
+                              >
+                                {[
+                                  'Value to new users',
+                                  'Value to existing users',
+                                  'Value to the business'
+                                ][calculationTextIndex]}
+                              </motion.div>
+                            </div>
+                          </motion.div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Priority List Animation */}
+                    <AnimatePresence>
+                      {showPriorities && (
+                        <motion.div
+                          className="flex items-center justify-center w-full"
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          transition={{ 
+                            duration: 0.8,
+                            ease: [0.25, 0.1, 0.25, 1]
+                          }}
+                        >
+                          <div className="w-full">
+                          <div className="space-y-4">
+                            {[
+                              { text: 'Rebase by Fee', number: '1' },
+                              { text: 'Tailor UX to User', number: '2' },
+                              { text: 'Ecash Integration', number: '3' }
+                            ].map((priority, index) => (
+                              <motion.div
+                                key={priority.text}
+                                className={`relative p-6 rounded-xl transition-all duration-300 backdrop-blur-sm ${
+                                  isEven 
+                                    ? 'bg-white/10 hover:bg-white/15 border border-white/20 hover:border-white/30 shadow-lg hover:shadow-xl' 
+                                    : 'bg-black/10 hover:bg-black/15 border border-black/20 hover:border-black/30 shadow-lg hover:shadow-xl'
+                                }`}
+                                style={{
+                                  boxShadow: isEven 
+                                    ? '0 8px 32px rgba(255, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2)' 
+                                    : '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                                }}
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ 
+                                  opacity: priorityProgress > index ? 1 : 0,
+                                  scale: priorityProgress > index ? 1 : 0.95
+                                }}
+                                transition={{ 
+                                  duration: 0.7, 
+                                  ease: [0.25, 0.1, 0.25, 1]
+                                }}
+                                whileHover={{ scale: 1.03, y: -2 }}
+                              >
+                                <div className="flex items-center space-x-5">
+                                  <motion.div 
+                                    className={`relative w-12 h-12 rounded-xl flex items-center justify-center text-base font-bold transition-all duration-300 ${
+                                      isEven 
+                                        ? 'bg-white/20 text-white shadow-lg' 
+                                        : 'bg-black/20 text-black shadow-lg'
+                                    }`}
+                                    style={{
+                                      background: isEven 
+                                        ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%)' 
+                                        : 'linear-gradient(135deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.15) 100%)',
+                                      backdropFilter: 'blur(10px)',
+                                      border: `1px solid ${isEven ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.2)'}`,
+                                      boxShadow: isEven 
+                                        ? '0 4px 16px rgba(255, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.3)' 
+                                        : '0 4px 16px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+                                    }}
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ 
+                                      opacity: priorityProgress > index ? 1 : 0,
+                                      scale: priorityProgress > index ? 1 : 0.8
+                                    }}
+                                    transition={{ 
+                                      duration: 0.5, 
+                                      ease: [0.25, 0.1, 0.25, 1]
+                                    }}
+                                  >
+                                    {priority.number}
+                                    {/* Shine effect */}
+                                    <div 
+                                      className="absolute inset-0 rounded-xl"
+                                      style={{
+                                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%, rgba(255, 255, 255, 0.05) 100%)'
+                                      }}
+                                    />
+                                  </motion.div>
+                                  
+                                  <div className="flex-1 text-left">
+                                    <motion.h4 
+                                      className={`text-lg font-semibold text-left ${textColor}`}
+                                      initial={{ opacity: 0 }}
+                                      animate={{ 
+                                        opacity: priorityProgress > index ? 1 : 0
+                                      }}
+                                      transition={{ 
+                                        duration: 0.5, 
+                                        ease: "easeOut"
+                                      }}
+                                    >
+                                      {priority.text}
+                                    </motion.h4>
+                                    <motion.p 
+                                      className={`text-sm mt-1 text-left ${isEven ? 'text-white/70' : 'text-black/70'}`}
+                                      initial={{ opacity: 0 }}
+                                      animate={{ 
+                                        opacity: priorityProgress > index ? 1 : 0
+                                      }}
+                                      transition={{ 
+                                        duration: 0.5, 
+                                        delay: 0.1,
+                                        ease: "easeOut"
+                                      }}
+                                    >
+                                      {index === 0 && 'Optimize fee calculation algorithms'}
+                                      {index === 1 && 'Personalize interface based on user behavior'}
+                                      {index === 2 && 'Implement privacy-focused payment layer'}
+                                    </motion.p>
+                                  </div>
+                                </div>
+                              </motion.div>
+                            ))}
+                          </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Final Prediction Content */}
+                    <AnimatePresence>
+                      {showPredictionContent && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 30 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, transition: { duration: 0 } }}
+                          transition={{ 
+                            duration: 1.0, 
+                            ease: [0.25, 0.1, 0.25, 1],
+                            delay: 0.3
+                          }}
+                        >
+                          {/* Refresh icon for Prediction section */}
+                          <motion.button
+                            onClick={() => refreshSection(targetId)}
+                            className={`mb-4 p-2 rounded-full transition-colors hover:scale-110 mx-auto block ${
+                              isEven ? 'text-white/60 hover:text-white hover:bg-white/10' : 'text-black/60 hover:text-black hover:bg-black/10'
+                            }`}
+                            initial={{ opacity: 0, scale: 0 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.5, delay: 0.6 }}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
+                            title="Restart animation"
+                          >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                              <path d="M21 3v5h-5"/>
+                              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                              <path d="M3 21v-5h5"/>
+                            </svg>
+                          </motion.button>
+                          
+                          <motion.h2 
+                            className="text-3xl sm:text-4xl font-bold mb-6"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ 
+                              duration: 0.8, 
+                              delay: 1.0,
+                              ease: [0.25, 0.1, 0.25, 1]
+                            }}
+                          >
+                            Prediction
+                          </motion.h2>
+                          
+                          <motion.p 
+                            className={`text-base sm:text-lg leading-relaxed ${subTextColor}`}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ 
+                              duration: 0.8, 
+                              delay: 1.4,
+                              ease: [0.25, 0.1, 0.25, 1]
+                            }}
+                          >
                     Use Baysian-like theory to more accurately estimate the real word effect of user interface changes, new features, and more. Start a database of insights and provenance of decision making that can work based on value to you and your users.
-                  </p>
+                          </motion.p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                    
+                    </div>
+                  </div>
                 )}
                 </div>
               </div>
@@ -5097,7 +5678,7 @@ function App() {
                           <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
                           <path d="M3 21v-5h5"/>
                         </svg>
-                      </motion.button>
+                  </motion.button>
                     )}
                     
                     {/* Click handler for the main area */}
