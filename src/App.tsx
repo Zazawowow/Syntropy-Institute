@@ -929,13 +929,13 @@ function App() {
             <div className="text-center">
               <div className="relative inline-block">
                 <img 
-                  src="/404.png"
+                  src="/404.jpg"
                   alt="404"
                   className="w-80 h-32 sm:w-96 sm:h-40 md:w-[30rem] md:h-48 lg:w-[36rem] lg:h-56 mb-8 object-contain"
                 />
               </div>
               <p className="text-xl sm:text-2xl text-gray-600 max-w-md mx-auto leading-relaxed px-6 sm:px-0">
-                You're reason to be here couldn't be found
+                Your reason to be here couldn't be found
               </p>
             </div>
           </div>
