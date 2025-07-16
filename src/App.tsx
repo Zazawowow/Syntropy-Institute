@@ -631,14 +631,14 @@ function App() {
       setTypingIndicator({ visible: false, side: 'left' });
       
       const animateConversation = () => {
-        // First message appears after mesh network loader completes (2.5 seconds)
+        // First message appears after mesh network loader completes (4 seconds)
         timers.push(setTimeout(() => {
           setConversationProgress(1);
-        }, 2500));
+        }, 4000));
         
         // Subsequent messages with typing indicators
         for (let i = 1; i < conversationMessages.length; i++) {
-          const messageTime = 2500 + (i * 1000);
+          const messageTime = 4000 + (i * 1000);
           const typingTime = messageTime - 500;
           
           // Show typing indicator
@@ -1123,6 +1123,22 @@ function App() {
                 </motion.a>
               );
             })}
+            <motion.button
+              onClick={() => {
+                setContactModalOpen(true);
+                setMobileMenuOpen(false);
+              }}
+              className={`mt-8 px-6 py-3 rounded-lg text-lg font-semibold transition-colors ${
+                shouldInvertNav() 
+                  ? 'bg-white text-black hover:bg-gray-200' 
+                  : 'bg-black text-white hover:bg-gray-800'
+              }`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: navItems.length * 0.1 }}
+            >
+              Get In Touch
+            </motion.button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -2931,7 +2947,7 @@ function App() {
                                             initial={{ width: '0%' }}
                                             animate={{ width: '100%' }}
                                             transition={{
-                                              duration: 2,
+                                              duration: 4,
                                               ease: "easeInOut"
                                             }}
                                           />
