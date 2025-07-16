@@ -2097,10 +2097,10 @@ function App() {
         {!isMobile && (
           <motion.button
             onClick={() => setContactModalOpen(true)}
-            className={`fixed bottom-6 left-6 z-40 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 ${
+            className={`fixed bottom-6 left-6 z-40 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 shadow-lg ${
               shouldInvertNav() 
-                ? 'bg-white text-black shadow-lg hover:bg-gray-200' 
-                : 'bg-black text-white shadow-lg hover:bg-gray-800'
+                ? 'bg-black text-white hover:bg-gray-800' 
+                : 'bg-white text-black hover:bg-gray-50'
             }`}
             initial={{ opacity: 0, scale: 0, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
