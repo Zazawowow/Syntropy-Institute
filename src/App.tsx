@@ -4547,7 +4547,7 @@ function App() {
 
 
                             {/* App Research Animation - Research Section */}
-              {targetId === 'research' && showAppResearch && (
+              {targetId === 'research' && showAppResearch && !completedSections.includes('research') && (
                       <>
                   {[
                     { name: 'Strike', icon: '/strike-icon.png', color: 'bg-yellow-500' },
@@ -4695,7 +4695,7 @@ function App() {
               )}
 
               {/* DITLO Research Animation - Research Section */}
-              {targetId === 'research' && showDitloResearch && (
+              {targetId === 'research' && showDitloResearch && !completedSections.includes('research') && (
                 <div className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center">
                   <div className="flex flex-col items-center mx-6 sm:mx-0 w-full">
                     <motion.h2
@@ -4886,7 +4886,7 @@ function App() {
               </div>
 
               {/* Research Loader - Fixed position 100px from bottom */}
-              {targetId === 'research' && researchCompleting && !completedSections.includes('research') && (
+              {targetId === 'research' && researchCompleting && (
                 <div className="fixed left-0 right-0 flex justify-center z-20" style={{ bottom: '100px' }}>
                   <motion.button
                     layout
