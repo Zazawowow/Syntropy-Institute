@@ -311,8 +311,6 @@ function App() {
 
   const slideIndex = wrap(0, slides.length, page);
 
-  const showAnnotations = step >= 6 && slides[slideIndex].type === 'image';
-
   const paginate = (newDirection: number) => {
     setPage([page + newDirection, newDirection]);
   };
@@ -370,13 +368,15 @@ function App() {
 
   // Sequence timings (0.5x speed = half the original durations)
   const durations = [
-    1000, 1000, 2000, 1000, 1500, 1000, 500, 500, 500, 500, 500, 500,
+    1000, 1000, 2000, 1000, 1500, 1000, 500, 500, 500, 500, 500, 500, 800,
   ];
 
   const navItems = ['Anatomy', 'Question', 'Dialectics', 'Research', 'Ergonomics', 'Testing', 'Prediction'];
 
   // Detect if mobile for button text  
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  const showAnnotations = step >= (isMobile ? 6 : 12) && slides[slideIndex].type === 'image';
 
   useEffect(() => {
     const checkMobile = () => {
@@ -2474,7 +2474,7 @@ function App() {
           <motion.div
             className="absolute inset-0 w-full h-full flex items-center justify-center p-4 sm:p-8 md:p-12 lg:p-16 -translate-y-8 sm:translate-y-0"
             initial={{ opacity: 0 }}
-            animate={{ opacity: step >= 6 ? 1 : 0 }}
+            animate={{ opacity: step >= (isMobile ? 6 : 12) ? 1 : 0 }}
             transition={{ duration: 0.8 }}
           >
             <div className="relative w-full h-full max-w-screen-lg aspect-[16/9] mx-auto">
@@ -2957,7 +2957,7 @@ function App() {
           <motion.div
             className="absolute inset-x-0 bottom-24 sm:bottom-8 z-10 flex justify-center items-center space-x-4"
             initial={{ opacity: 0 }}
-            animate={{ opacity: step >= 6 ? 1 : 0 }}
+            animate={{ opacity: step >= (isMobile ? 6 : 12) ? 1 : 0 }}
           >
             <button
               onClick={() => paginate(-1)}
