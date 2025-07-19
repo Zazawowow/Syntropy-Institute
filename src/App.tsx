@@ -88,8 +88,6 @@ function App() {
   const [uxIssuesFixed, setUxIssuesFixed] = useState(false);
   
   // Helper functions for fixed colors
-  const getBlackColor = () => uxIssuesFixed ? '#0a0a0a' : '#000000';
-  const getWhiteColor = () => uxIssuesFixed ? '#FAFAFA' : '#ffffff';
   const getBlackBg = () => uxIssuesFixed ? 'bg-[#0a0a0a]' : 'bg-black';
   const getWhiteBg = () => uxIssuesFixed ? 'bg-[#FAFAFA]' : 'bg-white';
   const getBlackText = () => uxIssuesFixed ? 'text-[#0a0a0a]' : 'text-black';
@@ -1600,7 +1598,7 @@ function App() {
                        : `${getBlackBg()} ${getWhiteText()} hover:bg-gray-800`
                    }`}
                  >
-                   Fix these issues
+                   Fix it (coming soon)
                  </button>
                  <button 
                    onClick={handleModalClose}
