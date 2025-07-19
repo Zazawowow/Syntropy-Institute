@@ -718,9 +718,11 @@ function App() {
         return;
       }
       
-      const timers: NodeJS.Timeout[] = [];
+      // Immediately set progress to 0 to show loader
       setConversationProgress(0);
       setTypingIndicator({ visible: false, side: 'left' });
+      
+      const timers: NodeJS.Timeout[] = [];
       
       const animateConversation = () => {
         // Wait for user to scroll and see the section before starting (1 second delay)
@@ -1155,12 +1157,20 @@ function App() {
             <motion.div
               className={`text-lg font-bold sm:absolute sm:top-8 sm:left-8 sm:text-2xl transition-colors duration-300 ${
                 shouldInvertNav() ? getWhiteText() : getBlackText()
-              }`}
+              } flex items-center space-x-2`}
               initial={{ opacity: 0 }}
               animate={{ opacity: step >= 5 ? 1 : 0 }}
               transition={{ duration: 0.5 }}
             >
-              PROUX
+              <span>PROUX</span>
+              <motion.span
+                className="text-xs font-medium text-nostr-purple px-2 py-1 bg-nostr-purple/10 rounded-full border border-nostr-purple/20"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: step >= 5 ? 1 : 0, scale: step >= 5 ? 1 : 0.8 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                Beta
+              </motion.span>
             </motion.div>
           </a>
 
@@ -3249,7 +3259,7 @@ function App() {
                           <div className="flex-1 space-y-4 overflow-y-auto relative">
                             {/* New Team Chat animation */}
                             <AnimatePresence>
-                              {conversationProgress === 0 && (
+                              {(conversationProgress === 0 && currentSection === 'dialectics' && dialecticsState === 'conversation') && (
                                 <motion.div
                                   className="absolute inset-0 flex items-center justify-center"
                                   initial={{ opacity: 0 }}
@@ -3282,7 +3292,7 @@ function App() {
                                             initial={{ width: '0%' }}
                                             animate={{ width: '100%' }}
                                             transition={{
-                                              duration: 2,
+                                              duration: 2.5,
                                               ease: "easeInOut"
                                             }}
                                           />
