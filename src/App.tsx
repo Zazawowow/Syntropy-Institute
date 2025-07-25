@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import ParticleLogo from './components/ParticleLogo';
 import './App.css';
 
 function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [currentSection, setCurrentSection] = useState('money');
+  const [currentSection, setCurrentSection] = useState('siop');
   const [navLinePosition, setNavLinePosition] = useState({ x: 0, width: 0 });
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isExporting, setIsExporting] = useState(false);
@@ -17,7 +18,7 @@ function App() {
   const getBlackText = () => 'text-black';
   const getWhiteText = () => 'text-white';
 
-  const navItems = ['Money', 'Identity', 'Internet', 'Health', 'Vehicles', 'Work', 'Community'];
+  const navItems = ['Money', 'Identity', 'Networks', 'Health', 'Vehicles', 'Work', 'Community'];
 
   // PDF Export Function
   const exportToPDF = async () => {
@@ -33,7 +34,7 @@ function App() {
         format: [1920, 1080]
       });
 
-      const sections = ['money', 'identity', 'internet', 'health', 'vehicles', 'work', 'community'];
+      const sections = ['siop', 'money', 'identity', 'networks', 'health', 'vehicles', 'work', 'community'];
       
       // Store original scroll position
       const originalScrollY = window.scrollY;
@@ -49,14 +50,43 @@ function App() {
           continue;
         }
 
-        // Scroll to the section to ensure it's in view
+        // Scroll to the section
         element.scrollIntoView({ behavior: 'auto', block: 'start' });
         
         // Wait for scroll and rendering
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
         try {
-          // Capture the section at 1920x1080 resolution
+          console.log(`Capturing ${sectionId}...`);
+          
+          // Wait for fonts to fully load
+          await document.fonts.ready;
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // Temporarily modify the section for better capture
+          const originalStyles = {
+            width: element.style.width,
+            height: element.style.height,
+            position: element.style.position,
+            top: element.style.top,
+            left: element.style.left,
+            transform: element.style.transform,
+            overflow: element.style.overflow
+          };
+          
+          // Set section to exact dimensions
+          element.style.width = '1920px';
+          element.style.height = '1080px';
+          element.style.position = 'fixed';
+          element.style.top = '0';
+          element.style.left = '0';
+          element.style.transform = 'none';
+          element.style.overflow = 'hidden';
+          
+          // Wait for styles to apply
+          await new Promise(resolve => setTimeout(resolve, 300));
+          
+          // Capture the section directly
           const canvas = await html2canvas(element, {
             width: 1920,
             height: 1080,
@@ -64,61 +94,48 @@ function App() {
             useCORS: true,
             allowTaint: true,
             backgroundColor: null,
-            logging: false,
-            removeContainer: true,
-            ignoreElements: (element) => {
-              // Skip the floating export button and overlays
-              return element.classList?.contains('fixed') || 
-                     element.closest?.('.fixed') !== null ||
-                     element.id === 'export-button' ||
-                     element.closest?.('#export-button') !== null ||
-                     element.tagName === 'HEADER' ||
-                     element.closest?.('header') !== null;
-            },
-            onclone: (clonedDoc) => {
-              // Set the cloned element to exact 1920x1080 dimensions
-              const clonedElement = clonedDoc.getElementById(sectionId);
-              if (clonedElement) {
-                clonedElement.style.width = '1920px';
-                clonedElement.style.height = '1080px';
-                clonedElement.style.position = 'relative';
-                clonedElement.style.overflow = 'hidden';
-                clonedElement.style.transform = 'scale(1)';
-                
-                // Ensure fonts are properly loaded
-                const styleElement = clonedDoc.createElement('style');
-                styleElement.textContent = `
-                  @import url('https://fonts.googleapis.com/css2?family=Michroma&display=swap');
-                  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap');
-                `;
-                clonedDoc.head.appendChild(styleElement);
-              }
+            logging: true,
+            foreignObjectRendering: false,
+            ignoreElements: (el) => {
+              return el.id === 'export-button' || el.closest('#export-button') !== null;
             }
+          });
+          
+          // Restore original styles
+          Object.keys(originalStyles).forEach(key => {
+            const styleKey = key as keyof typeof originalStyles;
+            element.style[styleKey] = originalStyles[styleKey];
           });
           
           console.log(`Canvas created for ${sectionId}:`, canvas.width, 'x', canvas.height);
           
-          // Convert canvas to high-quality PNG image
+          // Convert canvas to image
           const imgData = canvas.toDataURL('image/png', 1.0);
           
           if (!imgData || imgData === 'data:,') {
             throw new Error(`Failed to generate image data for section: ${sectionId}`);
           }
           
-          console.log(`Image data generated for ${sectionId}`);
+          console.log(`Image data generated for ${sectionId}, size: ${imgData.length} chars`);
           
           // Add page (except for first page)
           if (i > 0) {
             pdf.addPage([1920, 1080], 'landscape');
+            console.log(`Added new page ${i + 1}`);
           }
           
-          // Add image to PDF at exact dimensions (1920x1080)
+          // Add image to PDF
           pdf.addImage(imgData, 'PNG', 0, 0, 1920, 1080);
           console.log(`Added ${sectionId} to PDF (page ${i + 1}/${sections.length})`);
           
         } catch (sectionError) {
           console.error(`Error processing section ${sectionId}:`, sectionError);
-          // Continue with other sections instead of failing completely
+          // Add a blank page if section fails
+          if (i > 0) {
+            pdf.addPage([1920, 1080], 'landscape');
+          }
+          pdf.setFontSize(20);
+          pdf.text(`Error capturing section: ${sectionId}`, 100, 100);
         }
       }
       
@@ -201,7 +218,7 @@ function App() {
   // Scroll listener to detect current section
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['money', 'identity', 'internet', 'health', 'vehicles', 'work', 'community'];
+      const sections = ['siop', 'money', 'identity', 'networks', 'health', 'vehicles', 'work', 'community'];
       const scrollPosition = window.scrollY + window.innerHeight / 2;
 
       for (const sectionId of sections) {
@@ -267,7 +284,7 @@ function App() {
         shouldInvertNav() ? getBlackBg() : getWhiteBg()
       }`} style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="relative flex h-16 items-center justify-between px-4 sm:h-24 sm:block sm:px-0">
-          <a href="#money" onClick={(e) => handleLinkClick(e, 'money')}>
+          <a href="#siop" onClick={(e) => handleLinkClick(e, 'siop')}>
             <div
               className={`text-lg font-bold sm:absolute sm:top-8 sm:left-8 sm:text-2xl transition-colors duration-300 ${
                 shouldInvertNav() ? getWhiteText() : getBlackText()
@@ -380,20 +397,18 @@ function App() {
       </AnimatePresence>
 
       <main className="-mt-16 sm:-mt-24">
-        {/* --- Money Section (First Fold) --- */}
-        <section id="money" className={`snap-section flex items-center justify-center overflow-hidden relative px-4 sm:px-0 ${getWhiteBg()} snap-start`}>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <div className="text-6xl sm:text-8xl md:text-9xl font-bold text-black font-michroma tracking-wider">
-              SiOP
+        {/* --- SiOP Section (First Fold) --- */}
+        <section id="siop" className={`snap-section flex items-center justify-center overflow-hidden relative px-4 sm:px-0 ${getWhiteBg()} snap-start`}>
+          <div className="absolute inset-0 flex items-center justify-center">
+            {/* Particle Logo Container - Optimized for SOVEREIGN readability */}
+            <div className="w-full max-w-7xl h-72 sm:h-80 md:h-96 lg:h-[28rem] relative">
+              <ParticleLogo className="absolute inset-0" />
             </div>
-            <p className="text-xl sm:text-2xl md:text-3xl font-rajdhani text-gray-600 mt-4 sm:mt-6 md:mt-8 tracking-wide">
-              Sovereign Individual Operations
-            </p>
           </div>
         </section>
 
-        {/* --- Other Sections --- */}
-        {navItems.slice(1).map((item, index) => {
+        {/* --- Navigation Sections --- */}
+        {navItems.map((item, index) => {
           const targetId = item.toLowerCase().replace(/\s+/g, '-');
           const isEven = index % 2 === 0;
           const bgColor = isEven ? getBlackBg() : getWhiteBg();
@@ -408,13 +423,19 @@ function App() {
                     {item}
                   </h2>
                   
+                {item === 'Money' && (
+                  <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
+                    Digital currencies, financial systems, and the evolution of value exchange. Exploring how blockchain technology, cryptocurrencies, and fintech innovations are reshaping global economics.
+                  </p>
+                )}
+
                 {item === 'Identity' && (
                   <p className={`mt-4 text-base sm:text-lg leading-relaxed text-center mx-auto ${subTextColor}`}>
                     Digital identity and personal data management in the modern age. How we represent ourselves online and control our digital footprint across platforms and services.
                   </p>
                 )}
 
-                {item === 'Internet' && (
+                {item === 'Networks' && (
                   <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
                     The infrastructure and protocols that connect our world. Understanding how information flows and the systems that enable global communication and commerce.
                   </p>
