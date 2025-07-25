@@ -8,6 +8,23 @@ export default {
     extend: {
       fontFamily: {
         orbitron: ['Orbitron', 'sans-serif'],
+        'space-mono': ['Space Mono', 'monospace'],
+        'jetbrains-mono': ['JetBrains Mono', 'monospace'],
+        'fira-code': ['Fira Code', 'monospace'],
+        'bit': ['Space Mono', 'JetBrains Mono', 'Fira Code', 'monospace'],
+        'press-start': ['Press Start 2P', 'cursive'],
+        'vt323': ['VT323', 'monospace'],
+        'share-tech-mono': ['Share Tech Mono', 'monospace'],
+        'chakra-petch': ['Chakra Petch', 'sans-serif'],
+        'audiowide': ['Audiowide', 'cursive'],
+        'caveat': ['Caveat', 'cursive'],
+        'bit-art': ['Press Start 2P', 'VT323', 'Share Tech Mono', 'monospace'],
+        'exo-2': ['Exo 2', 'sans-serif'],
+        'michroma': ['Michroma', 'sans-serif'],
+        'rajdhani': ['Rajdhani', 'sans-serif'],
+        'black-ops': ['Black Ops One', 'cursive'],
+        'russo': ['Russo One', 'sans-serif'],
+        'futuristic': ['Exo 2', 'Michroma', 'Rajdhani', 'Orbitron', 'sans-serif'],
       },
       colors: {
         'bitcoin-orange': '#F7931A',
