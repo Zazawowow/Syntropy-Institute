@@ -398,27 +398,14 @@ function App() {
 
       <main className="-mt-16 sm:-mt-24">
         {/* --- Money Section (First Fold) --- */}
-        <section id="money" className={`snap-section flex flex-col snap-start ${getWhiteBg()} relative`}>
-          <div className="absolute inset-0 flex items-center justify-center">
+        <section id="money" className={`snap-section flex items-center justify-center overflow-hidden relative px-4 sm:px-0 ${getWhiteBg()} snap-start`}>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
             <div className="text-6xl sm:text-8xl md:text-9xl font-bold text-black font-michroma tracking-wider">
               SiOP
             </div>
-          </div>
-          <div className="flex-1 flex items-end justify-center min-h-0 relative z-10 pb-16 px-4">
-            <div className="text-center max-w-2xl w-full mx-auto text-black">
-              <h2 className="text-3xl sm:text-4xl font-bold font-rajdhani tracking-wide mb-4">
-                Money
-              </h2>
-              <p className="text-base sm:text-lg leading-relaxed text-gray-700">
-                Digital currencies, financial systems, and the evolution of value exchange. Exploring how blockchain technology, cryptocurrencies, and fintech innovations are reshaping global economics.
-              </p>
-              <p className="mt-4 text-base sm:text-lg leading-relaxed text-gray-700">
-                From decentralized finance protocols to central bank digital currencies, the financial landscape is undergoing fundamental transformation. New models of lending, trading, and wealth management emerge through programmable money and smart contracts.
-              </p>
-              <p className="mt-4 text-base sm:text-lg leading-relaxed text-gray-700">
-                The future of money encompasses micropayments, cross-border transfers, and financial inclusion for underbanked populations. Technology democratizes access to financial services while creating new opportunities for economic participation and growth.
-              </p>
-            </div>
+            <p className="text-xl sm:text-2xl md:text-3xl font-rajdhani text-gray-600 mt-4 sm:mt-6 md:mt-8 tracking-wide">
+              Sovereign Individual Operations
+            </p>
           </div>
         </section>
 
@@ -439,87 +426,39 @@ function App() {
                   </h2>
                   
                 {item === 'Identity' && (
-                  <>
-                    <p className={`mt-4 text-base sm:text-lg leading-relaxed text-center mx-auto ${subTextColor}`}>
-                      Digital identity and personal data management in the modern age. How we represent ourselves online and control our digital footprint across platforms and services.
-                    </p>
-                    <p className={`mt-4 text-base sm:text-lg leading-relaxed text-center mx-auto ${subTextColor}`}>
-                      From social media profiles to professional networks, our digital identities shape how we connect, communicate, and conduct business. Understanding privacy, security, and authentication becomes crucial as we navigate multiple platforms and services.
-                    </p>
-                    <p className={`mt-4 text-base sm:text-lg leading-relaxed text-center mx-auto ${subTextColor}`}>
-                      The future of identity lies in self-sovereign solutions, decentralized verification, and user-controlled data. Technologies like blockchain and cryptographic proofs are enabling new models of identity that put individuals back in control of their personal information.
-                    </p>
-                  </>
+                  <p className={`mt-4 text-base sm:text-lg leading-relaxed text-center mx-auto ${subTextColor}`}>
+                    Digital identity and personal data management in the modern age. How we represent ourselves online and control our digital footprint across platforms and services.
+                  </p>
                 )}
 
                 {item === 'Internet' && (
-                  <>
-                    <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                      The infrastructure and protocols that connect our world. Understanding how information flows and the systems that enable global communication and commerce.
-                    </p>
-                    <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                      Built on open standards and distributed architecture, the internet has become the backbone of modern society. From TCP/IP protocols to DNS systems, these foundational technologies continue to evolve to meet growing demands for speed, security, and accessibility.
-                    </p>
-                    <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                      The next generation of internet infrastructure includes edge computing, 5G networks, and mesh technologies. These advances promise lower latency, greater reliability, and new possibilities for immersive digital experiences that blur the lines between physical and virtual worlds.
-                    </p>
-                  </>
+                  <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
+                    The infrastructure and protocols that connect our world. Understanding how information flows and the systems that enable global communication and commerce.
+                  </p>
                 )}
 
                 {item === 'Health' && (
-                  <>
-                    <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                      Digital health solutions and wellness technologies. Exploring how technology can improve healthcare delivery, patient outcomes, and personal health management.
-                    </p>
-                    <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                      Wearable devices, telemedicine platforms, and AI-powered diagnostics are transforming how we monitor and maintain our health. Real-time biometric data and predictive analytics enable personalized treatment plans and early intervention strategies.
-                    </p>
-                    <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                      The integration of genomics, IoT sensors, and machine learning creates unprecedented opportunities for precision medicine. Healthcare systems are becoming more proactive, preventive, and accessible through digital innovation and remote care capabilities.
-                    </p>
-                  </>
+                  <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
+                    Digital health solutions and wellness technologies. Exploring how technology can improve healthcare delivery, patient outcomes, and personal health management.
+                  </p>
                 )}
 
                 {item === 'Vehicles' && (
-                  <>
-                    <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                      Transportation innovation and autonomous systems. The future of mobility, from electric vehicles to smart infrastructure and connected transportation networks.
-                    </p>
-                    <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                      Electric and hybrid powertrains are reshaping the automotive industry, while advances in battery technology and charging infrastructure make sustainable transportation increasingly viable. Shared mobility services and micro-mobility solutions offer new models of urban transportation.
-                    </p>
-                    <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                      Autonomous driving systems rely on sophisticated sensor fusion, machine learning algorithms, and real-time decision-making capabilities. The convergence of AI, connectivity, and electrification promises safer, more efficient, and more accessible transportation for all.
-                    </p>
-                  </>
+                  <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
+                    Transportation innovation and autonomous systems. The future of mobility, from electric vehicles to smart infrastructure and connected transportation networks.
+                  </p>
                 )}
                         
                 {item === 'Work' && (
-                  <>
-                    <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                      The evolution of work in the digital era. Remote collaboration, automation, and the changing nature of employment in a technology-driven economy.
-                    </p>
-                    <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                      Cloud-based collaboration tools, virtual reality workspaces, and AI-assisted productivity platforms are redefining how teams operate across geographical boundaries. The traditional office model is giving way to flexible, hybrid arrangements that prioritize outcomes over location.
-                    </p>
-                    <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                      As automation handles routine tasks, human workers are shifting toward creative, strategic, and interpersonal roles. The future workforce requires continuous learning, adaptability, and digital fluency to thrive in an environment of rapid technological change.
-                    </p>
-                  </>
+                  <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
+                    The evolution of work in the digital era. Remote collaboration, automation, and the changing nature of employment in a technology-driven economy.
+                  </p>
                 )}
                           
                 {item === 'Community' && (
-                  <>
-                    <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                      Building connections and fostering collaboration. How technology can strengthen communities, enable collective action, and create meaningful social impact.
-                    </p>
-                    <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                      Digital platforms are empowering grassroots movements, enabling crowdfunding for local initiatives, and facilitating knowledge sharing across diverse groups. Social networks, forums, and collaborative tools help bridge geographical and cultural divides.
-                    </p>
-                    <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                      Decentralized governance models, blockchain-based voting systems, and transparent resource allocation mechanisms are creating new possibilities for democratic participation. Technology becomes a catalyst for civic engagement and community-driven solutions to global challenges.
-                    </p>
-                  </>
+                  <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
+                    Building connections and fostering collaboration. How technology can strengthen communities, enable collective action, and create meaningful social impact.
+                  </p>
                 )}
                                 </div>
                                       </div>
