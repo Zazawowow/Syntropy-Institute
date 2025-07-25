@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import ParticleLogo from './components/ParticleLogo';
+import SoundwaveParticles from './components/SoundwaveParticles';
 import './App.css';
 
 function App() {
@@ -196,8 +197,17 @@ function App() {
 
   // Determine if current section should have inverted nav colors
   const shouldInvertNav = () => {
-    const blackSections = ['identity', 'health', 'work'];
-    return blackSections.includes(currentSection);
+    // SiOP (white page) = white header, black text = false
+    if (currentSection === 'siop') return false;
+    
+    // Get the index of the current section in navItems
+    const sectionIndex = navItems.findIndex(item => 
+      item.toLowerCase().replace(/\s+/g, '-') === currentSection
+    );
+    
+    // Even indexes (0,2,4,6) = black pages = black header, white text = true
+    // Odd indexes (1,3,5) = white pages = white header, black text = false
+    return sectionIndex !== -1 && sectionIndex % 2 === 0;
   };
 
   // Register service worker for PWA
@@ -234,8 +244,14 @@ function App() {
             // Update theme color for mobile status bar
             const metaThemeColor = document.getElementById('theme-color-meta') as HTMLMetaElement;
             if (metaThemeColor) {
-              const blackSections = ['identity', 'health', 'work'];
-              const isBlackSection = blackSections.includes(sectionId);
+              // Use same logic as shouldInvertNav to determine if section is black
+              let isBlackSection = false;
+              if (sectionId !== 'siop') {
+                const sectionIndex = navItems.findIndex(item => 
+                  item.toLowerCase().replace(/\s+/g, '-') === sectionId
+                );
+                isBlackSection = sectionIndex !== -1 && sectionIndex % 2 === 0;
+              }
               metaThemeColor.setAttribute('content', isBlackSection ? '#000000' : '#ffffff');
             }
             
@@ -417,7 +433,14 @@ function App() {
           
           return (
             <section key={targetId} id={targetId} className={`snap-section flex flex-col snap-start ${bgColor} relative`}>
-              <div className={`flex-1 flex items-center justify-center min-h-0 relative z-10 overflow-hidden -mt-16 sm:-mt-12 px-4`}>
+              {/* Soundwave Particles for Money section */}
+              {item === 'Money' && (
+                <div className="absolute inset-0 -top-16 sm:-top-24 z-0">
+                  <SoundwaveParticles className="w-full h-[calc(100%+4rem)] sm:h-[calc(100%+6rem)]" />
+                </div>
+              )}
+              
+              <div className={`flex-1 flex items-center justify-center min-h-0 relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4`}>
                 <div className={`text-center max-w-2xl w-full mx-auto ${textColor}`}>
                   <h2 className="text-3xl sm:text-4xl font-bold font-rajdhani tracking-wide">
                     {item}

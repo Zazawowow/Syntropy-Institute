@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useEffect } from 'react';
+import React, { useRef, useMemo, useEffect, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import * as THREE from 'three';
@@ -352,8 +352,42 @@ interface ParticleLogoProps {
 }
 
 export default function ParticleLogo({ className }: ParticleLogoProps) {
+  const [showFlash, setShowFlash] = useState(false);
+  const [flashCount, setFlashCount] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Start the 4-flash sequence
+      setFlashCount(0);
+      
+      // Create 4 quick flashes (on-off-on-off-on-off-on-off)
+      const flashSequence = () => {
+        for (let i = 0; i < 4; i++) {
+          setTimeout(() => {
+            setShowFlash(true);
+            setTimeout(() => setShowFlash(false), 100); // 100ms on
+          }, i * 200); // 200ms between each flash start (100ms on + 100ms off)
+        }
+      };
+      
+      flashSequence();
+    }, 5000); // Flash sequence every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className={`w-full h-full ${className}`}>
+    <div className={`w-full h-full ${className} relative`}>
+      {/* Background text flash */}
+      <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-75 ${
+        showFlash ? 'opacity-20' : 'opacity-0'
+      }`}>
+        <span className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold text-black select-none pointer-events-none blur-sm" style={{ letterSpacing: '0.4em' }}>
+          SOVEREIGN
+        </span>
+      </div>
+      
+      {/* Particle canvas */}
       <Canvas
         camera={{ position: [0, 0, 3], fov: 75 }}
         style={{ background: 'transparent' }}
