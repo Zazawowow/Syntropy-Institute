@@ -26,11 +26,11 @@ function App() {
     try {
       console.log('Starting PDF export...');
       
-      // Create PDF with A4 landscape dimensions (297mm x 210mm = 1123px x 794px at 96 DPI)
+      // Create PDF with 1920x1080 pixel dimensions (landscape)
       const pdf = new jsPDF({
         orientation: 'landscape',
-        unit: 'mm',
-        format: 'a4'
+        unit: 'px',
+        format: [1920, 1080]
       });
 
       const sections = ['money', 'identity', 'internet', 'health', 'vehicles', 'work', 'community'];
@@ -49,52 +49,57 @@ function App() {
           continue;
         }
 
-        // Scroll to the section to ensure it's in view and properly rendered
+        // Scroll to the section to ensure it's in view
         element.scrollIntoView({ behavior: 'auto', block: 'start' });
         
-        // Wait for scroll and any animations to complete
+        // Wait for scroll and rendering
         await new Promise(resolve => setTimeout(resolve, 500));
         
         try {
-          // Get the viewport dimensions
-          const viewportWidth = window.innerWidth;
-          const viewportHeight = window.innerHeight;
-          
-          // Capture the section with improved options
+          // Capture the section at 1920x1080 resolution
           const canvas = await html2canvas(element, {
-            width: viewportWidth,
-            height: viewportHeight,
-            scale: 2, // Higher scale for better quality
+            width: 1920,
+            height: 1080,
+            scale: 1,
             useCORS: true,
             allowTaint: true,
-            backgroundColor: null, // Let the section's background show through
+            backgroundColor: null,
             logging: false,
             removeContainer: true,
             ignoreElements: (element) => {
-              // Skip the floating export button, overlays, and navigation
+              // Skip the floating export button and overlays
               return element.classList?.contains('fixed') || 
-                     element.closest('.fixed') !== null ||
+                     element.closest?.('.fixed') !== null ||
                      element.id === 'export-button' ||
-                     element.closest('#export-button') !== null ||
+                     element.closest?.('#export-button') !== null ||
                      element.tagName === 'HEADER' ||
-                     element.closest('header') !== null;
+                     element.closest?.('header') !== null;
             },
             onclone: (clonedDoc) => {
-              // Ensure the cloned section has full viewport height
+              // Set the cloned element to exact 1920x1080 dimensions
               const clonedElement = clonedDoc.getElementById(sectionId);
               if (clonedElement) {
-                clonedElement.style.height = `${viewportHeight}px`;
-                clonedElement.style.width = `${viewportWidth}px`;
+                clonedElement.style.width = '1920px';
+                clonedElement.style.height = '1080px';
                 clonedElement.style.position = 'relative';
                 clonedElement.style.overflow = 'hidden';
+                clonedElement.style.transform = 'scale(1)';
+                
+                // Ensure fonts are properly loaded
+                const styleElement = clonedDoc.createElement('style');
+                styleElement.textContent = `
+                  @import url('https://fonts.googleapis.com/css2?family=Michroma&display=swap');
+                  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap');
+                `;
+                clonedDoc.head.appendChild(styleElement);
               }
             }
           });
           
           console.log(`Canvas created for ${sectionId}:`, canvas.width, 'x', canvas.height);
           
-          // Convert canvas to image
-          const imgData = canvas.toDataURL('image/jpeg', 0.95);
+          // Convert canvas to high-quality PNG image
+          const imgData = canvas.toDataURL('image/png', 1.0);
           
           if (!imgData || imgData === 'data:,') {
             throw new Error(`Failed to generate image data for section: ${sectionId}`);
@@ -104,33 +109,11 @@ function App() {
           
           // Add page (except for first page)
           if (i > 0) {
-            pdf.addPage();
+            pdf.addPage([1920, 1080], 'landscape');
           }
           
-          // Calculate dimensions to fit the page while maintaining aspect ratio
-          const pageWidth = pdf.internal.pageSize.getWidth();
-          const pageHeight = pdf.internal.pageSize.getHeight();
-          const imgAspectRatio = canvas.width / canvas.height;
-          const pageAspectRatio = pageWidth / pageHeight;
-          
-          let imgWidth, imgHeight, xOffset, yOffset;
-          
-          if (imgAspectRatio > pageAspectRatio) {
-            // Image is wider relative to its height than the page
-            imgWidth = pageWidth;
-            imgHeight = pageWidth / imgAspectRatio;
-            xOffset = 0;
-            yOffset = (pageHeight - imgHeight) / 2;
-          } else {
-            // Image is taller relative to its width than the page
-            imgHeight = pageHeight;
-            imgWidth = pageHeight * imgAspectRatio;
-            xOffset = (pageWidth - imgWidth) / 2;
-            yOffset = 0;
-          }
-          
-          // Add image to PDF
-          pdf.addImage(imgData, 'JPEG', xOffset, yOffset, imgWidth, imgHeight);
+          // Add image to PDF at exact dimensions (1920x1080)
+          pdf.addImage(imgData, 'PNG', 0, 0, 1920, 1080);
           console.log(`Added ${sectionId} to PDF (page ${i + 1}/${sections.length})`);
           
         } catch (sectionError) {
