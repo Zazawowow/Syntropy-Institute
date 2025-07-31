@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROUX Icon Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+            padding: 20px; 
+            background: #f8f9fa;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #1a1a1a;
+            font-weight: 900;
+            margin-bottom: 40px;
+        }
+        .controls {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .style-selector {
+            margin-bottom: 20px;
+        }
+        .style-selector label {
+            margin: 0 15px;
+            font-weight: 600;
+        }
+        .style-selector input[type="radio"] {
+            margin-right: 8px;
+        }
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        .icon-preview { 
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .icon-preview h3 {
+            margin: 0 0 15px 0;
+            color: #1a1a1a;
+            font-weight: 700;
+        }
+        canvas { 
+            border-radius: 8px;
+            margin: 10px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        button { 
+            padding: 12px 24px; 
+            margin: 10px; 
+            background: #000; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        button:hover { 
+            background: #333;
+            transform: translateY(-1px);
+        }
+        .download-link { 
+            display: inline-block; 
+            margin: 10px 5px; 
+            padding: 10px 20px; 
+            background: #007bff; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .download-link:hover { 
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+        .description {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PROUX Icon Generator</h1>
+        <p style="text-align: center; color: #666; font-size: 18px;">Generate professional PWA icons for the PROUX UX platform</p>
+        
+        <div class="controls">
+            <div class="style-selector">
+                <label><input type="radio" name="style" value="minimal" checked> Minimal</label>
+                <label><input type="radio" name="style" value="gradient"> Gradient</label>
+                <label><input type="radio" name="style" value="ux-focused"> UX Focused</label>
+                <label><input type="radio" name="style" value="bitcoin"> Bitcoin Theme</label>
+            </div>
+            <button onclick="generateAllIcons()">Generate All Icons</button>
+        </div>
+    
+    <div id="iconContainer"></div>
+        
+        <div class="description">
+            <h3>Usage Instructions:</h3>
+            <ol>
+                <li>Select your preferred icon style above</li>
+                <li>Click "Generate All Icons" to create all required sizes</li>
+                <li>Download each icon and place them in your public folder</li>
+                <li>Update your manifest.json and HTML head tags with the new icon references</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        function generateAllIcons() {
+            const sizes = [
+                { size: 180, name: 'apple-touch-icon.png', description: 'Apple Touch Icon' },
+                { size: 192, name: 'icon-192.png', description: 'PWA Icon 192px' },
+                { size: 512, name: 'icon-512.png', description: 'PWA Icon 512px' },
+                { size: 152, name: 'apple-touch-icon-152x152.png', description: 'Apple Touch Icon 152px' },
+                { size: 120, name: 'apple-touch-icon-120x120.png', description: 'Apple Touch Icon 120px' },
+                { size: 76, name: 'apple-touch-icon-76x76.png', description: 'Apple Touch Icon 76px' }
+            ];
+            
+            const container = document.getElementById('iconContainer');
+            container.innerHTML = '';
+            container.className = 'icon-grid';
+            
+            sizes.forEach(iconInfo => {
+                createIcon(iconInfo.size, iconInfo.name, iconInfo.description, container);
+            });
+        }
+        
+        function getSelectedStyle() {
+            return document.querySelector('input[name="style"]:checked').value;
+        }
+        
+        function createIcon(size, filename, description, container) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            const style = getSelectedStyle();
+            
+            // Apply different styles
+            switch(style) {
+                case 'minimal':
+                    drawMinimalIcon(ctx, size);
+                    break;
+                case 'gradient':
+                    drawGradientIcon(ctx, size);
+                    break;
+                case 'ux-focused':
+                    drawUXIcon(ctx, size);
+                    break;
+                case 'bitcoin':
+                    drawBitcoinIcon(ctx, size);
+                    break;
+            }
+            
+            // Create preview container
+            const previewDiv = document.createElement('div');
+            previewDiv.className = 'icon-preview';
+            
+            const title = document.createElement('h3');
+            title.textContent = description;
+            
+            const subtitle = document.createElement('div');
+            subtitle.textContent = `${filename} (${size}×${size})`;
+            subtitle.style.color = '#666';
+            subtitle.style.fontSize = '14px';
+            subtitle.style.marginBottom = '10px';
+            
+            const downloadLink = document.createElement('a');
+            downloadLink.href = canvas.toDataURL('image/png');
+            downloadLink.download = filename;
+            downloadLink.textContent = 'Download';
+            downloadLink.className = 'download-link';
+            
+            previewDiv.appendChild(title);
+            previewDiv.appendChild(subtitle);
+            previewDiv.appendChild(canvas);
+            previewDiv.appendChild(document.createElement('br'));
+            previewDiv.appendChild(downloadLink);
+            
+            container.appendChild(previewDiv);
+        }
+        
+        function drawMinimalIcon(ctx, size) {
+            // Clean black background
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, size, size);
+            
+            // White PROUX text
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `900 ${size * 0.16}px Inter, Arial, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.letterSpacing = `${size * 0.01}px`;
+            ctx.fillText('PROUX', size / 2, size / 2);
+        }
+        
+        function drawGradientIcon(ctx, size) {
+            // Gradient background
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#1a1a1a');
+            gradient.addColorStop(1, '#000000');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // White PROUX text with shadow
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.3)';
+            ctx.shadowBlur = size * 0.02;
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `900 ${size * 0.16}px Inter, Arial, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('PROUX', size / 2, size / 2);
+            
+            // Reset shadow
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+        }
+        
+        function drawUXIcon(ctx, size) {
+            // Dark background
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, size, size);
+            
+            // Add subtle UX elements (geometric shapes)
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = size * 0.005;
+            
+            // Draw wireframe elements
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const radius = size * 0.35;
+            
+            // Outer circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.stroke();
+            
+            // Inner elements
+            ctx.beginPath();
+            ctx.rect(centerX - radius * 0.6, centerY - radius * 0.2, radius * 1.2, radius * 0.1);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.rect(centerX - radius * 0.6, centerY, radius * 1.2, radius * 0.1);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.rect(centerX - radius * 0.6, centerY + radius * 0.2, radius * 1.2, radius * 0.1);
+            ctx.stroke();
+            
+            // PROUX text
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `900 ${size * 0.14}px Inter, Arial, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('PROUX', centerX, centerY + radius * 0.7);
+        }
+        
+        function drawBitcoinIcon(ctx, size) {
+            // Bitcoin orange background
+            const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+            gradient.addColorStop(0, '#f7931a');
+            gradient.addColorStop(1, '#e5851a');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Bitcoin symbol suggestion (simplified)
+            ctx.strokeStyle = '#ffffff';
+            ctx.fillStyle = '#ffffff';
+            ctx.lineWidth = size * 0.08;
+            ctx.lineCap = 'round';
+            
+            const centerX = size / 2;
+            const centerY = size * 0.35;
+            const symbolSize = size * 0.12;
+            
+            // Draw stylized B
+            ctx.beginPath();
+            ctx.moveTo(centerX - symbolSize, centerY - symbolSize);
+            ctx.lineTo(centerX - symbolSize, centerY + symbolSize);
+            ctx.moveTo(centerX - symbolSize, centerY - symbolSize);
+            ctx.lineTo(centerX + symbolSize * 0.5, centerY - symbolSize);
+            ctx.moveTo(centerX - symbolSize, centerY);
+            ctx.lineTo(centerX + symbolSize * 0.7, centerY);
+            ctx.moveTo(centerX - symbolSize, centerY + symbolSize);
+            ctx.lineTo(centerX + symbolSize * 0.5, centerY + symbolSize);
+            ctx.stroke();
+            
+            // PROUX text below
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `900 ${size * 0.12}px Inter, Arial, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('PROUX', centerX, size * 0.75);
+        }
+        
+        // Auto-generate on page load
+        window.onload = generateAllIcons;
+        
+        // Re-generate when style changes
+        document.querySelectorAll('input[name="style"]').forEach(radio => {
+            radio.addEventListener('change', generateAllIcons);
+        });
+    </script>
+</body>
+</html> 

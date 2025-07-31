@@ -1,0 +1,8 @@
+<!-- This should be a 152x152 PNG file. For now, creating an SVG that can be converted -->
+<svg width="152" height="152" xmlns="http://www.w3.org/2000/svg">
+  <rect width="152" height="152" fill="#000000" rx="24"/>
+  <text x="76" y="70" text-anchor="middle" font-family="Inter, sans-serif" 
+        font-size="36" font-weight="900" fill="white">PRO</text>
+  <text x="76" y="110" text-anchor="middle" font-family="Inter, sans-serif" 
+        font-size="36" font-weight="900" fill="white">UX</text>
+</svg> 
