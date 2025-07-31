@@ -13,6 +13,9 @@ COPY package*.json ./
 # Install dependencies with increased memory limit
 RUN npm install --verbose
 
+# Copy source code
+COPY . .
+
 # Build the application
 RUN npm run build
 
