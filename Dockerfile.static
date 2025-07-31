@@ -4,13 +4,11 @@ FROM nginx:alpine
 # Copy nginx config
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Copy pre-built files (you'll need to build locally first)
+# Copy pre-built files
 COPY dist/ /usr/share/nginx/html/
-COPY public/*.png /usr/share/nginx/html/ 2>/dev/null || true
-COPY public/*.jpg /usr/share/nginx/html/ 2>/dev/null || true
-COPY public/*.ico /usr/share/nginx/html/ 2>/dev/null || true
-COPY public/*.svg /usr/share/nginx/html/ 2>/dev/null || true
-COPY public/manifest.json /usr/share/nginx/html/ 2>/dev/null || true
+
+# Copy additional public assets (these are already in dist/ from the build)
+# No need to copy from public/ since dist/ contains everything
 
 # Expose port
 EXPOSE 80
