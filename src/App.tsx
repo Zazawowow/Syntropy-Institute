@@ -838,6 +838,35 @@ function App() {
         )}
       </motion.button>
 
+      {/* Mobile Distribute Button - Only visible on mobile and when on siop section */}
+      {currentSection === 'siop' && (
+        <motion.button
+          onClick={() => setShowUnity(true)}
+          className="fixed bottom-8 right-32 z-50 sm:hidden flex items-center justify-center w-14 h-14 rounded-full border-2 border-black shadow-lg transition-all duration-300 bg-white text-black hover:bg-gray-100"
+          whileHover={{ 
+            boxShadow: "0 0 25px rgba(0,0,0,0.4)"
+          }}
+          whileTap={{ scale: 0.98 }}
+          initial={{ opacity: 0, y: 100 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.0, duration: 0.5 }}
+        >
+          <svg 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle cx="12" cy="5" r="3" stroke="currentColor" strokeWidth="2"/>
+            <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
+            <circle cx="12" cy="19" r="3" stroke="currentColor" strokeWidth="2"/>
+            <circle cx="5" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
+            <circle cx="19" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
+          </svg>
+        </motion.button>
+      )}
+
       {/* Floating Back Button */}
       <motion.button
         onClick={(e) => {
