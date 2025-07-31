@@ -540,7 +540,7 @@ function App() {
                     viewport={{ once: true, amount: 0.3 }}
                   >
                     <p className={`mt-4 text-lg sm:text-xl leading-relaxed text-center mx-auto text-white`}>
-                      1984 looks tame compared to the true surveillance dystopia we live in today. These companies collect data on us and use it to control our lives..
+                      1984 looks tame compared to the true surveillance dystopia we live in today. These companies collect data on us and use it to control our lives. We're building the beginning of that end.
                     </p>
                   </motion.div>
                 )}
