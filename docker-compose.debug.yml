@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  l484-app:
+    build: 
+      context: .
+      dockerfile: Dockerfile.debug
+    container_name: l484-innovation-platform-debug
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production

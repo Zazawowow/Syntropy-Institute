@@ -1,0 +1,33 @@
+# Debug Dockerfile to identify the exact issue
+FROM node:20-alpine as builder
+
+# Install dependencies
+RUN apk add --no-cache git
+
+WORKDIR /app
+
+# Copy and install
+COPY package*.json ./
+RUN npm install
+
+# Copy source
+COPY . .
+
+# Debug: Check what we have
+RUN echo "=== Node/NPM versions ===" && node --version && npm --version
+RUN echo "=== Files in app ===" && ls -la
+RUN echo "=== Package.json scripts ===" && cat package.json | grep -A 5 '"scripts"'
+RUN echo "=== Node modules ===" && ls node_modules/.bin/ | head -10
+
+# Try to build with detailed output
+RUN echo "=== Starting build ===" && npm run build -- --verbose
+
+# Check result
+RUN echo "=== Build result ===" && ls -la dist/ || echo "No dist folder"
+
+# Production stage
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/nginx.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

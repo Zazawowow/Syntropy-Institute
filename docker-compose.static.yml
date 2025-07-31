@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  l484-app:
+    build: 
+      context: .
+      dockerfile: Dockerfile.static
+    container_name: l484-innovation-platform-static
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production

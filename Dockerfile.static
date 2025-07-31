@@ -1,0 +1,19 @@
+# Static build approach - pre-build locally
+FROM nginx:alpine
+
+# Copy nginx config
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Copy pre-built files (you'll need to build locally first)
+COPY dist/ /usr/share/nginx/html/
+COPY public/*.png /usr/share/nginx/html/ 2>/dev/null || true
+COPY public/*.jpg /usr/share/nginx/html/ 2>/dev/null || true
+COPY public/*.ico /usr/share/nginx/html/ 2>/dev/null || true
+COPY public/*.svg /usr/share/nginx/html/ 2>/dev/null || true
+COPY public/manifest.json /usr/share/nginx/html/ 2>/dev/null || true
+
+# Expose port
+EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
