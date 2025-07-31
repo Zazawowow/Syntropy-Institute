@@ -15,30 +15,18 @@ function App() {
   const [lightboxImage, setLightboxImage] = useState<{src: string, name: string} | null>(null);
   const [lightboxText, setLightboxText] = useState<{title: string, content: string} | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
-  
-  // Carousel state for badge lightboxes
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
-  const [imageCollections, setImageCollections] = useState<{[key: string]: {src: string, name: string}[]}>({
-    networks: [
-      {src: '/meshtastic.png', name: 'Meshtastic'},
-      {src: '/node.webp', name: 'Nodes'}
-    ],
-    vehicles: [
-      {src: '/im-climber.png', name: 'Inmotion Climber'},
-      {src: '/im-air-pro.png', name: 'Inmotion Air Pro'},
-      {src: '/im-rs.png', name: 'Inmotion RS'},
-      {src: '/sprinter.png', name: 'Sprinter'}
-    ]
-  });
+
   
   // Helper functions for colors
   const getLightGrayBg = () => 'bg-light-gray';
   const getBlackText = () => 'text-black';
   const getGrayText = () => 'text-gray-700';
 
-  const navItems = ['Money', 'Identity', 'Networks', 'Syntropy', 'Vehicles', 'Work', 'Community'];
+  const navItems = ['Bitcoin', 'Identity', 'Networks', 'Syntropy', 'Vehicles', 'Work', 'Community'];
+
+
+
+
 
   // PDF Export Function
   const exportToPDF = async () => {
@@ -53,7 +41,7 @@ function App() {
         format: [1920, 1080]
       });
 
-      const sections = ['siop', 'money', 'identity', 'networks', 'syntropy', 'vehicles', 'work', 'community'];
+      const sections = ['siop', 'bitcoin', 'identity', 'networks', 'syntropy', 'vehicles', 'work', 'community'];
       
       const originalScrollY = window.scrollY;
       
@@ -214,28 +202,6 @@ function App() {
     return currentSection === 'syntropy' || currentSection === 'identity';
   };
 
-  // Carousel navigation functions
-  const getCurrentCollection = () => {
-    if (currentSection === 'networks') return imageCollections.networks;
-    if (currentSection === 'vehicles') return imageCollections.vehicles;
-    return [];
-  };
-
-  const navigateCarousel = (direction: 'prev' | 'next') => {
-    const collection = getCurrentCollection();
-    if (collection.length === 0) return;
-
-    let newIndex;
-    if (direction === 'prev') {
-      newIndex = currentImageIndex === 0 ? collection.length - 1 : currentImageIndex - 1;
-    } else {
-      newIndex = currentImageIndex === collection.length - 1 ? 0 : currentImageIndex + 1;
-    }
-
-    setCurrentImageIndex(newIndex);
-    setLightboxImage(collection[newIndex]);
-  };
-
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -255,7 +221,7 @@ function App() {
       // Don't update current section while navigating
       if (isNavigating) return;
       
-      const sections = ['siop', 'money', 'identity', 'networks', 'syntropy', 'vehicles', 'work', 'community'];
+      const sections = ['siop', 'bitcoin', 'identity', 'networks', 'syntropy', 'vehicles', 'work', 'community'];
       const scrollPosition = window.scrollY + window.innerHeight / 2;
 
       for (const sectionId of sections) {
@@ -279,7 +245,7 @@ function App() {
               } else if (sectionId === 'syntropy') {
                 metaThemeColor.setAttribute('content', '#000000');
               } else {
-                metaThemeColor.setAttribute('content', '#FAFAFA');
+              metaThemeColor.setAttribute('content', '#FAFAFA');
               }
             }
             
@@ -323,7 +289,7 @@ function App() {
   return (
     <div 
       className={`font-futuristic relative transition-all duration-1000 ease-in-out bg-transition ${
-        currentSection === 'syntropy' 
+      currentSection === 'syntropy' 
           ? 'bg-cover bg-center bg-no-repeat'
           : currentSection === 'identity'
             ? 'bg-black'
@@ -517,20 +483,29 @@ function App() {
                         ? 'text-6xl sm:text-7xl font-ivymode font-light text-white drop-shadow-xl relative z-20' 
                         : item === 'Identity'
                           ? 'text-3xl sm:text-4xl font-rajdhani font-bold text-white drop-shadow-xl relative z-20'
-                          : 'text-3xl sm:text-4xl font-rajdhani font-bold'
+                        : 'text-3xl sm:text-4xl font-rajdhani font-bold'
                     } tracking-wide uppercase`}>
                       {item}
                     </h2>
                   )}
                   
-                {item === 'Money' && (
-                  <motion.div 
+                                {item === 'Bitcoin' && (
+                  <motion.div
                     className="relative z-20"
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
                     viewport={{ once: true, amount: 0.3 }}
                   >
+                    <motion.p 
+                      className="text-xl sm:text-2xl font-semibold text-black mt-2 mb-4 drop-shadow-lg font-rajdhani"
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
+                      viewport={{ once: true, amount: 0.3 }}
+                    >
+                      Sovereign & Secure
+                    </motion.p>
                     <p className={`mt-4 text-lg sm:text-xl leading-relaxed ${subTextColor}`}>
                       Digital currencies, financial systems, and the evolution of value exchange. Exploring how blockchain technology, cryptocurrencies, and fintech innovations are reshaping global economics.
                     </p>
@@ -597,10 +572,7 @@ function App() {
                         viewport={{ once: true, amount: 0.3 }}
                       >
                         <motion.button
-                          onClick={() => {
-                            setCurrentImageIndex(0);
-                            setLightboxImage({src: '/meshtastic.png', name: 'Meshtastic'});
-                          }}
+                          onClick={() => setLightboxImage({src: '/meshtastic.png', name: 'Meshtastic'})}
                           className={`px-4 py-2 text-sm font-medium border-2 border-black rounded-full transition-all duration-300 hover:bg-black hover:text-white ${getBlackText()} bg-transparent`}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
@@ -609,10 +581,7 @@ function App() {
                         </motion.button>
                         
                         <motion.button
-                          onClick={() => {
-                            setCurrentImageIndex(1);
-                            setLightboxImage({src: '/node.webp', name: 'Nodes'});
-                          }}
+                          onClick={() => setLightboxImage({src: '/node.webp', name: 'Nodes'})}
                           className={`px-4 py-2 text-sm font-medium border-2 border-black rounded-full transition-all duration-300 hover:bg-black hover:text-white ${getBlackText()} bg-transparent`}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
@@ -775,10 +744,7 @@ function App() {
                         viewport={{ once: true, amount: 0.3 }}
                       >
                         <motion.button
-                          onClick={() => {
-                            setCurrentImageIndex(0);
-                            setLightboxImage({src: '/im-climber.png', name: 'Inmotion Climber'});
-                          }}
+                          onClick={() => setLightboxImage({src: '/im-climber.png', name: 'Inmotion Climber'})}
                           className={`px-4 py-2 text-sm font-medium border-2 border-black rounded-full transition-all duration-300 hover:bg-black hover:text-white ${getBlackText()} bg-transparent`}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
@@ -787,10 +753,7 @@ function App() {
                         </motion.button>
                         
                         <motion.button
-                          onClick={() => {
-                            setCurrentImageIndex(1);
-                            setLightboxImage({src: '/im-air-pro.png', name: 'Inmotion Air Pro'});
-                          }}
+                          onClick={() => setLightboxImage({src: '/im-air-pro.png', name: 'Inmotion Air Pro'})}
                           className={`px-4 py-2 text-sm font-medium border-2 border-black rounded-full transition-all duration-300 hover:bg-black hover:text-white ${getBlackText()} bg-transparent`}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
@@ -799,10 +762,7 @@ function App() {
                         </motion.button>
                         
                         <motion.button
-                          onClick={() => {
-                            setCurrentImageIndex(2);
-                            setLightboxImage({src: '/im-rs.png', name: 'Inmotion RS'});
-                          }}
+                          onClick={() => setLightboxImage({src: '/im-rs.png', name: 'Inmotion RS'})}
                           className={`px-4 py-2 text-sm font-medium border-2 border-black rounded-full transition-all duration-300 hover:bg-black hover:text-white ${getBlackText()} bg-transparent`}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
@@ -811,10 +771,7 @@ function App() {
                         </motion.button>
                         
                         <motion.button
-                          onClick={() => {
-                            setCurrentImageIndex(3);
-                            setLightboxImage({src: '/sprinter.png', name: 'Sprinter'});
-                          }}
+                          onClick={() => setLightboxImage({src: '/sprinter.png', name: 'Sprinter'})}
                           className={`px-4 py-2 text-sm font-medium border-2 border-black rounded-full transition-all duration-300 hover:bg-black hover:text-white ${getBlackText()} bg-transparent`}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
@@ -835,8 +792,8 @@ function App() {
                     viewport={{ once: true, amount: 0.3 }}
                   >
                     <p className={`mt-4 text-lg sm:text-xl leading-relaxed ${subTextColor}`}>
-                      The evolution of work in the digital era. Remote collaboration, automation, and the changing nature of employment in a technology-driven economy.
-                    </p>
+                    The evolution of work in the digital era. Remote collaboration, automation, and the changing nature of employment in a technology-driven economy.
+                  </p>
                   </motion.div>
                 )}
                           
@@ -849,8 +806,8 @@ function App() {
                     viewport={{ once: true, amount: 0.3 }}
                   >
                     <p className={`mt-4 text-lg sm:text-xl leading-relaxed ${subTextColor}`}>
-                      Building connections and fostering collaboration. How technology can strengthen communities, enable collective action, and create meaningful social impact.
-                    </p>
+                    Building connections and fostering collaboration. How technology can strengthen communities, enable collective action, and create meaningful social impact.
+                  </p>
                   </motion.div>
                 )}
                                 </div>
@@ -860,16 +817,18 @@ function App() {
         })}
       </main>
 
+      {/* PDF Export Button - Hidden until fully functional */}
+      {false && (
       <motion.button
         id="export-button"
         onClick={exportToPDF}
         disabled={isExporting}
-        className={`fixed bottom-8 left-8 z-50 flex items-center justify-center w-14 h-14 rounded-full border-2 shadow-lg transition-all duration-300 ${
+          className={`fixed bottom-8 left-8 z-50 flex items-center justify-center w-14 h-14 rounded-full border-2 shadow-lg transition-all duration-300 ${
           isExporting 
-            ? 'bg-gray-400 cursor-not-allowed border-gray-400 text-white' 
-            : currentSection === 'identity' || currentSection === 'syntropy'
-              ? 'bg-transparent border-white text-white hover:bg-white/20 hover:scale-110'
-              : 'bg-transparent border-black text-black hover:bg-gray-100 hover:scale-110'
+              ? 'bg-gray-400 cursor-not-allowed border-gray-400 text-white' 
+              : currentSection === 'identity' || currentSection === 'syntropy'
+                ? 'bg-transparent border-white text-white hover:bg-white/20 hover:scale-110'
+                : 'bg-transparent border-black text-black hover:bg-gray-100 hover:scale-110'
         } font-medium`}
         whileHover={!isExporting ? { scale: 1.1 } : {}}
         whileTap={!isExporting ? { scale: 0.95 } : {}}
@@ -937,6 +896,7 @@ function App() {
           </svg>
         )}
       </motion.button>
+      )}
 
       {/* Mobile Distribute Button */}
       {isMobile && currentSection === 'siop' && (
@@ -957,7 +917,7 @@ function App() {
       {currentSection !== 'siop' && (
       <motion.button
         onClick={(e) => {
-          const sections = ['siop', 'money', 'identity', 'networks', 'syntropy', 'vehicles', 'work', 'community'];
+          const sections = ['siop', 'bitcoin', 'identity', 'networks', 'syntropy', 'vehicles', 'work', 'community'];
           const currentIndex = sections.indexOf(currentSection);
           const prevIndex = currentIndex - 1;
           
@@ -1017,8 +977,8 @@ function App() {
       <motion.button
         onClick={(e) => {
           if (currentSection === 'siop') {
-            handleLinkClick(e as any, 'money');
-          } else if (currentSection === 'money') {
+                    handleLinkClick(e as any, 'bitcoin');
+      } else if (currentSection === 'bitcoin') {
             handleLinkClick(e as any, 'identity');
           } else if (currentSection === 'identity') {
             handleLinkClick(e as any, 'networks');
@@ -1043,7 +1003,7 @@ function App() {
               ? 'border-white bg-black text-white hover:bg-gray-800 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]'
               : currentSection === 'identity'
                 ? 'border-white bg-transparent text-white hover:bg-white/20 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]'
-                : 'border-black bg-black text-white hover:bg-gray-800 hover:shadow-[0_0_20px_rgba(0,0,0,0.3)]'
+              : 'border-black bg-black text-white hover:bg-gray-800 hover:shadow-[0_0_20px_rgba(0,0,0,0.3)]'
         } font-medium`}
         whileHover={currentSection !== 'community' ? { 
           boxShadow: currentSection === 'syntropy' || currentSection === 'identity'
@@ -1115,20 +1075,6 @@ function App() {
             exit={{ opacity: 0 }}
             onClick={() => setLightboxImage(null)}
           >
-            {/* Close button - positioned outside lightbox */}
-            <button
-              onClick={() => setLightboxImage(null)}
-              className="fixed z-[70] text-black/80 hover:text-black transition-all duration-300 hover:scale-110 sm:top-8 sm:right-8 bottom-8 left-1/2 transform -translate-x-1/2 sm:left-auto sm:transform-none"
-              aria-label="Close lightbox"
-            >
-              <div className="w-12 h-12 sm:w-10 sm:h-10 rounded-full bg-black/10 backdrop-blur-sm border border-black/20 flex items-center justify-center hover:bg-black/20 transition-all duration-300">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="sm:w-5 sm:h-5">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </div>
-            </button>
-            
             <motion.div
               className="relative max-w-4xl max-h-[90vh] mx-4"
               initial={{ scale: 0.8, opacity: 0 }}
@@ -1137,6 +1083,18 @@ function App() {
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
             >
+              <button
+                onClick={() => setLightboxImage(null)}
+                className="absolute -top-14 right-2 text-black/80 hover:text-black transition-all duration-300 hover:scale-110 z-20"
+                aria-label="Close lightbox"
+              >
+                <div className="w-10 h-10 rounded-full bg-black/5 backdrop-blur-sm border border-black/10 flex items-center justify-center hover:bg-black/10 transition-all duration-300">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </div>
+              </button>
               
               <motion.img
                 src={lightboxImage.src}
@@ -1145,63 +1103,7 @@ function App() {
                 initial={{ scale: 0.9 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.1 }}
-                onTouchStart={(e) => setTouchStart(e.targetTouches[0].clientX)}
-                onTouchMove={(e) => setTouchEnd(e.targetTouches[0].clientX)}
-                onTouchEnd={() => {
-                  if (!touchStart || !touchEnd) return;
-                  const distance = touchStart - touchEnd;
-                  const isLeftSwipe = distance > 50;
-                  const isRightSwipe = distance < -50;
-                  
-                  if (isLeftSwipe) {
-                    navigateCarousel('next');
-                  }
-                  if (isRightSwipe) {
-                    navigateCarousel('prev');
-                  }
-                  
-                  setTouchStart(0);
-                  setTouchEnd(0);
-                }}
               />
-              
-              {/* Carousel Navigation */}
-              {getCurrentCollection().length > 1 && (
-                <>
-                  {/* Previous Button */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigateCarousel('prev');
-                    }}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/20 backdrop-blur-sm border border-black/10 flex items-center justify-center hover:bg-black/30 transition-all duration-300 hover:scale-110 z-20"
-                    aria-label="Previous image"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                      <path d="M15 18l-6-6 6-6"/>
-                    </svg>
-                  </button>
-                  
-                  {/* Next Button */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigateCarousel('next');
-                    }}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/20 backdrop-blur-sm border border-black/10 flex items-center justify-center hover:bg-black/30 transition-all duration-300 hover:scale-110 z-20"
-                    aria-label="Next image"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                      <path d="M9 18l6-6-6-6"/>
-                    </svg>
-                  </button>
-                  
-                  {/* Image Counter */}
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/20 backdrop-blur-sm border border-black/10 rounded-full px-4 py-2 text-sm font-medium text-black/80">
-                    {currentImageIndex + 1} / {getCurrentCollection().length}
-                  </div>
-                </>
-              )}
             </motion.div>
           </motion.div>
         )}
@@ -1219,20 +1121,6 @@ function App() {
            >
              <div className="absolute inset-0 bg-black/60"></div>
              
-             {/* Close button - positioned outside lightbox */}
-             <button
-               onClick={() => setLightboxText(null)}
-               className="fixed z-[70] text-white/80 hover:text-white transition-all duration-300 hover:scale-110 sm:top-8 sm:right-8 bottom-8 left-1/2 transform -translate-x-1/2 sm:left-auto sm:transform-none"
-               aria-label="Close modal"
-             >
-               <div className="w-12 h-12 sm:w-10 sm:h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all duration-300">
-                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="sm:w-5 sm:h-5">
-                   <line x1="18" y1="6" x2="6" y2="18"></line>
-                   <line x1="6" y1="6" x2="18" y2="18"></line>
-                 </svg>
-               </div>
-             </button>
-             
              <motion.div
                className="relative max-w-4xl max-h-[85vh] mx-4 bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden z-10"
                initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -1242,6 +1130,19 @@ function App() {
                onClick={(e) => e.stopPropagation()}
              >
                <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5 rounded-3xl"></div>
+               
+               <button
+                 onClick={() => setLightboxText(null)}
+                 className="absolute -top-14 right-2 text-white/80 hover:text-white transition-all duration-300 hover:scale-110 z-20"
+                 aria-label="Close modal"
+               >
+                 <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all duration-300">
+                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                     <line x1="18" y1="6" x2="6" y2="18"></line>
+                     <line x1="6" y1="6" x2="18" y2="18"></line>
+                   </svg>
+                 </div>
+               </button>
                
                <motion.div
                  className="p-10 sm:p-14 text-center"
