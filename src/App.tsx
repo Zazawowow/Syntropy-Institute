@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import ParticleLogo from './components/ParticleLogo';
-
 import './App.css';
 
 function App() {
@@ -12,7 +10,6 @@ function App() {
   const [navLinePosition, setNavLinePosition] = useState({ x: 0, width: 0 });
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isExporting, setIsExporting] = useState(false);
-  const [showUnity, setShowUnity] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<{src: string, name: string} | null>(null);
   const [lightboxText, setLightboxText] = useState<{title: string, content: string} | null>(null);
   
@@ -420,26 +417,16 @@ function App() {
         {/* --- SiOP Section (First Fold) --- */}
         <section id="siop" className={`snap-section flex items-center justify-center overflow-hidden relative px-4 sm:px-0 ${getLightGrayBg()} snap-start`}>
           <div className="absolute inset-0 flex items-center justify-center">
-            {/* Particle Logo Container - Optimized for SOVEREIGN readability */}
-            <div className="w-full max-w-7xl h-72 sm:h-80 md:h-96 lg:h-[28rem] relative">
-              <ParticleLogo className="absolute inset-0" showUnity={showUnity} />
-            </div>
-          </div>
-          
-          {/* Distribute Button - Only for L484 animation */}
-          {currentSection === 'siop' && (
-            <motion.button
-              onClick={() => setShowUnity(true)}
-              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 px-8 py-3 rounded-full border-2 font-medium text-lg transition-all duration-300 bg-white text-black border-black hover:bg-gray-100 hover:scale-105 z-10"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 6, duration: 0.5 }} // Appear after cube formation
+            {/* Simple L484 Text Logo */}
+            <motion.h1 
+              className="text-6xl sm:text-8xl md:text-9xl lg:text-[12rem] font-bold text-black tracking-wider"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, ease: "easeOut" }}
             >
-              Distribute
-            </motion.button>
-          )}
+              L484
+            </motion.h1>
+          </div>
         </section>
 
         {/* --- Navigation Sections --- */}
@@ -838,34 +825,7 @@ function App() {
         )}
       </motion.button>
 
-      {/* Mobile Distribute Button - Only visible on mobile and when on siop section */}
-      {currentSection === 'siop' && (
-        <motion.button
-          onClick={() => setShowUnity(true)}
-          className="fixed bottom-8 right-32 z-50 sm:hidden flex items-center justify-center w-14 h-14 rounded-full border-2 border-black shadow-lg transition-all duration-300 bg-white text-black hover:bg-gray-100"
-          whileHover={{ 
-            boxShadow: "0 0 25px rgba(0,0,0,0.4)"
-          }}
-          whileTap={{ scale: 0.98 }}
-          initial={{ opacity: 0, y: 100 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.0, duration: 0.5 }}
-        >
-          <svg 
-            width="24" 
-            height="24" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <circle cx="12" cy="5" r="3" stroke="currentColor" strokeWidth="2"/>
-            <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
-            <circle cx="12" cy="19" r="3" stroke="currentColor" strokeWidth="2"/>
-            <circle cx="5" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
-            <circle cx="19" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
-          </svg>
-        </motion.button>
-      )}
+
 
       {/* Floating Back Button */}
       <motion.button
