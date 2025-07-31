@@ -429,19 +429,15 @@ function App() {
           {/* Distribute Button - Only for L484 animation */}
           {currentSection === 'siop' && (
             <motion.button
-              onClick={() => setShowUnity(!showUnity)}
-              className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 px-8 py-3 rounded-full border-2 font-medium text-lg transition-all duration-300 ${
-                showUnity 
-                  ? 'bg-black text-white border-black hover:bg-gray-800' 
-                  : 'bg-white text-black border-black hover:bg-gray-100'
-              } hover:scale-105 z-10`}
+              onClick={() => setShowUnity(true)}
+              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 px-8 py-3 rounded-full border-2 font-medium text-lg transition-all duration-300 bg-white text-black border-black hover:bg-gray-100 hover:scale-105 z-10"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 6, duration: 0.5 }} // Appear after cube formation
             >
-              {showUnity ? 'Reset' : 'Distribute'}
+              Distribute
             </motion.button>
           )}
         </section>
@@ -914,11 +910,14 @@ function App() {
           } else if (currentSection === 'vehicles') {
             handleLinkClick(e as any, 'work');
           } else if (currentSection === 'work') {
-            // This should work exactly like clicking the Community nav item
             handleLinkClick(e as any, 'community');
           }
         }}
-        className={`fixed bottom-8 right-8 z-50 flex items-center justify-center px-6 py-3 rounded-full border-2 shadow-lg transition-all duration-300 min-w-[120px] ${
+        className={`fixed bottom-8 right-8 z-50 flex items-center justify-center shadow-lg transition-all duration-300 ${
+          isMobile 
+            ? 'w-14 h-14 rounded-full border-2' 
+            : 'px-6 py-3 rounded-full border-2 min-w-[120px]'
+        } ${
           currentSection === 'community' 
             ? 'bg-gray-400 border-gray-400 cursor-not-allowed opacity-50 text-white' 
             : currentSection === 'syntropy'
@@ -937,17 +936,19 @@ function App() {
         disabled={currentSection === 'community'}
         title={currentSection === 'community' ? 'Last section' : 'Go to next section'}
       >
-        <span className="text-sm font-semibold">
-          {currentSection === 'community' ? 'End' : 'Next'}
-        </span>
+        {!isMobile && (
+          <span className="text-sm font-semibold">
+            {currentSection === 'community' ? 'End' : 'Next'}
+          </span>
+        )}
         {currentSection !== 'community' && (
           <svg 
-            width="16" 
-            height="16" 
+            width={isMobile ? "24" : "16"} 
+            height={isMobile ? "24" : "16"} 
             viewBox="0 0 24 24" 
             fill="none" 
             xmlns="http://www.w3.org/2000/svg"
-            className="ml-2"
+            className={isMobile ? "" : "ml-2"}
           >
             <path 
               d="M5 12h14M12 5l7 7-7 7" 
