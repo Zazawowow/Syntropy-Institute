@@ -4,32 +4,17 @@ FROM node:20-alpine as builder
 # Install required packages
 RUN apk add --no-cache git python3 make g++
 
-# Verify node and npm are working
-RUN node --version && npm --version
-
 # Set working directory
 WORKDIR /app
 
 # Copy package files first
 COPY package*.json ./
 
-# Clean npm cache and install dependencies
-RUN npm cache clean --force
-RUN npm install --verbose --no-optional
+# Install dependencies with increased memory limit
+RUN npm install --verbose
 
-# Copy source code
-COPY . .
-
-# List all files to debug
-RUN echo "=== Files in /app ===" && ls -la
-RUN echo "=== Package.json scripts ===" && cat package.json | grep -A 10 '"scripts"'
-
-# Check if vite is available
-RUN npx vite --version || echo "Vite not found, trying global install"
-RUN npm list vite || echo "Vite not in node_modules"
-
-# Try building with full path
-RUN ./node_modules/.bin/vite build || npm run build
+# Build the application
+RUN npm run build
 
 # Verify build output exists
 RUN ls -la dist/ && echo "Build completed successfully"
