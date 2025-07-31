@@ -4,7 +4,7 @@ services:
   l484-app:
     build: 
       context: .
-      dockerfile: Dockerfile.static
+      dockerfile: Dockerfile.simple-static
     container_name: l484-innovation-platform
     ports:
       - "80:80"
