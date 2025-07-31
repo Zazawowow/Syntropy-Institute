@@ -1,11 +1,11 @@
 {
-  "name": "PROUX - Bitcoin & Nostr UX",
-  "short_name": "PROUX",
-  "description": "User Experience research and design for Bitcoin and Nostr protocols",
+  "name": "L484 - Innovation Platform",
+  "short_name": "L484",
+  "description": "Exploring the future through innovation in money, identity, networks, health, vehicles, and work",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#FAFAFA",
+  "theme_color": "#FAFAFA",
   "orientation": "portrait-primary",
   "scope": "/",
   "lang": "en",
@@ -47,21 +47,33 @@
       "purpose": "maskable any"
     }
   ],
-  "categories": ["business", "design", "productivity"],
+  "categories": ["business", "productivity", "innovation"],
   "shortcuts": [
     {
-      "name": "App Anatomy",
-      "short_name": "Anatomy",
-      "description": "View the app anatomy section",
-      "url": "/#anatomy",
+      "name": "SIOP",
+      "short_name": "SIOP",
+      "description": "View the SIOP section",
+      "url": "/#siop",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "UX Research",
-      "short_name": "Research",
-      "description": "Learn about UX research methods",
-      "url": "/#research",
+      "name": "Syntropy",
+      "short_name": "Syntropy",
+      "description": "Explore Syntropy - Medicine Reimagined",
+      "url": "/#syntropy",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Vehicles",
+      "short_name": "Vehicles",
+      "description": "Transportation innovation and autonomous systems",
+      "url": "/#vehicles",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
-  ]
+  ],
+  "prefer_related_applications": false,
+  "display_override": ["window-controls-overlay", "standalone"],
+  "edge_side_panel": {
+    "preferred_width": 480
+  }
 } 

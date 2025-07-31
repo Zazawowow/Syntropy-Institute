@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  l484-app:
+    build: .
+    container_name: l484-innovation-platform
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.l484.rule=Host(`your-domain.com`)"
+      - "traefik.http.routers.l484.entrypoints=websecure"
+      - "traefik.http.routers.l484.tls.certresolver=letsencrypt"
+      - "traefik.http.services.l484.loadbalancer.server.port=80"
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
+
+# For Portainer stacks, you can also use this configuration:
+# Just update the domain in the labels section above
