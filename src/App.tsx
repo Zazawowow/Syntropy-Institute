@@ -317,7 +317,7 @@ function App() {
             <nav className={`hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 ${
               shouldInvertNav() ? 'text-white' : getBlackText()
             } relative`}>
-              {navItems.map((item, index) => {
+              {navItems.map((item) => {
                 const targetId = item.toLowerCase().replace(/\s+/g, '-');
                 return (
                   <motion.a
@@ -393,7 +393,7 @@ function App() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            {navItems.map((item, index) => {
+            {navItems.map((item, itemIndex) => {
               const targetId = item.toLowerCase().replace(/\s+/g, '-');
               return (
                 <motion.a
@@ -406,7 +406,7 @@ function App() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 20 }}
-                  transition={{ delay: index * 0.1 }}
+                  transition={{ delay: itemIndex * 0.1 }}
                 >
                   {item}
                 </motion.a>
@@ -447,7 +447,7 @@ function App() {
         </section>
 
         {/* --- Navigation Sections --- */}
-        {navItems.map((item, index) => {
+        {navItems.map((item) => {
           const targetId = item.toLowerCase().replace(/\s+/g, '-');
           const bgColor = getLightGrayBg();
           const textColor = getBlackText();
@@ -459,7 +459,7 @@ function App() {
             }`}>
               <div className={`flex-1 flex items-center justify-center min-h-0 relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4`}>
                 <div className={`text-center max-w-2xl w-full mx-auto ${textColor}`}>
-                  {item === 'Vehicles' ? (
+                  {item === 'Vehicles' || item === 'Networks' ? (
                     <motion.h2 
                       className="text-3xl sm:text-4xl font-rajdhani font-bold tracking-wide uppercase"
                       initial={{ opacity: 0 }}
@@ -494,28 +494,27 @@ function App() {
                 {item === 'Networks' && (
                   <div className="w-full relative">
                     {/* Background Meshtastic Image */}
-                    <div className="absolute inset-0 flex items-center justify-center z-0 overflow-hidden">
+                    <div className="absolute inset-0 flex items-center justify-center z-0">
                       <motion.div
-                        initial={{ opacity: 0, x: 100, scale: 0.8, rotate: 0 }}
+                        initial={{ opacity: 0, y: 50, scale: 0.8 }}
                         whileInView={{ 
-                          opacity: [0, 0.6, 0.15],
-                          x: [100, 0, 0],
-                          scale: [0.8, 1.1, 1],
-                          rotate: [0, 0, 45]
+                          opacity: [0, 1, 1, 0.15],
+                          y: [50, 0, 0, 0],
+                          scale: [0.8, 1, 1, 1]
                         }}
                         transition={{ 
-                          duration: 2.5, 
-                          delay: 0.3, 
+                          duration: 3.5, 
+                          delay: 0.2, 
                           ease: "easeOut",
-                          times: [0, 0.6, 1]
+                          times: [0, 0.3, 0.7, 1]
                         }}
                         viewport={{ once: true, amount: 0.3 }}
-                        className="absolute inset-0 flex items-center justify-center"
+                        className="flex items-center justify-center w-full h-full"
                       >
                         <img 
                           src="/meshtastic.png" 
                           alt="Meshtastic Network"
-                          className="w-[960px] h-[960px] sm:w-[1152px] sm:h-[1152px] object-contain opacity-15 blur-[0.5px]"
+                          className="max-w-[80vw] max-h-[80vh] w-auto h-auto object-contain"
                         />
                       </motion.div>
                     </div>
@@ -523,14 +522,41 @@ function App() {
                     {/* Foreground Text Content */}
                     <motion.div 
                       className="relative z-20"
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.8, delay: 1.8, ease: "easeOut" }}
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      transition={{ duration: 0.8, delay: 4.0, ease: "easeOut" }}
                       viewport={{ once: true, amount: 0.3 }}
                     >
                       <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor} relative`}>
                         The infrastructure and protocols that connect our world. Decentralized mesh networks, resilient communication systems, and the protocols that enable global connectivity beyond traditional internet infrastructure.
                       </p>
+                      
+                      {/* Network Component Badges */}
+                      <motion.div 
+                        className="flex flex-wrap justify-center gap-3 mt-6"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 4.6, ease: "easeOut" }}
+                        viewport={{ once: true, amount: 0.3 }}
+                      >
+                        <motion.button
+                          onClick={() => setLightboxImage({src: '/meshtastic.png', name: 'Meshtastic'})}
+                          className={`px-4 py-2 text-sm font-medium border-2 border-black rounded-full transition-all duration-300 hover:bg-black hover:text-white ${getBlackText()} bg-transparent`}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Meshtastic
+                        </motion.button>
+                        
+                        <motion.button
+                          onClick={() => setLightboxImage({src: '/nodes.png', name: 'Nodes'})}
+                          className={`px-4 py-2 text-sm font-medium border-2 border-black rounded-full transition-all duration-300 hover:bg-black hover:text-white ${getBlackText()} bg-transparent`}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Nodes
+                        </motion.button>
+                      </motion.div>
                     </motion.div>
                   </div>
                 )}

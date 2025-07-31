@@ -1,29 +1,38 @@
-# Multi-stage build for optimal production image
+# Multi-stage build with explicit path and version checks
 FROM node:20-alpine as builder
 
-# Install git (sometimes needed for npm dependencies)
-RUN apk add --no-cache git
+# Install required packages
+RUN apk add --no-cache git python3 make g++
+
+# Verify node and npm are working
+RUN node --version && npm --version
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy package files first
 COPY package*.json ./
 
-# Install ALL dependencies (including devDependencies needed for build)
-RUN npm ci --verbose
+# Clean npm cache and install dependencies
+RUN npm cache clean --force
+RUN npm install --verbose --no-optional
 
 # Copy source code
 COPY . .
 
-# Debug: List contents and check npm scripts
-RUN ls -la && npm run --silent 2>/dev/null || echo "npm scripts listed above"
+# List all files to debug
+RUN echo "=== Files in /app ===" && ls -la
+RUN echo "=== Package.json scripts ===" && cat package.json | grep -A 10 '"scripts"'
 
-# Build the application
-RUN npm run build
+# Check if vite is available
+RUN npx vite --version || echo "Vite not found, trying global install"
+RUN npm list vite || echo "Vite not in node_modules"
 
-# Verify build output
-RUN ls -la dist/ || echo "Build output directory not found"
+# Try building with full path
+RUN ./node_modules/.bin/vite build || npm run build
+
+# Verify build output exists
+RUN ls -la dist/ && echo "Build completed successfully"
 
 # Production stage with nginx
 FROM nginx:alpine
