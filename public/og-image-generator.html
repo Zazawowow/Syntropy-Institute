@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PROUX Social Image Generator</title>
+    <title>Lab 484 Social Image Generator</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -62,11 +62,13 @@
         }
         
         .subtitle {
-            font-size: 36px;
+            font-size: 28px;
             font-weight: 400;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             margin: 0;
             opacity: 0.9;
+            max-width: 900px;
+            line-height: 1.3;
         }
         
         .twitter-image {
@@ -152,28 +154,28 @@
 </head>
 <body>
     <div class="container">
-        <h1 style="text-align: center; color: #1a1a1a; font-weight: 900; margin-bottom: 40px;">PROUX Social Image Generator</h1>
-        <p style="text-align: center; color: #666; font-size: 18px; margin-bottom: 40px;">Generate professional social media images for the PROUX UX platform</p>
+        <h1 style="text-align: center; color: #1a1a1a; font-weight: 900; margin-bottom: 40px;">Lab 484 Social Image Generator</h1>
+        <p style="text-align: center; color: #666; font-size: 18px; margin-bottom: 40px;">Generate professional social media images for the Lab 484 Innovation Platform</p>
         
     <div class="controls">
-            <button onclick="downloadImage('og-image', 'proux-og-image.png')" id="og-btn">Download OG Image (1200×630)</button>
-            <button onclick="downloadImage('twitter-image', 'proux-twitter-image.png')" id="twitter-btn">Download Twitter Image (1200×675)</button>
+            <button onclick="downloadImage('og-image', 'l484-og-image.png')" id="og-btn">Download OG Image (1200×630)</button>
+            <button onclick="downloadImage('twitter-image', 'l484-twitter-image.png')" id="twitter-btn">Download Twitter Image (1200×675)</button>
             <div class="download-status" id="download-status"></div>
     </div>
     
     <!-- Open Graph Image (1200x630) -->
     <div id="og-image" class="og-image">
         <div class="content">
-            <h1 class="title">PROUX</h1>
-            <p class="subtitle">Bitcoin & Nostr User Experience</p>
+            <h1 class="title">LAB 484</h1>
+            <p class="subtitle">Decentralized, Open Source, Free from Corporate Control</p>
         </div>
     </div>
     
     <!-- Twitter Image (1200x675) -->
     <div id="twitter-image" class="twitter-image">
         <div class="content">
-            <h1 class="title">PROUX</h1>
-            <p class="subtitle">Bitcoin & Nostr User Experience</p>
+            <h1 class="title">LAB 484</h1>
+            <p class="subtitle">Decentralized, Open Source, Free from Corporate Control</p>
             </div>
         </div>
 
@@ -182,16 +184,18 @@
             <ul>
                 <li><strong>OG Image (1200×630px):</strong> Perfect for Facebook, LinkedIn, and other OpenGraph-compatible platforms</li>
                 <li><strong>Twitter Image (1200×675px):</strong> Optimized for Twitter cards and social sharing</li>
-                <li>Both images use the PROUX brand styling with professional gradients</li>
+                <li>Both images use the Lab 484 brand styling with professional gradients</li>
                 <li>Images are generated in high quality PNG format for best compatibility</li>
+                <li>Features the Lab 484 tagline: "Decentralized, Open Source, Free from Corporate Control"</li>
             </ul>
             
             <h3>Usage Instructions:</h3>
             <ol>
                 <li>Click the download buttons above to save both image formats</li>
-                <li>Place the downloaded images in your public folder</li>
-                <li>Update your HTML meta tags with the correct image paths</li>
+                <li>Place the downloaded images in your public folder as "l484-og-image.png" and "l484-twitter-image.png"</li>
+                <li>Update your HTML meta tags to reference these new Lab 484 branded images</li>
                 <li>Test your social media previews using tools like Facebook's Sharing Debugger</li>
+                <li>The generator will produce images with the Lab 484 branding and messaging</li>
             </ol>
         </div>
     </div>
