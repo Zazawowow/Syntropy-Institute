@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import ParticleLogo from './components/ParticleLogo';
+import NodeNetworkAnimation from './components/NodeNetworkAnimation';
 import './App.css';
 
 function App() {
@@ -22,7 +23,7 @@ function App() {
   const getBlackText = () => 'text-black';
   const getGrayText = () => 'text-gray-700';
 
-  const navItems = ['Bitcoin', 'Identity', 'Networks', 'Syntropy', 'Vehicles', 'Work', 'Community'];
+  const navItems = ['Bitcoin', 'Identity', 'Networks', 'Syntropy', 'Vehicles', 'Work', 'Cybersecurity'];
 
 
 
@@ -41,7 +42,7 @@ function App() {
         format: [1920, 1080]
       });
 
-      const sections = ['siop', 'bitcoin', 'identity', 'networks', 'syntropy', 'vehicles', 'work', 'community'];
+      const sections = ['siop', 'bitcoin', 'identity', 'networks', 'syntropy', 'vehicles', 'work', 'cybersecurity'];
       
       const originalScrollY = window.scrollY;
       
@@ -221,7 +222,7 @@ function App() {
       // Don't update current section while navigating
       if (isNavigating) return;
       
-      const sections = ['siop', 'bitcoin', 'identity', 'networks', 'syntropy', 'vehicles', 'work', 'community'];
+      const sections = ['siop', 'bitcoin', 'identity', 'networks', 'syntropy', 'vehicles', 'work', 'cybersecurity'];
       const scrollPosition = window.scrollY + window.innerHeight / 2;
 
       for (const sectionId of sections) {
@@ -401,9 +402,7 @@ function App() {
       <AnimatePresence>
         {mobileMenuOpen && currentSection !== 'siop' && (
           <motion.div
-            className={`sm:hidden fixed inset-0 z-40 flex flex-col items-center justify-center transition-colors duration-300 ${
-              shouldInvertNav() ? 'bg-black/90 backdrop-blur-md' : getLightGrayBg()
-            }`}
+            className="sm:hidden fixed inset-0 z-40 flex flex-col items-center justify-center bg-white"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -415,9 +414,7 @@ function App() {
                   key={item}
                   href={`#${targetId}`}
                   onClick={(e) => handleLinkClick(e, targetId)}
-                  className={`text-2xl font-medium mb-8 cursor-pointer transition-colors ${
-                    shouldInvertNav() ? 'text-white hover:text-gray-300' : getBlackText() + ' hover:text-gray-600'
-                  }`}
+                  className="text-2xl font-medium mb-8 cursor-pointer transition-colors text-black hover:text-gray-600"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 20 }}
@@ -477,6 +474,16 @@ function App() {
                     >
                       {item}
                     </motion.h2>
+                  ) : item === 'Bitcoin' ? (
+                    <motion.h2 
+                      className="text-3xl sm:text-4xl font-rajdhani font-bold tracking-wide uppercase relative z-20"
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      transition={{ duration: 0.8, delay: 3.0, ease: "easeOut" }}
+                      viewport={{ once: true, amount: 0.3 }}
+                    >
+                      {item}
+                    </motion.h2>
                   ) : (
                     <h2 className={`${
                       item === 'Syntropy' 
@@ -490,26 +497,38 @@ function App() {
                   )}
                   
                                 {item === 'Bitcoin' && (
-                  <motion.div
-                    className="relative z-20"
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-                    viewport={{ once: true, amount: 0.3 }}
-                  >
-                    <motion.p 
-                      className="text-xl sm:text-2xl font-semibold text-black mt-2 mb-4 drop-shadow-lg font-rajdhani"
+                  <>
+                    {/* Node Network Animation Background */}
+                    <NodeNetworkAnimation className="z-0" />
+                    
+                    {/* Text Content */}
+                    <motion.div
+                      className="relative z-20"
                       initial={{ opacity: 0 }}
                       whileInView={{ opacity: 1 }}
-                      transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
+                      transition={{ duration: 0.8, delay: 3.0, ease: "easeOut" }}
                       viewport={{ once: true, amount: 0.3 }}
                     >
-                      Sovereign & Secure
-                    </motion.p>
-                    <p className={`mt-4 text-lg sm:text-xl leading-relaxed ${subTextColor}`}>
-                      Digital currencies, financial systems, and the evolution of value exchange. Exploring how blockchain technology, cryptocurrencies, and fintech innovations are reshaping global economics.
-                    </p>
-                  </motion.div>
+                      <motion.p 
+                        className="text-xl sm:text-2xl font-semibold text-black mt-2 mb-4 drop-shadow-lg font-rajdhani"
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        transition={{ duration: 0.8, delay: 3.3, ease: "easeOut" }}
+                        viewport={{ once: true, amount: 0.3 }}
+                      >
+                        Sovereign & Secure
+                      </motion.p>
+                      <motion.p 
+                        className={`mt-4 text-lg sm:text-xl leading-relaxed ${subTextColor}`}
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        transition={{ duration: 0.8, delay: 3.6, ease: "easeOut" }}
+                        viewport={{ once: true, amount: 0.3 }}
+                      >
+                        Bitcoin, new financial systems, and the evolution of value exchange. Creating solutions with blockchain technology, cryptocurrency, and self-hosted technology to return power to the people.
+                      </motion.p>
+                    </motion.div>
+                  </>
                 )}
 
                 {item === 'Identity' && (
@@ -733,7 +752,7 @@ function App() {
                       viewport={{ once: true, amount: 0.3 }}
                     >
                       <p className={`mt-4 text-lg sm:text-xl leading-relaxed ${subTextColor}`}>
-                        Transportation innovation and autonomous systems. The future of mobility, from electric vehicles to smart infrastructure and connected transportation networks.
+                      Transportation innovation and autonomous systems. The future of mobility, from alternative fuel to connected transportation networks fueled by the Bitcoin ecosystem.
                       </p>
                       
                       <motion.div 
@@ -792,12 +811,12 @@ function App() {
                     viewport={{ once: true, amount: 0.3 }}
                   >
                     <p className={`mt-4 text-lg sm:text-xl leading-relaxed ${subTextColor}`}>
-                    The evolution of work in the digital era. Remote collaboration, automation, and the changing nature of employment in a technology-driven economy.
+                    The evolution of work in the Bitcoin era. Collaboration on secure local networks, private automation, and the changing nature of employment in a web5-driven economy.
                   </p>
                   </motion.div>
                 )}
                           
-                {item === 'Community' && (
+                {item === 'Cybersecurity' && (
                   <motion.div 
                     className="relative z-20"
                     initial={{ opacity: 0 }}
@@ -806,8 +825,8 @@ function App() {
                     viewport={{ once: true, amount: 0.3 }}
                   >
                     <p className={`mt-4 text-lg sm:text-xl leading-relaxed ${subTextColor}`}>
-                    Building connections and fostering collaboration. How technology can strengthen communities, enable collective action, and create meaningful social impact.
-                  </p>
+                      Open Source technology that gives back privacy to individuals. New, sovereign systems that protect against AI and hackers for our rapidly changing digital landscape.
+                    </p>
                   </motion.div>
                 )}
                                 </div>
@@ -917,7 +936,7 @@ function App() {
       {currentSection !== 'siop' && (
       <motion.button
         onClick={(e) => {
-          const sections = ['siop', 'bitcoin', 'identity', 'networks', 'syntropy', 'vehicles', 'work', 'community'];
+          const sections = ['siop', 'bitcoin', 'identity', 'networks', 'syntropy', 'vehicles', 'work', 'cybersecurity'];
           const currentIndex = sections.indexOf(currentSection);
           const prevIndex = currentIndex - 1;
           
@@ -989,7 +1008,7 @@ function App() {
           } else if (currentSection === 'vehicles') {
             handleLinkClick(e as any, 'work');
           } else if (currentSection === 'work') {
-            handleLinkClick(e as any, 'community');
+            handleLinkClick(e as any, 'cybersecurity');
           }
         }}
         className={`fixed bottom-8 right-8 z-50 flex items-center justify-center shadow-lg transition-all duration-300 ${
@@ -997,7 +1016,7 @@ function App() {
             ? 'w-14 h-14 rounded-full border-2' 
             : 'px-6 py-3 rounded-full border-2 min-w-[120px]'
         } ${
-          currentSection === 'community' 
+          currentSection === 'cybersecurity' 
             ? 'bg-gray-400 border-gray-400 cursor-not-allowed opacity-50 text-white' 
             : currentSection === 'syntropy'
               ? 'border-white bg-black text-white hover:bg-gray-800 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]'
@@ -1005,22 +1024,22 @@ function App() {
                 ? 'border-white bg-transparent text-white hover:bg-white/20 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]'
               : 'border-black bg-black text-white hover:bg-gray-800 hover:shadow-[0_0_20px_rgba(0,0,0,0.3)]'
         } font-medium`}
-        whileHover={currentSection !== 'community' ? { 
+        whileHover={currentSection !== 'cybersecurity' ? { 
           boxShadow: currentSection === 'syntropy' || currentSection === 'identity'
             ? "0 0 25px rgba(255,255,255,0.8)" 
             : "0 0 25px rgba(0,0,0,0.4)"
         } : {}}
-        whileTap={currentSection !== 'community' ? { scale: 0.98 } : {}}
+        whileTap={currentSection !== 'cybersecurity' ? { scale: 0.98 } : {}}
         initial={{ opacity: 0, y: 100 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.2, duration: 0.5 }}
-        disabled={currentSection === 'community'}
-        title={currentSection === 'community' ? 'Last section' : 'Go to next section'}
+        disabled={currentSection === 'cybersecurity'}
+        title={currentSection === 'cybersecurity' ? 'Last section' : 'Go to next section'}
       >
         <span className="hidden sm:inline text-sm font-semibold">
-          {currentSection === 'community' ? 'End' : 'Next'}
+          {currentSection === 'cybersecurity' ? 'End' : 'Next'}
         </span>
-        {currentSection !== 'community' && (
+        {currentSection !== 'cybersecurity' && (
           <svg 
             width="24" 
             height="24" 
