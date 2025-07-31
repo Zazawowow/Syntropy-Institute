@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile.simple-static
     container_name: l484-innovation-platform
     ports:
-      - "80:80"
+      - "8080:80"
     restart: unless-stopped
     environment:
       - NODE_ENV=production
