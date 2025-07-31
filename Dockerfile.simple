@@ -1,0 +1,36 @@
+# Simple single-stage build for easier debugging
+FROM node:20-alpine
+
+# Install git
+RUN apk add --no-cache git nginx
+
+# Create app directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Setup nginx
+COPY nginx.conf /etc/nginx/nginx.conf
+RUN mkdir -p /var/log/nginx
+
+# Copy built app to nginx html directory
+RUN cp -r dist/* /usr/share/nginx/html/
+
+# Copy static assets
+RUN cp -r public/* /usr/share/nginx/html/ 2>/dev/null || echo "No public assets to copy"
+
+# Expose port
+EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]

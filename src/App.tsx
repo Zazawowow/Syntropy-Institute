@@ -492,9 +492,47 @@ function App() {
                 )}
 
                 {item === 'Networks' && (
-                  <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                    The infrastructure and protocols that connect our world. Understanding how information flows and the systems that enable global communication and commerce.
-                  </p>
+                  <div className="w-full relative">
+                    {/* Background Meshtastic Image */}
+                    <div className="absolute inset-0 flex items-center justify-center z-0 overflow-hidden">
+                      <motion.div
+                        initial={{ opacity: 0, x: 100, scale: 0.8, rotate: 0 }}
+                        whileInView={{ 
+                          opacity: [0, 0.6, 0.15],
+                          x: [100, 0, 0],
+                          scale: [0.8, 1.1, 1],
+                          rotate: [0, 0, 45]
+                        }}
+                        transition={{ 
+                          duration: 2.5, 
+                          delay: 0.3, 
+                          ease: "easeOut",
+                          times: [0, 0.6, 1]
+                        }}
+                        viewport={{ once: true, amount: 0.3 }}
+                        className="absolute inset-0 flex items-center justify-center"
+                      >
+                        <img 
+                          src="/meshtastic.png" 
+                          alt="Meshtastic Network"
+                          className="w-[960px] h-[960px] sm:w-[1152px] sm:h-[1152px] object-contain opacity-15 blur-[0.5px]"
+                        />
+                      </motion.div>
+                    </div>
+                    
+                    {/* Foreground Text Content */}
+                    <motion.div 
+                      className="relative z-20"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.8, delay: 1.8, ease: "easeOut" }}
+                      viewport={{ once: true, amount: 0.3 }}
+                    >
+                      <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor} relative`}>
+                        The infrastructure and protocols that connect our world. Decentralized mesh networks, resilient communication systems, and the protocols that enable global connectivity beyond traditional internet infrastructure.
+                      </p>
+                    </motion.div>
+                  </div>
                 )}
 
                 {item === 'Syntropy' && (

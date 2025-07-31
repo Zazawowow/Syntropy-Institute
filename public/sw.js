@@ -12,7 +12,8 @@ const urlsToCache = [
   '/im-climber.png',
   '/im-air-pro.png',
   '/im-rs.png',
-  '/syntropy.jpg'
+  '/syntropy.jpg',
+  '/meshtastic.png'
 ];
 
 // Install event

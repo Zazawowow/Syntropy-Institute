@@ -1,20 +1,29 @@
 # Multi-stage build for optimal production image
 FROM node:20-alpine as builder
 
+# Install git (sometimes needed for npm dependencies)
+RUN apk add --no-cache git
+
 # Set working directory
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install ALL dependencies (including devDependencies needed for build)
+RUN npm ci --verbose
 
 # Copy source code
 COPY . .
 
+# Debug: List contents and check npm scripts
+RUN ls -la && npm run --silent 2>/dev/null || echo "npm scripts listed above"
+
 # Build the application
 RUN npm run build
+
+# Verify build output
+RUN ls -la dist/ || echo "Build output directory not found"
 
 # Production stage with nginx
 FROM nginx:alpine
