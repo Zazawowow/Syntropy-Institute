@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L484 Icon Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+            padding: 20px; 
+            background: #f8f9fa;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #1a1a1a;
+            font-weight: 900;
+            margin-bottom: 40px;
+        }
+        .controls {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        .icon-preview { 
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .icon-preview h3 {
+            margin: 0 0 15px 0;
+            color: #1a1a1a;
+            font-weight: 700;
+        }
+        canvas { 
+            border-radius: 8px;
+            margin: 10px 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        button { 
+            padding: 12px 24px; 
+            margin: 10px; 
+            background: #000; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        button:hover { 
+            background: #333;
+            transform: translateY(-1px);
+        }
+        .download-link { 
+            display: inline-block; 
+            margin: 10px 5px; 
+            padding: 10px 20px; 
+            background: #007bff; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .download-link:hover { 
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>L484 Icon Generator</h1>
+        <p style="text-align: center; color: #666; font-size: 18px;">Generate PWA icons from logo.svg</p>
+        
+        <div class="controls">
+            <button onclick="generateAllIcons()">Generate and Download All Icons</button>
+        </div>
+    
+        <div id="iconContainer"></div>
+    </div>
+    
+    <script>
+        async function generateAllIcons() {
+            const sizes = [
+                { size: 180, name: 'apple-touch-icon.png' },
+                { size: 192, name: 'icon-192.png' },
+                { size: 512, name: 'icon-512.png' },
+                { size: 152, name: 'apple-touch-icon-152x152.png' },
+                { size: 120, name: 'apple-touch-icon-120x120.png' },
+                { size: 76, name: 'apple-touch-icon-76x76.png' }
+            ];
+            
+            const container = document.getElementById('iconContainer');
+            container.innerHTML = '<h2>Generated Icons (download will start automatically):</h2>';
+            container.className = 'icon-grid';
+
+            for (const iconInfo of sizes) {
+                const canvas = await createIcon(iconInfo.size);
+                displayAndDownloadIcon(canvas, iconInfo.name, container);
+            }
+        }
+        
+        async function createIcon(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            const img = await loadSVGImage('/logo.svg');
+            
+            // Draw the SVG onto the canvas
+            ctx.drawImage(img, 0, 0, size, size);
+            
+            return canvas;
+        }
+
+        function loadSVGImage(src) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+                img.src = src;
+            });
+        }
+
+        function displayAndDownloadIcon(canvas, filename, container) {
+            // Create preview container
+            const previewDiv = document.createElement('div');
+            previewDiv.className = 'icon-preview';
+            
+            const title = document.createElement('h3');
+            title.textContent = filename;
+            
+            const canvasPreview = document.createElement('canvas');
+            canvasPreview.width = 128;
+            canvasPreview.height = 128;
+            const previewCtx = canvasPreview.getContext('2d');
+            previewCtx.drawImage(canvas, 0, 0, 128, 128);
+
+            previewDiv.appendChild(title);
+            previewDiv.appendChild(canvasPreview);
+            container.appendChild(previewDiv);
+
+            // Trigger download
+            const downloadLink = document.createElement('a');
+            downloadLink.href = canvas.toDataURL('image/png');
+            downloadLink.download = filename;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+        
+        window.onload = generateAllIcons;
+    </script>
+</body>
+</html>
