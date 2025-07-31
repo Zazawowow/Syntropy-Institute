@@ -851,7 +851,11 @@ function App() {
             handleLinkClick(e as any, prevSection);
           }
         }}
-        className={`fixed bottom-8 right-40 z-50 flex items-center justify-center px-6 py-3 rounded-full border-2 shadow-lg transition-all duration-300 min-w-[120px] ${
+        className={`fixed bottom-8 z-50 flex items-center justify-center shadow-lg transition-all duration-300 ${
+          isMobile 
+            ? 'right-20 w-14 h-14 rounded-full border-2' 
+            : 'right-40 px-6 py-3 rounded-full border-2 min-w-[120px]'
+        } ${
           currentSection === 'siop' 
             ? 'bg-transparent border-gray-300 text-gray-400 cursor-not-allowed opacity-50' 
             : currentSection === 'syntropy'
@@ -872,12 +876,12 @@ function App() {
       >
         {currentSection !== 'siop' && (
           <svg 
-            width="16" 
-            height="16" 
+            width={isMobile ? "24" : "16"} 
+            height={isMobile ? "24" : "16"} 
             viewBox="0 0 24 24" 
             fill="none" 
             xmlns="http://www.w3.org/2000/svg"
-            className="mr-2"
+            className={isMobile ? "" : "mr-2"}
           >
             <path 
               d="M19 12H5M12 19l-7-7 7-7" 
@@ -888,9 +892,11 @@ function App() {
             />
           </svg>
         )}
-        <span className="text-sm font-semibold">
-          {currentSection === 'siop' ? 'Start' : 'Back'}
-        </span>
+        {!isMobile && (
+          <span className="text-sm font-semibold">
+            {currentSection === 'siop' ? 'Start' : 'Back'}
+          </span>
+        )}
       </motion.button>
 
       {/* Floating Next Button */}
