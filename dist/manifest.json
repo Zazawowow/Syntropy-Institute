@@ -1,7 +1,7 @@
 {
-  "name": "L484 - Innovation Platform",
-  "short_name": "L484",
-  "description": "Exploring the future through innovation in money, identity, networks, health, vehicles, and work",
+  "name": "Lab 484 - Innovation Platform",
+  "short_name": "Lab 484",
+  "description": "Decentralized, open source, and free from corporate control. Exploring the future through Bitcoin, identity, networks, cybersecurity, vehicles, and work.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FAFAFA",
@@ -38,24 +38,24 @@
   "categories": ["business", "productivity", "innovation"],
   "shortcuts": [
     {
-      "name": "SIOP",
-      "short_name": "SIOP",
-      "description": "View the SIOP section",
-      "url": "/#siop",
+      "name": "Bitcoin",
+      "short_name": "Bitcoin",
+      "description": "Sovereign & Secure - Bitcoin and financial systems",
+      "url": "/#bitcoin",
       "icons": [{ "src": "/logo.svg", "sizes": "192x192" }]
     },
     {
-      "name": "Syntropy",
-      "short_name": "Syntropy",
-      "description": "Explore Syntropy - Medicine Reimagined",
-      "url": "/#syntropy",
+      "name": "Identity",
+      "short_name": "Identity",
+      "description": "Privacy and surveillance resistance",
+      "url": "/#identity",
       "icons": [{ "src": "/logo.svg", "sizes": "192x192" }]
     },
     {
-      "name": "Vehicles",
-      "short_name": "Vehicles",
-      "description": "Transportation innovation and autonomous systems",
-      "url": "/#vehicles",
+      "name": "Cybersecurity",
+      "short_name": "Security",
+      "description": "Open source privacy and protection systems",
+      "url": "/#cybersecurity",
       "icons": [{ "src": "/logo.svg", "sizes": "192x192" }]
     }
   ],
