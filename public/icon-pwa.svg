@@ -9,16 +9,12 @@
   <!-- Background with rounded corners for iOS -->
   <rect width="512" height="512" fill="url(#iconGradient)" rx="80"/>
   
-  <!-- PRO UX text -->
-  <text x="256" y="280" text-anchor="middle" 
+  <!-- L484 text -->
+  <text x="256" y="320" text-anchor="middle" 
         font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" 
-        font-size="90" font-weight="900" letter-spacing="6px" 
-        fill="white">PRO</text>
-  <text x="256" y="360" text-anchor="middle" 
-        font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" 
-        font-size="90" font-weight="900" letter-spacing="6px" 
-        fill="white">UX</text>
+        font-size="120" font-weight="900" letter-spacing="8px" 
+        fill="white">L484</text>
   
   <!-- Subtle accent -->
   <circle cx="256" cy="150" r="40" fill="rgba(255,255,255,0.1)"/>
-</svg> 
+</svg>
