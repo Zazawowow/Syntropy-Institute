@@ -180,7 +180,7 @@ function App() {
   };
 
   const shouldInvertNav = () => {
-    return currentSection === 'syntropy';
+    return currentSection === 'syntropy' || currentSection === 'identity';
   };
 
   useEffect(() => {
@@ -218,7 +218,13 @@ function App() {
             
             const metaThemeColor = document.getElementById('theme-color-meta') as HTMLMetaElement;
             if (metaThemeColor) {
-              metaThemeColor.setAttribute('content', '#FAFAFA');
+              if (sectionId === 'identity') {
+                metaThemeColor.setAttribute('content', '#808080');
+              } else if (sectionId === 'syntropy') {
+                metaThemeColor.setAttribute('content', '#000000');
+              } else {
+                metaThemeColor.setAttribute('content', '#FAFAFA');
+              }
             }
             
             break;
@@ -259,17 +265,36 @@ function App() {
   }, [currentSection]);
 
   return (
-    <div className={`${
-      currentSection === 'syntropy' 
-        ? 'bg-cover bg-center bg-no-repeat font-futuristic relative' 
-        : getLightGrayBg() + ' font-futuristic'
-    } transition-all duration-1000 ease-in-out bg-transition`} style={currentSection === 'syntropy' ? { backgroundImage: 'url(/syntropy.jpg)' } : {}}>
+    <div 
+      className={`font-futuristic relative transition-all duration-1000 ease-in-out bg-transition ${
+        currentSection === 'syntropy' 
+          ? 'bg-cover bg-center bg-no-repeat'
+          : currentSection === 'identity'
+            ? 'bg-black'
+            : getLightGrayBg()
+      }`} 
+      style={currentSection === 'syntropy' ? { backgroundImage: 'url(/syntropy.jpg)' } : {}}
+    >
+      {currentSection === 'identity' && (
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="fixed inset-0 w-full h-full object-cover z-0"
+        >
+          <source src="/nano.mov" type="video/mp4" />
+        </video>
+      )}
+
       <div className={`fixed inset-0 z-10 pointer-events-none transition-all duration-1000 ease-in-out ${
-        currentSection === 'syntropy' ? 'bg-black/40 opacity-100' : 'bg-black/0 opacity-0'
+        currentSection === 'syntropy' ? 'bg-black/40' :
+        currentSection === 'identity' ? 'bg-black/50' :
+        'bg-transparent'
       }`}></div>
       
       <header className={`sticky top-0 z-50 transition-all duration-1000 ease-in-out ${
-        currentSection === 'syntropy' ? 'bg-transparent' : getLightGrayBg()
+        shouldInvertNav() ? 'bg-transparent' : getLightGrayBg()
       } relative`} style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="relative flex h-16 items-center justify-between px-4 sm:h-24 sm:block sm:px-0">
           {currentSection !== 'siop' && (
@@ -415,8 +440,9 @@ function App() {
           
           return (
             <section key={targetId} id={targetId} className={`snap-section flex flex-col snap-start min-h-screen ${
-              item === 'Syntropy' ? 'bg-transparent relative' : bgColor + ' relative'
+              item === 'Syntropy' || item === 'Identity' ? 'bg-transparent relative' : bgColor + ' relative'
             }`}>
+
               <div className={`flex-1 flex items-center justify-center min-h-0 relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4`}>
                 <div className={`text-center max-w-2xl w-full mx-auto ${textColor}`}>
                   {item === 'Vehicles' || item === 'Networks' ? (
@@ -433,7 +459,9 @@ function App() {
                     <h2 className={`${
                       item === 'Syntropy' 
                         ? 'text-6xl sm:text-7xl font-ivymode font-light text-white drop-shadow-xl relative z-20' 
-                        : 'text-3xl sm:text-4xl font-rajdhani font-bold'
+                        : item === 'Identity'
+                          ? 'text-3xl sm:text-4xl font-rajdhani font-bold text-white drop-shadow-xl relative z-20'
+                          : 'text-3xl sm:text-4xl font-rajdhani font-bold'
                     } tracking-wide uppercase`}>
                       {item}
                     </h2>
@@ -446,7 +474,7 @@ function App() {
                 )}
 
                 {item === 'Identity' && (
-                  <p className={`mt-4 text-base sm:text-lg leading-relaxed text-center mx-auto ${subTextColor}`}>
+                  <p className={`mt-4 text-base sm:text-lg leading-relaxed text-center mx-auto text-white`}>
                     Digital identity and personal data management in the modern age. How we represent ourselves online and control our digital footprint across platforms and services.
                   </p>
                 )}
@@ -715,14 +743,12 @@ function App() {
         id="export-button"
         onClick={exportToPDF}
         disabled={isExporting}
-        className={`fixed bottom-8 left-8 z-50 flex items-center justify-center w-14 h-14 rounded-full border-2 border-black shadow-lg transition-all duration-300 ${
+        className={`fixed bottom-8 left-8 z-50 flex items-center justify-center w-14 h-14 rounded-full border-2 shadow-lg transition-all duration-300 ${
           isExporting 
-            ? 'bg-gray-400 cursor-not-allowed border-gray-400' 
-            : 'bg-transparent hover:bg-gray-100 hover:scale-110'
-        } ${
-          isExporting 
-            ? 'text-white' 
-            : 'text-black'
+            ? 'bg-gray-400 cursor-not-allowed border-gray-400 text-white' 
+            : currentSection === 'identity' || currentSection === 'syntropy'
+              ? 'bg-transparent border-white text-white hover:bg-white/20 hover:scale-110'
+              : 'bg-transparent border-black text-black hover:bg-gray-100 hover:scale-110'
         } font-medium`}
         whileHover={!isExporting ? { scale: 1.1 } : {}}
         whileTap={!isExporting ? { scale: 0.95 } : {}}
@@ -826,12 +852,12 @@ function App() {
         } ${
           currentSection === 'siop' 
             ? 'bg-transparent border-gray-300 text-gray-400 cursor-not-allowed opacity-50' 
-            : currentSection === 'syntropy'
+            : currentSection === 'syntropy' || currentSection === 'identity'
               ? 'bg-white border-white text-black hover:bg-gray-100 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]'
               : 'bg-transparent border-black text-black hover:bg-gray-100 hover:shadow-[0_0_20px_rgba(0,0,0,0.3)]'
         } font-medium`}
         whileHover={currentSection !== 'siop' ? { 
-          boxShadow: currentSection === 'syntropy' 
+          boxShadow: currentSection === 'syntropy' || currentSection === 'identity'
             ? "0 0 25px rgba(255,255,255,0.8)" 
             : "0 0 25px rgba(0,0,0,0.4)"
         } : {}}
@@ -894,10 +920,12 @@ function App() {
             ? 'bg-gray-400 border-gray-400 cursor-not-allowed opacity-50 text-white' 
             : currentSection === 'syntropy'
               ? 'border-white bg-black text-white hover:bg-gray-800 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]'
-              : 'border-black bg-black text-white hover:bg-gray-800 hover:shadow-[0_0_20px_rgba(0,0,0,0.3)]'
+              : currentSection === 'identity'
+                ? 'border-white bg-transparent text-white hover:bg-white/20 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]'
+                : 'border-black bg-black text-white hover:bg-gray-800 hover:shadow-[0_0_20px_rgba(0,0,0,0.3)]'
         } font-medium`}
         whileHover={currentSection !== 'community' ? { 
-          boxShadow: currentSection === 'syntropy' 
+          boxShadow: currentSection === 'syntropy' || currentSection === 'identity'
             ? "0 0 25px rgba(255,255,255,0.8)" 
             : "0 0 25px rgba(0,0,0,0.4)"
         } : {}}
