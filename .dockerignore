@@ -8,10 +8,7 @@ README.md
 .env
 .nyc_output
 coverage
-.dist
-dist
 .vscode
 .idea
-*.md
 .DS_Store
 .github
