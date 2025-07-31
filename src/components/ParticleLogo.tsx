@@ -129,8 +129,8 @@ function Particle({ initialPosition, cubePosition, unityPosition, delay, converg
     <mesh ref={meshRef}>
       <sphereGeometry args={[0.012, 8, 6]} />
       <meshStandardMaterial 
-        color="#8E44AD" 
-        emissive="#8E44AD" 
+        color="#000000" 
+        emissive="#000000" 
         emissiveIntensity={0.4}
         transparent
         opacity={0.95}

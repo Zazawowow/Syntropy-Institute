@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import ParticleLogo from './components/ParticleLogo';
 import './App.css';
 
 function App() {
@@ -10,6 +11,7 @@ function App() {
   const [navLinePosition, setNavLinePosition] = useState({ x: 0, width: 0 });
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isExporting, setIsExporting] = useState(false);
+  const [showUnity, setShowUnity] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<{src: string, name: string} | null>(null);
   const [lightboxText, setLightboxText] = useState<{title: string, content: string} | null>(null);
   
@@ -27,7 +29,6 @@ function App() {
     try {
       console.log('Starting PDF export...');
       
-      // Create PDF with 1920x1080 pixel dimensions (landscape)
       const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'px',
@@ -36,7 +37,6 @@ function App() {
 
       const sections = ['siop', 'money', 'identity', 'networks', 'syntropy', 'vehicles', 'work', 'community'];
       
-      // Store original scroll position
       const originalScrollY = window.scrollY;
       
       for (let i = 0; i < sections.length; i++) {
@@ -50,20 +50,16 @@ function App() {
           continue;
         }
 
-        // Scroll to the section
         element.scrollIntoView({ behavior: 'auto', block: 'start' });
         
-        // Wait for scroll and rendering
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         try {
           console.log(`Capturing ${sectionId}...`);
           
-          // Wait for fonts to fully load
           await document.fonts.ready;
           await new Promise(resolve => setTimeout(resolve, 1000));
           
-          // Temporarily modify the section for better capture
           const originalStyles = {
             width: element.style.width,
             height: element.style.height,
@@ -74,7 +70,6 @@ function App() {
             overflow: element.style.overflow
           };
           
-          // Set section to exact dimensions
           element.style.width = '1920px';
           element.style.height = '1080px';
           element.style.position = 'fixed';
@@ -83,10 +78,8 @@ function App() {
           element.style.transform = 'none';
           element.style.overflow = 'hidden';
           
-          // Wait for styles to apply
           await new Promise(resolve => setTimeout(resolve, 300));
           
-          // Capture the section directly
           const canvas = await html2canvas(element, {
             width: 1920,
             height: 1080,
@@ -101,7 +94,6 @@ function App() {
             }
           });
           
-          // Restore original styles
           Object.keys(originalStyles).forEach(key => {
             const styleKey = key as keyof typeof originalStyles;
             element.style[styleKey] = originalStyles[styleKey];
@@ -109,7 +101,6 @@ function App() {
           
           console.log(`Canvas created for ${sectionId}:`, canvas.width, 'x', canvas.height);
           
-          // Convert canvas to image
           const imgData = canvas.toDataURL('image/png', 1.0);
           
           if (!imgData || imgData === 'data:,') {
@@ -118,19 +109,16 @@ function App() {
           
           console.log(`Image data generated for ${sectionId}, size: ${imgData.length} chars`);
           
-          // Add page (except for first page)
           if (i > 0) {
             pdf.addPage([1920, 1080], 'landscape');
             console.log(`Added new page ${i + 1}`);
           }
           
-          // Add image to PDF
           pdf.addImage(imgData, 'PNG', 0, 0, 1920, 1080);
           console.log(`Added ${sectionId} to PDF (page ${i + 1}/${sections.length})`);
           
         } catch (sectionError) {
           console.error(`Error processing section ${sectionId}:`, sectionError);
-          // Add a blank page if section fails
           if (i > 0) {
             pdf.addPage([1920, 1080], 'landscape');
           }
@@ -139,19 +127,16 @@ function App() {
         }
       }
       
-      // Restore original scroll position
       window.scrollTo(0, originalScrollY);
       
       console.log('Saving PDF...');
       
-      // Save the PDF
       pdf.save('SiOP-Portfolio.pdf');
       console.log('PDF saved successfully!');
       
     } catch (error) {
       console.error('Error generating PDF:', error);
       
-      // More specific error message
       let errorMessage = 'Error generating PDF. ';
       if (error instanceof Error && error.message) {
         errorMessage += `Details: ${error.message}`;
@@ -167,7 +152,7 @@ function App() {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640);
+      setIsMobile(window.innerWidth < 768);
     };
     
     checkMobile();
@@ -194,13 +179,10 @@ function App() {
     }
   };
 
-  // Navigation styling based on current section
   const shouldInvertNav = () => {
-    // Syntropy section uses white text on dark background
     return currentSection === 'syntropy';
   };
 
-  // Register service worker for PWA
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -215,7 +197,6 @@ function App() {
     }
   }, []);
 
-  // Scroll listener to detect current section
   useEffect(() => {
     const handleScroll = () => {
       const sections = ['siop', 'money', 'identity', 'networks', 'syntropy', 'vehicles', 'work', 'community'];
@@ -231,12 +212,10 @@ function App() {
           if (scrollPosition >= elementTop && scrollPosition <= elementBottom) {
             setCurrentSection(sectionId);
             
-            // Close mobile menu when on siop section
             if (sectionId === 'siop' && mobileMenuOpen) {
               setMobileMenuOpen(false);
             }
             
-            // Update theme color for mobile status bar - always light gray
             const metaThemeColor = document.getElementById('theme-color-meta') as HTMLMetaElement;
             if (metaThemeColor) {
               metaThemeColor.setAttribute('content', '#FAFAFA');
@@ -249,12 +228,11 @@ function App() {
     };
 
     window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Call once to set initial state
+    handleScroll();
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, [mobileMenuOpen, navItems]);
 
-  // Update navigation line position when current section changes
   useEffect(() => {
     const updateNavLinePosition = () => {
       const activeNavItem = document.getElementById(`nav-${currentSection}`);
@@ -286,17 +264,14 @@ function App() {
         ? 'bg-cover bg-center bg-no-repeat font-futuristic relative' 
         : getLightGrayBg() + ' font-futuristic'
     } transition-all duration-1000 ease-in-out bg-transition`} style={currentSection === 'syntropy' ? { backgroundImage: 'url(/syntropy.jpg)' } : {}}>
-      {/* Dark overlay for Syntropy page with smooth fade */}
       <div className={`fixed inset-0 z-10 pointer-events-none transition-all duration-1000 ease-in-out ${
         currentSection === 'syntropy' ? 'bg-black/40 opacity-100' : 'bg-black/0 opacity-0'
       }`}></div>
       
-      {/* --- Sticky Header --- */}
       <header className={`sticky top-0 z-50 transition-all duration-1000 ease-in-out ${
         currentSection === 'syntropy' ? 'bg-transparent' : getLightGrayBg()
       } relative`} style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="relative flex h-16 items-center justify-between px-4 sm:h-24 sm:block sm:px-0">
-          {/* Logo - Only show from second section onward */}
           {currentSection !== 'siop' && (
             <a href="#siop" onClick={(e) => handleLinkClick(e, 'siop')}>
               <div
@@ -309,7 +284,6 @@ function App() {
             </a>
           )}
 
-          {/* Desktop Navigation - Only show from second section onward */}
           {currentSection !== 'siop' && (
             <nav className={`hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 ${
               shouldInvertNav() ? 'text-white' : getBlackText()
@@ -334,7 +308,6 @@ function App() {
                 );
               })}
               
-              {/* Animated underline */}
               <motion.div
                 className={`absolute bottom-0 h-0.5 transition-colors duration-300 ${
                   shouldInvertNav() ? 'bg-white' : 'bg-black'
@@ -356,7 +329,6 @@ function App() {
             </nav>
           )}
 
-          {/* Mobile Hamburger Button - Only show from second section onward */}
           {currentSection !== 'siop' && (
             <motion.button
               className="z-50 flex h-8 w-8 flex-col items-center justify-center sm:hidden"
@@ -379,7 +351,6 @@ function App() {
         </div>
               </header>
         
-        {/* --- Mobile Menu Overlay --- */}
       <AnimatePresence>
         {mobileMenuOpen && currentSection !== 'siop' && (
           <motion.div
@@ -414,22 +385,28 @@ function App() {
       </AnimatePresence>
 
       <main className="-mt-16 sm:-mt-24">
-        {/* --- SiOP Section (First Fold) --- */}
         <section id="siop" className={`snap-section flex items-center justify-center overflow-hidden relative px-4 sm:px-0 ${getLightGrayBg()} snap-start`}>
           <div className="absolute inset-0 flex items-center justify-center">
-            {/* Simple L484 Text Logo */}
-            <motion.h1 
-              className="text-6xl sm:text-8xl md:text-9xl lg:text-[12rem] font-bold text-black tracking-wider"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1, ease: "easeOut" }}
-            >
-              L484
-            </motion.h1>
+            <div className="w-full max-w-7xl h-72 sm:h-80 md:h-96 lg:h-[28rem] relative">
+              <ParticleLogo className="absolute inset-0" showUnity={showUnity} />
+            </div>
           </div>
+          
+          {currentSection === 'siop' && !isMobile && (
+            <motion.button
+              onClick={() => setShowUnity(true)}
+              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 px-8 py-3 rounded-full border-2 font-medium text-lg transition-all duration-300 bg-white text-black border-black hover:bg-gray-100 hover:scale-105 z-10"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 6, duration: 0.5 }}
+            >
+              Distribute
+            </motion.button>
+          )}
         </section>
 
-        {/* --- Navigation Sections --- */}
         {navItems.map((item) => {
           const targetId = item.toLowerCase().replace(/\s+/g, '-');
           const bgColor = getLightGrayBg();
@@ -476,7 +453,6 @@ function App() {
 
                 {item === 'Networks' && (
                   <div className="w-full relative">
-                    {/* Background Meshtastic Image */}
                     <div className="absolute inset-0 flex items-center justify-center z-0">
                       <motion.div
                         initial={{ opacity: 0, y: 50, scale: 0.8 }}
@@ -502,7 +478,6 @@ function App() {
                       </motion.div>
                     </div>
                     
-                    {/* Foreground Text Content */}
                     <motion.div 
                       className="relative z-20"
                       initial={{ opacity: 0 }}
@@ -514,7 +489,6 @@ function App() {
                         The infrastructure and protocols that connect our world. Decentralized mesh networks, resilient communication systems, and the protocols that enable global connectivity beyond traditional internet infrastructure.
                       </p>
                       
-                      {/* Network Component Badges */}
                       <motion.div 
                         className="flex flex-wrap justify-center gap-3 mt-6"
                         initial={{ opacity: 0, y: 20 }}
@@ -554,7 +528,6 @@ function App() {
                     Yet life itself is inherently syntropic—conscious, intelligent, self-healing..
                     </p>
                     
-                    {/* Syntropy Service Badges */}
                     <motion.div 
                       className="flex flex-wrap justify-center gap-3 mt-6"
                       initial={{ opacity: 0, y: 20 }}
@@ -603,9 +576,7 @@ function App() {
 
                 {item === 'Vehicles' && (
                   <div className="w-full relative">
-                    {/* Background Vehicle Images */}
                     <div className="absolute inset-0 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-12 z-0">
-                      {/* im-climber */}
                       <motion.div
                         initial={{ opacity: 0, y: 50, scale: 0.8 }}
                         whileInView={{ 
@@ -628,7 +599,6 @@ function App() {
                         />
                       </motion.div>
                       
-                      {/* im-air-pro */}
                       <motion.div
                         initial={{ opacity: 0, y: 50, scale: 0.8 }}
                         whileInView={{ 
@@ -651,7 +621,6 @@ function App() {
                         />
                       </motion.div>
                       
-                      {/* im-rs */}
                       <motion.div
                         initial={{ opacity: 0, y: 50, scale: 0.8 }}
                         whileInView={{ 
@@ -675,7 +644,6 @@ function App() {
                       </motion.div>
                     </div>
                     
-                    {/* Foreground Text Content */}
                     <motion.div 
                       className="relative z-20"
                       initial={{ opacity: 0 }}
@@ -687,7 +655,6 @@ function App() {
                         Transportation innovation and autonomous systems. The future of mobility, from electric vehicles to smart infrastructure and connected transportation networks.
                       </p>
                       
-                      {/* Vehicle Name Badges */}
                       <motion.div 
                         className="flex flex-wrap justify-center gap-3 mt-6"
                         initial={{ opacity: 0, y: 20 }}
@@ -744,7 +711,6 @@ function App() {
         })}
       </main>
 
-      {/* Floating PDF Export Button */}
       <motion.button
         id="export-button"
         onClick={exportToPDF}
@@ -825,9 +791,23 @@ function App() {
         )}
       </motion.button>
 
-
+      {/* Mobile Distribute Button */}
+      {isMobile && currentSection === 'siop' && (
+        <motion.button
+          onClick={() => setShowUnity(true)}
+          className="fixed bottom-8 right-40 z-50 flex items-center justify-center w-14 h-14 rounded-full border-2 bg-white border-black text-black shadow-lg"
+          initial={{ opacity: 0, y: 100 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.0, duration: 0.5 }}
+          whileTap={{ scale: 0.98 }}
+          title="Distribute"
+        >
+          <img src="/484-icon.svg" alt="Distribute" className="w-6 h-6" />
+        </motion.button>
+      )}
 
       {/* Floating Back Button */}
+      {currentSection !== 'siop' && (
       <motion.button
         onClick={(e) => {
           const sections = ['siop', 'money', 'identity', 'networks', 'syntropy', 'vehicles', 'work', 'community'];
@@ -836,13 +816,12 @@ function App() {
           
           if (prevIndex >= 0) {
             const prevSection = sections[prevIndex];
-            // Do exactly what the nav items do
             handleLinkClick(e as any, prevSection);
           }
         }}
         className={`fixed bottom-8 z-50 flex items-center justify-center shadow-lg transition-all duration-300 ${
           isMobile 
-            ? 'right-20 w-14 h-14 rounded-full border-2' 
+            ? 'right-24 w-14 h-14 rounded-full border-2' 
             : 'right-40 px-6 py-3 rounded-full border-2 min-w-[120px]'
         } ${
           currentSection === 'siop' 
@@ -865,12 +844,12 @@ function App() {
       >
         {currentSection !== 'siop' && (
           <svg 
-            width={isMobile ? "24" : "16"} 
-            height={isMobile ? "24" : "16"} 
+            width="24" 
+            height="24"
             viewBox="0 0 24 24" 
             fill="none" 
             xmlns="http://www.w3.org/2000/svg"
-            className={isMobile ? "" : "mr-2"}
+            className="sm:mr-2"
           >
             <path 
               d="M19 12H5M12 19l-7-7 7-7" 
@@ -881,17 +860,15 @@ function App() {
             />
           </svg>
         )}
-        {!isMobile && (
-          <span className="text-sm font-semibold">
-            {currentSection === 'siop' ? 'Start' : 'Back'}
-          </span>
-        )}
+        <span className="hidden sm:inline text-sm font-semibold">
+          {currentSection === 'siop' ? 'Start' : 'Back'}
+        </span>
       </motion.button>
+      )}
 
       {/* Floating Next Button */}
       <motion.button
         onClick={(e) => {
-          // Direct mapping to exactly what works
           if (currentSection === 'siop') {
             handleLinkClick(e as any, 'money');
           } else if (currentSection === 'money') {
@@ -931,19 +908,17 @@ function App() {
         disabled={currentSection === 'community'}
         title={currentSection === 'community' ? 'Last section' : 'Go to next section'}
       >
-        {!isMobile && (
-          <span className="text-sm font-semibold">
-            {currentSection === 'community' ? 'End' : 'Next'}
-          </span>
-        )}
+        <span className="hidden sm:inline text-sm font-semibold">
+          {currentSection === 'community' ? 'End' : 'Next'}
+        </span>
         {currentSection !== 'community' && (
           <svg 
-            width={isMobile ? "24" : "16"} 
-            height={isMobile ? "24" : "16"} 
+            width="24" 
+            height="24" 
             viewBox="0 0 24 24" 
             fill="none" 
             xmlns="http://www.w3.org/2000/svg"
-            className={isMobile ? "" : "ml-2"}
+            className="sm:ml-2"
           >
             <path 
               d="M5 12h14M12 5l7 7-7 7" 
@@ -956,7 +931,6 @@ function App() {
         )}
       </motion.button>
 
-      {/* Export Progress Indicator */}
       <AnimatePresence>
         {isExporting && (
           <motion.div
@@ -983,7 +957,6 @@ function App() {
         )}
       </AnimatePresence>
 
-      {/* Vehicle Lightbox Modal */}
       <AnimatePresence>
         {lightboxImage && (
           <motion.div
@@ -1001,7 +974,6 @@ function App() {
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close Button */}
               <button
                 onClick={() => setLightboxImage(null)}
                 className="absolute -top-14 right-2 text-black/80 hover:text-black transition-all duration-300 hover:scale-110 z-20"
@@ -1015,7 +987,6 @@ function App() {
                 </div>
               </button>
               
-              {/* Image */}
               <motion.img
                 src={lightboxImage.src}
                 alt={lightboxImage.name}
@@ -1029,7 +1000,6 @@ function App() {
         )}
       </AnimatePresence>
 
-             {/* Syntropy Text Lightbox Modal */}
        <AnimatePresence>
          {lightboxText && (
            <motion.div
@@ -1040,7 +1010,6 @@ function App() {
              onClick={() => setLightboxText(null)}
              style={{ backgroundImage: 'url(/syntropy.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
            >
-             {/* Background overlay matching main page */}
              <div className="absolute inset-0 bg-black/60"></div>
              
              <motion.div
@@ -1051,10 +1020,8 @@ function App() {
                transition={{ type: "spring", damping: 30, stiffness: 400 }}
                onClick={(e) => e.stopPropagation()}
              >
-               {/* Elegant glow effect */}
                <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5 rounded-3xl"></div>
                
-               {/* Close Button */}
                <button
                  onClick={() => setLightboxText(null)}
                  className="absolute -top-14 right-2 text-white/80 hover:text-white transition-all duration-300 hover:scale-110 z-20"
@@ -1068,14 +1035,12 @@ function App() {
                  </div>
                </button>
                
-               {/* Content */}
                <motion.div
                  className="p-10 sm:p-14 text-center"
                  initial={{ opacity: 0, y: 30 }}
                  animate={{ opacity: 1, y: 0 }}
                  transition={{ delay: 0.2, duration: 0.6 }}
                >
-                 {/* Title with luxury styling */}
                  <motion.h3
                    className="text-4xl sm:text-5xl lg:text-6xl font-ivymode font-light text-white mb-3 tracking-wider drop-shadow-2xl"
                    initial={{ opacity: 0, y: 20 }}
@@ -1085,7 +1050,6 @@ function App() {
                    {lightboxText.title}
                  </motion.h3>
                  
-                 {/* Decorative line */}
                  <motion.div
                    className="w-24 h-0.5 bg-gradient-to-r from-transparent via-white/60 to-transparent mx-auto mb-8"
                    initial={{ scaleX: 0 }}
@@ -1093,7 +1057,6 @@ function App() {
                    transition={{ delay: 0.5, duration: 0.8 }}
                  ></motion.div>
                  
-                 {/* Description with enhanced typography */}
                  <motion.p
                    className="text-lg sm:text-xl lg:text-2xl leading-relaxed text-white/95 font-light max-w-3xl mx-auto drop-shadow-lg font-ivymode"
                    style={{ lineHeight: '1.8' }}
@@ -1105,7 +1068,6 @@ function App() {
                  </motion.p>
                </motion.div>
                
-               {/* Bottom elegant border */}
                <motion.div 
                  className="h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"
                  initial={{ scaleX: 0 }}
