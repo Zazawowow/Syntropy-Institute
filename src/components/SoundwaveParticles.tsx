@@ -25,16 +25,17 @@ function Particle({ position, targetPosition, delay, waveSpeed, amplitude }: Par
     const mesh = meshRef.current;
     
     // Enhanced mouse repulsion to create void effect
-    const mouseX = mouse.x * 4;
-    const mouseY = mouse.y * 3;
+    // Convert normalized mouse coordinates to world coordinates
+    const mouseX = mouse.x * 12; // Scale to match field width
+    const mouseY = mouse.y * 10; // Scale to match field height
     
     const deltaX = mesh.position.x - mouseX;
     const deltaY = mesh.position.y - mouseY;
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     
     // Larger repulsion radius and stronger force for void effect
-    const repulsionRadius = 2.5;
-    const repulsionStrength = 1.2;
+    const repulsionRadius = 3.5; // Increased for larger field
+    const repulsionStrength = 2.0; // Stronger force
     
     let targetX = targetPosition[0];
     let targetY = targetPosition[1];
@@ -54,9 +55,9 @@ function Particle({ position, targetPosition, delay, waveSpeed, amplitude }: Par
       targetY += directionY * force * 4;
       
       // Make particles at the very edge of cursor almost invisible
-      if (distance < 0.8) {
-        targetX += directionX * 6; // Extra push for closest particles
-        targetY += directionY * 6;
+      if (distance < 1.5) {
+        targetX += directionX * 8; // Extra push for closest particles
+        targetY += directionY * 8;
       }
     }
     
@@ -92,9 +93,9 @@ function Particle({ position, targetPosition, delay, waveSpeed, amplitude }: Par
     
     // Fade out particles close to cursor for cleaner void
     const material = mesh.material as THREE.MeshStandardMaterial;
-    if (distance < 1.0) {
-      const fadeDistance = Math.max(0, distance - 0.3);
-      material.opacity = 0.9 * (fadeDistance / 0.7);
+    if (distance < 2.0) {
+      const fadeDistance = Math.max(0, distance - 0.5);
+      material.opacity = 0.9 * (fadeDistance / 1.5);
     } else {
       material.opacity = 0.9;
     }
@@ -104,11 +105,11 @@ function Particle({ position, targetPosition, delay, waveSpeed, amplitude }: Par
     <mesh ref={meshRef} position={position}>
       <sphereGeometry args={[0.008, 6, 4]} />
       <meshStandardMaterial 
-        color="#ffffff" 
-        emissive="#ffffff" 
-        emissiveIntensity={0.3}
+        color="#000000" 
+        emissive="#000000" 
+        emissiveIntensity={0.2}
         transparent
-        opacity={0.9}
+        opacity={0.7}
       />
     </mesh>
   );
@@ -125,10 +126,10 @@ function SoundwaveParticleSystem() {
     }> = [];
 
     // Create flowing soundwave patterns to fill entire page including header
-    const rows = 40; // Number of horizontal rows
-    const particlesPerRow = 80; // Particles per row
-    const fieldWidth = 8; // Total width of the field (much wider)
-    const fieldHeight = 6; // Total height of the field (much taller)
+    const rows = 50; // Number of horizontal rows
+    const particlesPerRow = 100; // Particles per row
+    const fieldWidth = 12; // Total width of the field (much wider)
+    const fieldHeight = 10; // Total height of the field (much taller)
     
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < particlesPerRow; col++) {
@@ -160,7 +161,7 @@ function SoundwaveParticleSystem() {
     }
 
     // Add some extra random particles for density
-    for (let i = 0; i < 800; i++) {
+    for (let i = 0; i < 1500; i++) {
       const x = (Math.random() - 0.5) * fieldWidth;
       const y = (Math.random() - 0.5) * fieldHeight;
       const z = (Math.random() - 0.5) * 0.3;
@@ -179,30 +180,30 @@ function SoundwaveParticleSystem() {
     }
 
     // Add edge particles for complete coverage
-    const edgeParticles = 100;
+    const edgeParticles = 200;
     for (let i = 0; i < edgeParticles; i++) {
       // Random edge position (top, bottom, left, right)
       const edge = Math.floor(Math.random() * 4);
       let x, y;
       
-      switch (edge) {
-        case 0: // Top edge
-          x = (Math.random() - 0.5) * fieldWidth;
-          y = fieldHeight / 2 + Math.random() * 0.5;
-          break;
-        case 1: // Bottom edge
-          x = (Math.random() - 0.5) * fieldWidth;
-          y = -fieldHeight / 2 - Math.random() * 0.5;
-          break;
-        case 2: // Left edge
-          x = -fieldWidth / 2 - Math.random() * 0.5;
-          y = (Math.random() - 0.5) * fieldHeight;
-          break;
-        default: // Right edge
-          x = fieldWidth / 2 + Math.random() * 0.5;
-          y = (Math.random() - 0.5) * fieldHeight;
-          break;
-      }
+              switch (edge) {
+          case 0: // Top edge
+            x = (Math.random() - 0.5) * fieldWidth * 1.2;
+            y = fieldHeight / 2 + Math.random() * 2;
+            break;
+          case 1: // Bottom edge
+            x = (Math.random() - 0.5) * fieldWidth * 1.2;
+            y = -fieldHeight / 2 - Math.random() * 2;
+            break;
+          case 2: // Left edge
+            x = -fieldWidth / 2 - Math.random() * 2;
+            y = (Math.random() - 0.5) * fieldHeight * 1.2;
+            break;
+          default: // Right edge
+            x = fieldWidth / 2 + Math.random() * 2;
+            y = (Math.random() - 0.5) * fieldHeight * 1.2;
+            break;
+        }
       
       const z = (Math.random() - 0.5) * 0.3;
       
@@ -243,7 +244,7 @@ export default function SoundwaveParticles({ className }: SoundwaveParticlesProp
     <div className={`${className} relative`}>
       {/* Soundwave particle canvas */}
       <Canvas
-        camera={{ position: [0, 0, 6], fov: 100 }}
+        camera={{ position: [0, 0, 8], fov: 120 }}
         style={{ background: 'transparent' }}
       >
         <ambientLight intensity={0.5} />

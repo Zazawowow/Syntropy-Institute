@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import ParticleLogo from './components/ParticleLogo';
-import SoundwaveParticles from './components/SoundwaveParticles';
+
 import './App.css';
 
 function App() {
@@ -12,14 +12,16 @@ function App() {
   const [navLinePosition, setNavLinePosition] = useState({ x: 0, width: 0 });
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isExporting, setIsExporting] = useState(false);
+  const [showUnity, setShowUnity] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState<{src: string, name: string} | null>(null);
+  const [lightboxText, setLightboxText] = useState<{title: string, content: string} | null>(null);
   
   // Helper functions for colors
-  const getBlackBg = () => 'bg-black';
-  const getWhiteBg = () => 'bg-white';
+  const getLightGrayBg = () => 'bg-light-gray';
   const getBlackText = () => 'text-black';
-  const getWhiteText = () => 'text-white';
+  const getGrayText = () => 'text-gray-700';
 
-  const navItems = ['Money', 'Identity', 'Networks', 'Health', 'Vehicles', 'Work', 'Community'];
+  const navItems = ['Money', 'Identity', 'Networks', 'Syntropy', 'Vehicles', 'Work', 'Community'];
 
   // PDF Export Function
   const exportToPDF = async () => {
@@ -35,7 +37,7 @@ function App() {
         format: [1920, 1080]
       });
 
-      const sections = ['siop', 'money', 'identity', 'networks', 'health', 'vehicles', 'work', 'community'];
+      const sections = ['siop', 'money', 'identity', 'networks', 'syntropy', 'vehicles', 'work', 'community'];
       
       // Store original scroll position
       const originalScrollY = window.scrollY;
@@ -195,19 +197,10 @@ function App() {
     }
   };
 
-  // Determine if current section should have inverted nav colors
+  // Navigation styling based on current section
   const shouldInvertNav = () => {
-    // SiOP (white page) = white header, black text = false
-    if (currentSection === 'siop') return false;
-    
-    // Get the index of the current section in navItems
-    const sectionIndex = navItems.findIndex(item => 
-      item.toLowerCase().replace(/\s+/g, '-') === currentSection
-    );
-    
-    // Even indexes (0,2,4,6) = black pages = black header, white text = true
-    // Odd indexes (1,3,5) = white pages = white header, black text = false
-    return sectionIndex !== -1 && sectionIndex % 2 === 0;
+    // Syntropy section uses white text on dark background
+    return currentSection === 'syntropy';
   };
 
   // Register service worker for PWA
@@ -228,7 +221,7 @@ function App() {
   // Scroll listener to detect current section
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['siop', 'money', 'identity', 'networks', 'health', 'vehicles', 'work', 'community'];
+      const sections = ['siop', 'money', 'identity', 'networks', 'syntropy', 'vehicles', 'work', 'community'];
       const scrollPosition = window.scrollY + window.innerHeight / 2;
 
       for (const sectionId of sections) {
@@ -241,18 +234,15 @@ function App() {
           if (scrollPosition >= elementTop && scrollPosition <= elementBottom) {
             setCurrentSection(sectionId);
             
-            // Update theme color for mobile status bar
+            // Close mobile menu when on siop section
+            if (sectionId === 'siop' && mobileMenuOpen) {
+              setMobileMenuOpen(false);
+            }
+            
+            // Update theme color for mobile status bar - always light gray
             const metaThemeColor = document.getElementById('theme-color-meta') as HTMLMetaElement;
             if (metaThemeColor) {
-              // Use same logic as shouldInvertNav to determine if section is black
-              let isBlackSection = false;
-              if (sectionId !== 'siop') {
-                const sectionIndex = navItems.findIndex(item => 
-                  item.toLowerCase().replace(/\s+/g, '-') === sectionId
-                );
-                isBlackSection = sectionIndex !== -1 && sectionIndex % 2 === 0;
-              }
-              metaThemeColor.setAttribute('content', isBlackSection ? '#000000' : '#ffffff');
+              metaThemeColor.setAttribute('content', '#FAFAFA');
             }
             
             break;
@@ -265,7 +255,7 @@ function App() {
     handleScroll(); // Call once to set initial state
 
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [mobileMenuOpen, navItems]);
 
   // Update navigation line position when current section changes
   useEffect(() => {
@@ -294,94 +284,110 @@ function App() {
   }, [currentSection]);
 
   return (
-    <div className={`${getWhiteBg()} font-futuristic`}>
+    <div className={`${
+      currentSection === 'syntropy' 
+        ? 'bg-cover bg-center bg-no-repeat font-futuristic relative' 
+        : getLightGrayBg() + ' font-futuristic'
+    } transition-all duration-1000 ease-in-out bg-transition`} style={currentSection === 'syntropy' ? { backgroundImage: 'url(/syntropy.jpg)' } : {}}>
+      {/* Dark overlay for Syntropy page with smooth fade */}
+      <div className={`fixed inset-0 z-10 pointer-events-none transition-all duration-1000 ease-in-out ${
+        currentSection === 'syntropy' ? 'bg-black/40 opacity-100' : 'bg-black/0 opacity-0'
+      }`}></div>
+      
       {/* --- Sticky Header --- */}
-      <header className={`sticky top-0 z-50 transition-colors duration-300 ${
-        shouldInvertNav() ? getBlackBg() : getWhiteBg()
-      }`} style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+      <header className={`sticky top-0 z-50 transition-all duration-1000 ease-in-out ${
+        currentSection === 'syntropy' ? 'bg-transparent' : getLightGrayBg()
+      } relative`} style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="relative flex h-16 items-center justify-between px-4 sm:h-24 sm:block sm:px-0">
-          <a href="#siop" onClick={(e) => handleLinkClick(e, 'siop')}>
-            <div
-              className={`text-lg font-bold sm:absolute sm:top-8 sm:left-8 sm:text-2xl transition-colors duration-300 ${
-                shouldInvertNav() ? getWhiteText() : getBlackText()
-              }`}
-            >
-              SiOP
-            </div>
-          </a>
+          {/* Logo - Only show from second section onward */}
+          {currentSection !== 'siop' && (
+            <a href="#siop" onClick={(e) => handleLinkClick(e, 'siop')}>
+              <div
+                className={`text-lg font-bold sm:absolute sm:top-8 sm:left-8 sm:text-2xl transition-colors duration-300 ${
+                  shouldInvertNav() ? 'text-white' : getBlackText()
+                }`}
+              >
+                L484
+              </div>
+            </a>
+          )}
 
-          {/* Desktop Navigation */}
-          <nav className={`hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 ${
-            shouldInvertNav() ? getWhiteText() : getBlackText()
-          } relative`}>
-            {navItems.map((item, index) => {
-              const targetId = item.toLowerCase().replace(/\s+/g, '-');
-              return (
-                <motion.a
-                  key={item}
-                  href={`#${targetId}`}
-                  onClick={(e) => handleLinkClick(e, targetId)}
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className={`cursor-pointer transition-colors relative ${
-                    shouldInvertNav() ? 'hover:text-gray-300' : 'hover:text-gray-600'
-                  }`}
-                  id={`nav-${targetId}`}
-                >
-                  {item}
-                </motion.a>
-              );
-            })}
-            
-            {/* Animated underline */}
-            <motion.div
-              className={`absolute bottom-0 h-0.5 transition-colors duration-300 ${
-                shouldInvertNav() ? 'bg-white' : 'bg-black'
-              }`}
-              initial={{ opacity: 0, width: 0 }}
-              animate={{
-                opacity: 1,
-                x: navLinePosition.x,
-                width: navLinePosition.width
-              }}
-              transition={{ 
-                type: "spring", 
-                stiffness: 300, 
-                damping: 30,
-                opacity: { duration: 0.3 }
-              }}
-              style={{ bottom: '-8px' }}
-            />
-          </nav>
+          {/* Desktop Navigation - Only show from second section onward */}
+          {currentSection !== 'siop' && (
+            <nav className={`hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 ${
+              shouldInvertNav() ? 'text-white' : getBlackText()
+            } relative`}>
+              {navItems.map((item, index) => {
+                const targetId = item.toLowerCase().replace(/\s+/g, '-');
+                return (
+                  <motion.a
+                    key={item}
+                    href={`#${targetId}`}
+                    onClick={(e) => handleLinkClick(e, targetId)}
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className={`cursor-pointer transition-colors relative ${
+                      shouldInvertNav() ? 'hover:text-gray-300' : 'hover:text-gray-600'
+                    }`}
+                    id={`nav-${targetId}`}
+                  >
+                    {item}
+                  </motion.a>
+                );
+              })}
+              
+              {/* Animated underline */}
+              <motion.div
+                className={`absolute bottom-0 h-0.5 transition-colors duration-300 ${
+                  shouldInvertNav() ? 'bg-white' : 'bg-black'
+                }`}
+                initial={{ opacity: 0, width: 0 }}
+                animate={{
+                  opacity: 1,
+                  x: navLinePosition.x,
+                  width: navLinePosition.width
+                }}
+                transition={{ 
+                  type: "spring", 
+                  stiffness: 300, 
+                  damping: 30,
+                  opacity: { duration: 0.3 }
+                }}
+                style={{ bottom: '-8px' }}
+              />
+            </nav>
+          )}
 
-          {/* Mobile Hamburger Button */}
+          {/* Mobile Hamburger Button - Only show from second section onward */}
+          {currentSection !== 'siop' && (
             <motion.button
               className="z-50 flex h-8 w-8 flex-col items-center justify-center sm:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
             >
               <motion.span className={`mb-1 h-0.5 w-6 transition-colors duration-300 ${
-                shouldInvertNav() ? getWhiteBg() : getBlackBg()
+                shouldInvertNav() ? 'bg-white' : 'bg-black'
               }`} animate={{ rotate: mobileMenuOpen ? 45 : 0, y: mobileMenuOpen ? 6 : 0 }} />
               <motion.span className={`mb-1 h-0.5 w-6 transition-colors duration-300 ${
-                shouldInvertNav() ? getWhiteBg() : getBlackBg()
+                shouldInvertNav() ? 'bg-white' : 'bg-black'
               }`} animate={{ opacity: mobileMenuOpen ? 0 : 1 }} />
               <motion.span className={`h-0.5 w-6 transition-colors duration-300 ${
-                shouldInvertNav() ? getWhiteBg() : getBlackBg()
+                shouldInvertNav() ? 'bg-white' : 'bg-black'
               }`} animate={{ rotate: mobileMenuOpen ? -45 : 0, y: mobileMenuOpen ? -6 : 0 }} />
             </motion.button>
+          )}
         </div>
               </header>
         
         {/* --- Mobile Menu Overlay --- */}
       <AnimatePresence>
-        {mobileMenuOpen && (
+        {mobileMenuOpen && currentSection !== 'siop' && (
           <motion.div
             className={`sm:hidden fixed inset-0 z-40 flex flex-col items-center justify-center transition-colors duration-300 ${
-              shouldInvertNav() ? getBlackBg() : getWhiteBg()
+              shouldInvertNav() ? 'bg-black/90 backdrop-blur-md' : getLightGrayBg()
             }`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -395,9 +401,7 @@ function App() {
                   href={`#${targetId}`}
                   onClick={(e) => handleLinkClick(e, targetId)}
                   className={`text-2xl font-medium mb-8 cursor-pointer transition-colors ${
-                    shouldInvertNav() 
-                      ? `${getWhiteText()} hover:text-gray-300` 
-                      : `${getBlackText()} hover:text-gray-600`
+                    shouldInvertNav() ? 'text-white hover:text-gray-300' : getBlackText() + ' hover:text-gray-600'
                   }`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -414,37 +418,66 @@ function App() {
 
       <main className="-mt-16 sm:-mt-24">
         {/* --- SiOP Section (First Fold) --- */}
-        <section id="siop" className={`snap-section flex items-center justify-center overflow-hidden relative px-4 sm:px-0 ${getWhiteBg()} snap-start`}>
+        <section id="siop" className={`snap-section flex items-center justify-center overflow-hidden relative px-4 sm:px-0 ${getLightGrayBg()} snap-start`}>
           <div className="absolute inset-0 flex items-center justify-center">
             {/* Particle Logo Container - Optimized for SOVEREIGN readability */}
             <div className="w-full max-w-7xl h-72 sm:h-80 md:h-96 lg:h-[28rem] relative">
-              <ParticleLogo className="absolute inset-0" />
+              <ParticleLogo className="absolute inset-0" showUnity={showUnity} />
             </div>
           </div>
+          
+          {/* Distribute Button - Only for L484 animation */}
+          {currentSection === 'siop' && (
+            <motion.button
+              onClick={() => setShowUnity(!showUnity)}
+              className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 px-8 py-3 rounded-full border-2 font-medium text-lg transition-all duration-300 ${
+                showUnity 
+                  ? 'bg-black text-white border-black hover:bg-gray-800' 
+                  : 'bg-white text-black border-black hover:bg-gray-100'
+              } hover:scale-105 z-10`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 6, duration: 0.5 }} // Appear after cube formation
+            >
+              {showUnity ? 'Reset' : 'Distribute'}
+            </motion.button>
+          )}
         </section>
 
         {/* --- Navigation Sections --- */}
         {navItems.map((item, index) => {
           const targetId = item.toLowerCase().replace(/\s+/g, '-');
-          const isEven = index % 2 === 0;
-          const bgColor = isEven ? getBlackBg() : getWhiteBg();
-                      const textColor = isEven ? getWhiteText() : getBlackText();
-          const subTextColor = isEven ? 'text-gray-300' : 'text-gray-700';
+          const bgColor = getLightGrayBg();
+          const textColor = getBlackText();
+          const subTextColor = getGrayText();
           
           return (
-            <section key={targetId} id={targetId} className={`snap-section flex flex-col snap-start ${bgColor} relative`}>
-              {/* Soundwave Particles for Money section */}
-              {item === 'Money' && (
-                <div className="absolute inset-0 -top-16 sm:-top-24 z-0">
-                  <SoundwaveParticles className="w-full h-[calc(100%+4rem)] sm:h-[calc(100%+6rem)]" />
-                </div>
-              )}
-              
+            <section key={targetId} id={targetId} className={`snap-section flex flex-col snap-start min-h-screen ${
+              item === 'Syntropy' ? 'bg-transparent relative' : bgColor + ' relative'
+            }`}>
               <div className={`flex-1 flex items-center justify-center min-h-0 relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4`}>
                 <div className={`text-center max-w-2xl w-full mx-auto ${textColor}`}>
-                  <h2 className="text-3xl sm:text-4xl font-bold font-rajdhani tracking-wide">
-                    {item}
-                  </h2>
+                  {item === 'Vehicles' ? (
+                    <motion.h2 
+                      className="text-3xl sm:text-4xl font-rajdhani font-bold tracking-wide uppercase"
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      transition={{ duration: 0.8, delay: 4.0, ease: "easeOut" }}
+                      viewport={{ once: true, amount: 0.3 }}
+                    >
+                      {item}
+                    </motion.h2>
+                  ) : (
+                    <h2 className={`${
+                      item === 'Syntropy' 
+                        ? 'text-6xl sm:text-7xl font-ivymode font-light text-white drop-shadow-xl relative z-20' 
+                        : 'text-3xl sm:text-4xl font-rajdhani font-bold'
+                    } tracking-wide uppercase`}>
+                      {item}
+                    </h2>
+                  )}
                   
                 {item === 'Money' && (
                   <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
@@ -464,16 +497,186 @@ function App() {
                   </p>
                 )}
 
-                {item === 'Health' && (
-                  <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                    Digital health solutions and wellness technologies. Exploring how technology can improve healthcare delivery, patient outcomes, and personal health management.
-                  </p>
+                {item === 'Syntropy' && (
+                  <div className="font-ivymode relative z-20">
+                    <p className="text-xl sm:text-2xl font-semibold text-white mt-2 mb-4 drop-shadow-lg">
+                      Medicine Reimagined
+                    </p>
+                    <p className="mt-4 text-base sm:text-lg leading-relaxed font-light text-white/90 drop-shadow-lg">
+                    We’ve been taught that the universe and the body inevitably slip toward entropy: decay, disorder, decline.
+                    Yet life itself is inherently syntropic—conscious, intelligent, self-healing..
+                    </p>
+                    
+                    {/* Syntropy Service Badges */}
+                    <motion.div 
+                      className="flex flex-wrap justify-center gap-3 mt-6"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
+                      viewport={{ once: true, amount: 0.3 }}
+                    >
+                      <motion.button
+                        onClick={() => setLightboxText({
+                          title: 'Manual Kinetics', 
+                          content: 'Syntropy Manual Kinetics is the science of biological optimization, integrating advanced muscle testing, facial analysis, iridology, and manual field diagnostics to assess the body\'s structural and functional condition.'
+                        })}
+                        className="px-4 py-2 text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        Manual Kinetics
+                      </motion.button>
+                      
+                      <motion.button
+                        onClick={() => setLightboxText({
+                          title: 'Frequency Analysis-Therapy', 
+                          content: 'Syntropy Frequency Analysis-Therapy represents the leading edge of frequency-based healing in the United States, specializing in individualized frequency protocols and digital homeopathy. Using advanced Swiss-German technology, we identify and address the root causes of cellular energy loss, leveraging over 200 million trackable data points.'
+                        })}
+                        className="px-4 py-2 text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        Frequency Analysis-Therapy
+                      </motion.button>
+                      
+                      <motion.button
+                        onClick={() => setLightboxText({
+                          title: 'Syntropy Concierge', 
+                          content: 'The individualized protocol developed through Kinetic assessment and frequency analysis will be seamlessly integrated into your daily lifestyle—including nutrition, supplementation, herbal support, and movement practices tailored to your unique needs and goals.'
+                        })}
+                        className="px-4 py-2 text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        Syntropy Concierge
+                      </motion.button>
+                    </motion.div>
+                  </div>
                 )}
 
                 {item === 'Vehicles' && (
-                  <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
-                    Transportation innovation and autonomous systems. The future of mobility, from electric vehicles to smart infrastructure and connected transportation networks.
-                  </p>
+                  <div className="w-full relative">
+                    {/* Background Vehicle Images */}
+                    <div className="absolute inset-0 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-12 z-0">
+                      {/* im-climber */}
+                      <motion.div
+                        initial={{ opacity: 0, y: 50, scale: 0.8 }}
+                        whileInView={{ 
+                          opacity: [0, 1, 1, 0.15],
+                          y: [50, 0, 0, 0],
+                          scale: [0.8, 1, 1, 1]
+                        }}
+                        transition={{ 
+                          duration: 3.5, 
+                          delay: 0.2, 
+                          ease: "easeOut",
+                          times: [0, 0.3, 0.7, 1]
+                        }}
+                        viewport={{ once: true, amount: 0.3 }}
+                      >
+                        <img 
+                          src="/im-climber.png" 
+                          alt="Inmotion Climber"
+                          className="w-48 h-48 sm:w-64 sm:h-64 object-cover rounded-xl"
+                        />
+                      </motion.div>
+                      
+                      {/* im-air-pro */}
+                      <motion.div
+                        initial={{ opacity: 0, y: 50, scale: 0.8 }}
+                        whileInView={{ 
+                          opacity: [0, 1, 1, 0.15],
+                          y: [50, 0, 0, 0],
+                          scale: [0.8, 1, 1, 1]
+                        }}
+                        transition={{ 
+                          duration: 3.5, 
+                          delay: 0.4, 
+                          ease: "easeOut",
+                          times: [0, 0.3, 0.7, 1]
+                        }}
+                        viewport={{ once: true, amount: 0.3 }}
+                      >
+                        <img 
+                          src="/im-air-pro.png" 
+                          alt="Inmotion Air Pro"
+                          className="w-48 h-48 sm:w-64 sm:h-64 object-cover rounded-xl"
+                        />
+                      </motion.div>
+                      
+                      {/* im-rs */}
+                      <motion.div
+                        initial={{ opacity: 0, y: 50, scale: 0.8 }}
+                        whileInView={{ 
+                          opacity: [0, 1, 1, 0.15],
+                          y: [50, 0, 0, 0],
+                          scale: [0.8, 1, 1, 1]
+                        }}
+                        transition={{ 
+                          duration: 3.5, 
+                          delay: 0.6, 
+                          ease: "easeOut",
+                          times: [0, 0.3, 0.7, 1]
+                        }}
+                        viewport={{ once: true, amount: 0.3 }}
+                      >
+                        <img 
+                          src="/im-rs.png" 
+                          alt="Inmotion RS"
+                          className="w-48 h-48 sm:w-64 sm:h-64 object-cover rounded-xl"
+                        />
+                      </motion.div>
+                    </div>
+                    
+                    {/* Foreground Text Content */}
+                    <motion.div 
+                      className="relative z-20"
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      transition={{ duration: 0.8, delay: 4.0, ease: "easeOut" }}
+                      viewport={{ once: true, amount: 0.3 }}
+                    >
+                      <p className={`mt-4 text-base sm:text-lg leading-relaxed ${subTextColor}`}>
+                        Transportation innovation and autonomous systems. The future of mobility, from electric vehicles to smart infrastructure and connected transportation networks.
+                      </p>
+                      
+                      {/* Vehicle Name Badges */}
+                      <motion.div 
+                        className="flex flex-wrap justify-center gap-3 mt-6"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 4.6, ease: "easeOut" }}
+                        viewport={{ once: true, amount: 0.3 }}
+                      >
+                        <motion.button
+                          onClick={() => setLightboxImage({src: '/im-climber.png', name: 'Inmotion Climber'})}
+                          className={`px-4 py-2 text-sm font-medium border-2 border-black rounded-full transition-all duration-300 hover:bg-black hover:text-white ${getBlackText()} bg-transparent`}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Inmotion Climber
+                        </motion.button>
+                        
+                        <motion.button
+                          onClick={() => setLightboxImage({src: '/im-air-pro.png', name: 'Inmotion Air Pro'})}
+                          className={`px-4 py-2 text-sm font-medium border-2 border-black rounded-full transition-all duration-300 hover:bg-black hover:text-white ${getBlackText()} bg-transparent`}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Inmotion Air Pro
+                        </motion.button>
+                        
+                        <motion.button
+                          onClick={() => setLightboxImage({src: '/im-rs.png', name: 'Inmotion RS'})}
+                          className={`px-4 py-2 text-sm font-medium border-2 border-black rounded-full transition-all duration-300 hover:bg-black hover:text-white ${getBlackText()} bg-transparent`}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Inmotion RS
+                        </motion.button>
+                      </motion.div>
+                    </motion.div>
+                  </div>
                 )}
                         
                 {item === 'Work' && (
@@ -499,18 +702,14 @@ function App() {
         id="export-button"
         onClick={exportToPDF}
         disabled={isExporting}
-        className={`fixed bottom-8 right-8 z-50 flex items-center justify-center w-14 h-14 rounded-full shadow-lg transition-all duration-300 ${
+        className={`fixed bottom-8 left-8 z-50 flex items-center justify-center w-14 h-14 rounded-full border-2 border-black shadow-lg transition-all duration-300 ${
           isExporting 
-            ? 'bg-gray-400 cursor-not-allowed' 
-            : shouldInvertNav() 
-              ? 'bg-white hover:bg-gray-100 hover:scale-110' 
-              : 'bg-black hover:bg-gray-800 hover:scale-110'
+            ? 'bg-gray-400 cursor-not-allowed border-gray-400' 
+            : 'bg-transparent hover:bg-gray-100 hover:scale-110'
         } ${
           isExporting 
             ? 'text-white' 
-            : shouldInvertNav() 
-              ? 'text-black' 
-              : 'text-white'
+            : 'text-black'
         } font-medium`}
         whileHover={!isExporting ? { scale: 1.1 } : {}}
         whileTap={!isExporting ? { scale: 0.95 } : {}}
@@ -579,6 +778,124 @@ function App() {
         )}
       </motion.button>
 
+      {/* Floating Back Button */}
+      <motion.button
+        onClick={(e) => {
+          const sections = ['siop', 'money', 'identity', 'networks', 'syntropy', 'vehicles', 'work', 'community'];
+          const currentIndex = sections.indexOf(currentSection);
+          const prevIndex = currentIndex - 1;
+          
+          if (prevIndex >= 0) {
+            const prevSection = sections[prevIndex];
+            // Do exactly what the nav items do
+            handleLinkClick(e as any, prevSection);
+          }
+        }}
+        className={`fixed bottom-8 right-40 z-50 flex items-center justify-center px-6 py-3 rounded-full border-2 shadow-lg transition-all duration-300 min-w-[120px] ${
+          currentSection === 'siop' 
+            ? 'bg-transparent border-gray-300 text-gray-400 cursor-not-allowed opacity-50' 
+            : currentSection === 'syntropy'
+              ? 'bg-white border-white text-black hover:bg-gray-100 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]'
+              : 'bg-transparent border-black text-black hover:bg-gray-100 hover:shadow-[0_0_20px_rgba(0,0,0,0.3)]'
+        } font-medium`}
+        whileHover={currentSection !== 'siop' ? { 
+          boxShadow: currentSection === 'syntropy' 
+            ? "0 0 25px rgba(255,255,255,0.8)" 
+            : "0 0 25px rgba(0,0,0,0.4)"
+        } : {}}
+        whileTap={currentSection !== 'siop' ? { scale: 0.98 } : {}}
+        initial={{ opacity: 0, y: 100 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.0, duration: 0.5 }}
+        disabled={currentSection === 'siop'}
+        title={currentSection === 'siop' ? 'First section' : 'Go to previous section'}
+      >
+        {currentSection !== 'siop' && (
+          <svg 
+            width="16" 
+            height="16" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg"
+            className="mr-2"
+          >
+            <path 
+              d="M19 12H5M12 19l-7-7 7-7" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            />
+          </svg>
+        )}
+        <span className="text-sm font-semibold">
+          {currentSection === 'siop' ? 'Start' : 'Back'}
+        </span>
+      </motion.button>
+
+      {/* Floating Next Button */}
+      <motion.button
+        onClick={(e) => {
+          // Direct mapping to exactly what works
+          if (currentSection === 'siop') {
+            handleLinkClick(e as any, 'money');
+          } else if (currentSection === 'money') {
+            handleLinkClick(e as any, 'identity');
+          } else if (currentSection === 'identity') {
+            handleLinkClick(e as any, 'networks');
+          } else if (currentSection === 'networks') {
+            handleLinkClick(e as any, 'syntropy');
+          } else if (currentSection === 'syntropy') {
+            handleLinkClick(e as any, 'vehicles');
+          } else if (currentSection === 'vehicles') {
+            handleLinkClick(e as any, 'work');
+          } else if (currentSection === 'work') {
+            // This should work exactly like clicking the Community nav item
+            handleLinkClick(e as any, 'community');
+          }
+        }}
+        className={`fixed bottom-8 right-8 z-50 flex items-center justify-center px-6 py-3 rounded-full border-2 shadow-lg transition-all duration-300 min-w-[120px] ${
+          currentSection === 'community' 
+            ? 'bg-gray-400 border-gray-400 cursor-not-allowed opacity-50 text-white' 
+            : currentSection === 'syntropy'
+              ? 'border-white bg-black text-white hover:bg-gray-800 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]'
+              : 'border-black bg-black text-white hover:bg-gray-800 hover:shadow-[0_0_20px_rgba(0,0,0,0.3)]'
+        } font-medium`}
+        whileHover={currentSection !== 'community' ? { 
+          boxShadow: currentSection === 'syntropy' 
+            ? "0 0 25px rgba(255,255,255,0.8)" 
+            : "0 0 25px rgba(0,0,0,0.4)"
+        } : {}}
+        whileTap={currentSection !== 'community' ? { scale: 0.98 } : {}}
+        initial={{ opacity: 0, y: 100 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.2, duration: 0.5 }}
+        disabled={currentSection === 'community'}
+        title={currentSection === 'community' ? 'Last section' : 'Go to next section'}
+      >
+        <span className="text-sm font-semibold">
+          {currentSection === 'community' ? 'End' : 'Next'}
+        </span>
+        {currentSection !== 'community' && (
+          <svg 
+            width="16" 
+            height="16" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg"
+            className="ml-2"
+          >
+            <path 
+              d="M5 12h14M12 5l7 7-7 7" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            />
+          </svg>
+        )}
+      </motion.button>
+
       {/* Export Progress Indicator */}
       <AnimatePresence>
         {isExporting && (
@@ -605,6 +922,140 @@ function App() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Vehicle Lightbox Modal */}
+      <AnimatePresence>
+        {lightboxImage && (
+          <motion.div
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-white/95 backdrop-blur-lg"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setLightboxImage(null)}
+          >
+            <motion.div
+              className="relative max-w-4xl max-h-[90vh] mx-4"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setLightboxImage(null)}
+                className="absolute -top-14 right-2 text-black/80 hover:text-black transition-all duration-300 hover:scale-110 z-20"
+                aria-label="Close lightbox"
+              >
+                <div className="w-10 h-10 rounded-full bg-black/5 backdrop-blur-sm border border-black/10 flex items-center justify-center hover:bg-black/10 transition-all duration-300">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </div>
+              </button>
+              
+              {/* Image */}
+              <motion.img
+                src={lightboxImage.src}
+                alt={lightboxImage.name}
+                className="w-full h-auto max-h-[80vh] object-contain rounded-xl"
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.1 }}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+             {/* Syntropy Text Lightbox Modal */}
+       <AnimatePresence>
+         {lightboxText && (
+           <motion.div
+             className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-xl"
+             initial={{ opacity: 0 }}
+             animate={{ opacity: 1 }}
+             exit={{ opacity: 0 }}
+             onClick={() => setLightboxText(null)}
+             style={{ backgroundImage: 'url(/syntropy.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+           >
+             {/* Background overlay matching main page */}
+             <div className="absolute inset-0 bg-black/60"></div>
+             
+             <motion.div
+               className="relative max-w-4xl max-h-[85vh] mx-4 bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden z-10"
+               initial={{ scale: 0.9, opacity: 0, y: 20 }}
+               animate={{ scale: 1, opacity: 1, y: 0 }}
+               exit={{ scale: 0.9, opacity: 0, y: 20 }}
+               transition={{ type: "spring", damping: 30, stiffness: 400 }}
+               onClick={(e) => e.stopPropagation()}
+             >
+               {/* Elegant glow effect */}
+               <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5 rounded-3xl"></div>
+               
+               {/* Close Button */}
+               <button
+                 onClick={() => setLightboxText(null)}
+                 className="absolute -top-14 right-2 text-white/80 hover:text-white transition-all duration-300 hover:scale-110 z-20"
+                 aria-label="Close modal"
+               >
+                 <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all duration-300">
+                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                     <line x1="18" y1="6" x2="6" y2="18"></line>
+                     <line x1="6" y1="6" x2="18" y2="18"></line>
+                   </svg>
+                 </div>
+               </button>
+               
+               {/* Content */}
+               <motion.div
+                 className="p-10 sm:p-14 text-center"
+                 initial={{ opacity: 0, y: 30 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ delay: 0.2, duration: 0.6 }}
+               >
+                 {/* Title with luxury styling */}
+                 <motion.h3
+                   className="text-4xl sm:text-5xl lg:text-6xl font-ivymode font-light text-white mb-3 tracking-wider drop-shadow-2xl"
+                   initial={{ opacity: 0, y: 20 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   transition={{ delay: 0.3, duration: 0.8 }}
+                 >
+                   {lightboxText.title}
+                 </motion.h3>
+                 
+                 {/* Decorative line */}
+                 <motion.div
+                   className="w-24 h-0.5 bg-gradient-to-r from-transparent via-white/60 to-transparent mx-auto mb-8"
+                   initial={{ scaleX: 0 }}
+                   animate={{ scaleX: 1 }}
+                   transition={{ delay: 0.5, duration: 0.8 }}
+                 ></motion.div>
+                 
+                 {/* Description with enhanced typography */}
+                 <motion.p
+                   className="text-lg sm:text-xl lg:text-2xl leading-relaxed text-white/95 font-light max-w-3xl mx-auto drop-shadow-lg font-ivymode"
+                   style={{ lineHeight: '1.8' }}
+                   initial={{ opacity: 0, y: 20 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   transition={{ delay: 0.6, duration: 0.8 }}
+                 >
+                   {lightboxText.content}
+                 </motion.p>
+               </motion.div>
+               
+               {/* Bottom elegant border */}
+               <motion.div 
+                 className="h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"
+                 initial={{ scaleX: 0 }}
+                 animate={{ scaleX: 1 }}
+                 transition={{ delay: 0.8, duration: 1 }}
+               ></motion.div>
+             </motion.div>
+           </motion.div>
+         )}
+       </AnimatePresence>
     </div>
   );
 }

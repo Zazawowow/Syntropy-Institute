@@ -25,11 +25,13 @@ export default {
         'black-ops': ['Black Ops One', 'cursive'],
         'russo': ['Russo One', 'sans-serif'],
         'futuristic': ['Exo 2', 'Michroma', 'Rajdhani', 'Orbitron', 'sans-serif'],
+        'ivymode': ['Ivy Mode', 'serif'],
       },
       colors: {
         'bitcoin-orange': '#F7931A',
         'nostr-purple': '#8E44AD',
         'secondary-black': '#1D1D1D',
+        'light-gray': '#FAFAFA',
       },
       keyframes: {
         typing: {

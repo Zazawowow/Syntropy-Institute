@@ -4,331 +4,281 @@ import { Text } from '@react-three/drei';
 import * as THREE from 'three';
 
 interface ParticleProps {
-  position: [number, number, number];
-  targetPosition: [number, number, number];
+  initialPosition: [number, number, number];
+  cubePosition: [number, number, number];
+  unityPosition: [number, number, number];
   delay: number;
+  convergenceSpeed: number;
+  showUnity: boolean;
 }
 
-function Particle({ position, targetPosition, delay }: ParticleProps) {
+function Particle({ initialPosition, cubePosition, unityPosition, delay, convergenceSpeed, showUnity }: ParticleProps) {
   const meshRef = useRef<THREE.Mesh>(null);
-  const { mouse } = useThree();
+  const [hasStarted, setHasStarted] = useState(false);
   
   useFrame((state) => {
     if (!meshRef.current) return;
     
-    const time = state.clock.getElapsedTime();
+    const currentTime = state.clock.getElapsedTime();
     const mesh = meshRef.current;
     
-    // Mouse repulsion - particles dart away from cursor
-    const mouseX = mouse.x * 4; // Convert normalized mouse to world coordinates
-    const mouseY = mouse.y * 3;
-    
-    // Calculate distance from particle to mouse
-    const deltaX = mesh.position.x - mouseX;
-    const deltaY = mesh.position.y - mouseY;
-    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-    
-    // Repulsion effect - stronger when closer
-    const repulsionRadius = 1.5; // How far the effect reaches
-    const repulsionStrength = 0.3; // How strong the push is
-    
-    let targetX = targetPosition[0];
-    let targetY = targetPosition[1];
-    const targetZ = targetPosition[2];
-    
-    if (distance < repulsionRadius && distance > 0) {
-      // Calculate repulsion force (stronger when closer)
-      const force = (repulsionRadius - distance) / repulsionRadius * repulsionStrength;
-      
-      // Normalize direction vector and apply force
-      const directionX = deltaX / distance;
-      const directionY = deltaY / distance;
-      
-      // Push particle away from mouse
-      targetX += directionX * force * 2;
-      targetY += directionY * force * 2;
+    // Start the particle at its initial random position
+    if (!hasStarted && currentTime > delay) {
+      mesh.position.set(initialPosition[0], initialPosition[1], initialPosition[2]);
+      setHasStarted(true);
     }
     
-    // Smooth animation to target position (with repulsion)
-    const animationSpeed = 0.03;
-    mesh.position.x += (targetX - mesh.position.x) * animationSpeed;
-    mesh.position.y += (targetY - mesh.position.y) * animationSpeed;
-    mesh.position.z += (targetZ - mesh.position.z) * animationSpeed;
+    if (!hasStarted) return;
     
-    // Floating animation
-    mesh.position.y += Math.sin(time * 2 + delay) * 0.01;
+    // Calculate time since this particle started moving
+    const particleTime = currentTime - delay;
     
-    // Rotation (faster when being repelled)
-    const rotationSpeed = distance < repulsionRadius ? 2.0 : 0.5;
-    mesh.rotation.x = time * rotationSpeed;
-    mesh.rotation.y = time * (rotationSpeed * 0.6);
+    // Two-phase animation: Random -> Cube, then Cube -> L484 on hover
+    const cubePhaseEnd = 5; // Cube formation complete at 5 seconds
     
-    // Scale pulsing (more intense when repelled)
-    const pulseIntensity = distance < repulsionRadius ? 0.3 : 0.1;
-    const scale = 1 + Math.sin(time * 3 + delay) * pulseIntensity;
+    let finalTargetX, finalTargetY, finalTargetZ;
+    
+    if (particleTime < cubePhaseEnd) {
+      // Phase 1: Converge to rotating cube
+      const rotationSpeed = 0.3;
+      const rotX = currentTime * rotationSpeed;
+      const rotY = currentTime * rotationSpeed * 0.7;
+      
+      const x = cubePosition[0];
+      const y = cubePosition[1];
+      const z = cubePosition[2];
+      
+      // Apply Y rotation (around vertical axis)
+      const cosY = Math.cos(rotY);
+      const sinY = Math.sin(rotY);
+      const rotatedX = x * cosY - z * sinY;
+      const rotatedZ = x * sinY + z * cosY;
+      
+      // Apply X rotation (around horizontal axis)
+      const cosX = Math.cos(rotX);
+      const sinX = Math.sin(rotX);
+      const finalY = y * cosX - rotatedZ * sinX;
+      const finalZ = y * sinX + rotatedZ * cosX;
+      
+      const rotatedCubePosition = [rotatedX, finalY, finalZ];
+      
+      // Converge to cube
+      const convergenceProgress = Math.min(particleTime * convergenceSpeed, 1);
+      const easeProgress = 1 - Math.pow(1 - convergenceProgress, 3); // Ease-out cubic
+      
+      finalTargetX = initialPosition[0] + (rotatedCubePosition[0] - initialPosition[0]) * easeProgress;
+      finalTargetY = initialPosition[1] + (rotatedCubePosition[1] - initialPosition[1]) * easeProgress;
+      finalTargetZ = initialPosition[2] + (rotatedCubePosition[2] - initialPosition[2]) * easeProgress;
+      
+    } else {
+      // Phase 2: Cube formed - now check for hover to transform to L484
+      const rotationSpeed = 0.3;
+      const rotX = currentTime * rotationSpeed;
+      const rotY = currentTime * rotationSpeed * 0.7;
+      
+      const x = cubePosition[0];
+      const y = cubePosition[1];
+      const z = cubePosition[2];
+      
+      const cosY = Math.cos(rotY);
+      const sinY = Math.sin(rotY);
+      const rotatedX = x * cosY - z * sinY;
+      const rotatedZ = x * sinY + z * cosY;
+      
+      const cosX = Math.cos(rotX);
+      const sinX = Math.sin(rotX);
+      const finalY = y * cosX - rotatedZ * sinX;
+      const finalZ = y * sinX + rotatedZ * cosX;
+      
+      if (showUnity) {
+        // Transform to L484 when button is pressed
+        finalTargetX = unityPosition[0];
+        finalTargetY = unityPosition[1];
+        finalTargetZ = unityPosition[2];
+      } else {
+        // Stay in rotating cube formation
+        finalTargetX = rotatedX;
+        finalTargetY = finalY;
+        finalTargetZ = finalZ;
+      }
+    }
+    
+    // Smooth animation to target
+    const animationSpeed = showUnity ? 0.04 : 0.02; // Faster when transforming to L484
+    mesh.position.x += (finalTargetX - mesh.position.x) * animationSpeed;
+    mesh.position.y += (finalTargetY - mesh.position.y) * animationSpeed;
+    mesh.position.z += (finalTargetZ - mesh.position.z) * animationSpeed;
+    
+    // Add some random floating motion during convergence
+    const isInCubePhase = particleTime < cubePhaseEnd;
+    const floatIntensity = isInCubePhase ? 0.02 * (1 - Math.min(particleTime * convergenceSpeed, 1)) : (showUnity ? 0.002 : 0.005);
+    mesh.position.x += Math.sin(currentTime * 1.5 + delay) * floatIntensity;
+    mesh.position.y += Math.cos(currentTime * 1.3 + delay * 1.2) * floatIntensity;
+    mesh.position.z += Math.sin(currentTime * 1.7 + delay * 0.8) * floatIntensity * 0.5;
+    
+    // Particle rotation
+    mesh.rotation.x = currentTime * 0.5;
+    mesh.rotation.y = currentTime * 0.3;
+    
+    // Gentle pulsing
+    const pulseIntensity = 0.1;
+    const scale = 1 + Math.sin(currentTime * 3 + delay) * pulseIntensity;
     mesh.scale.setScalar(scale);
   });
 
   return (
-    <mesh ref={meshRef} position={position}>
-      <sphereGeometry args={[0.008, 6, 4]} />
+    <mesh ref={meshRef}>
+      <sphereGeometry args={[0.012, 8, 6]} />
       <meshStandardMaterial 
         color="#8E44AD" 
         emissive="#8E44AD" 
-        emissiveIntensity={0.3}
+        emissiveIntensity={0.4}
         transparent
-        opacity={0.9}
+        opacity={0.95}
       />
     </mesh>
   );
 }
 
-function ParticleSystem() {
+function ParticleSystem({ showUnity }: { showUnity: boolean }) {
+
   const particles = useMemo(() => {
     const particleArray: Array<{
-      position: [number, number, number];
-      targetPosition: [number, number, number];
+      initialPosition: [number, number, number];
+      cubePosition: [number, number, number];
+      unityPosition: [number, number, number];
       delay: number;
+      convergenceSpeed: number;
     }> = [];
 
-    // Create text-based particle positions for "SOVEREIGN" - Optimized for Maximum Readability
-    const letters = [
-      // S - Clear S-curve with Enhanced Readability
-      { x: -5.4, y: 0, patterns: [
-        // Top curve - Clear S top arc
-        [-0.15, 0.45], [-0.12, 0.465], [-0.09, 0.48], [-0.06, 0.485], [-0.03, 0.49], [0, 0.49], [0.03, 0.485], [0.06, 0.48], [0.09, 0.465], [0.12, 0.45], [0.15, 0.42], [0.18, 0.39],
-        [-0.18, 0.42], [-0.15, 0.435], [-0.12, 0.45], [-0.09, 0.465], [-0.06, 0.47], [-0.03, 0.475], [0, 0.475], [0.03, 0.47], [0.06, 0.465], [0.09, 0.45], [0.12, 0.435], [0.15, 0.405], [0.18, 0.375],
-        [-0.21, 0.39], [-0.18, 0.405], [-0.15, 0.42], [-0.12, 0.435], [-0.09, 0.45], [0.09, 0.45], [0.12, 0.435], [0.15, 0.42], [0.18, 0.39],
-        // Upper middle section
-        [-0.18, 0.225], [-0.15, 0.225], [-0.12, 0.225], [-0.09, 0.225], [-0.06, 0.225], [-0.03, 0.225], [0, 0.225], [0.03, 0.225], [0.06, 0.225], [0.09, 0.225], [0.12, 0.225], [0.15, 0.225], [0.18, 0.225],
-        [-0.225, 0.15], [-0.2, 0.15], [-0.175, 0.15], [-0.15, 0.15], [-0.1, 0.15], [-0.05, 0.15], [0.05, 0.15], [0.1, 0.15], [0.15, 0.15], [0.175, 0.15], [0.2, 0.15], [0.225, 0.15],
-        [-0.18, 0.075], [-0.15, 0.075], [-0.12, 0.075], [-0.09, 0.075], [-0.06, 0.075], [-0.03, 0.075], [0, 0.075], [0.03, 0.075], [0.06, 0.075], [0.09, 0.075], [0.12, 0.075], [0.15, 0.075], [0.18, 0.075],
-        // Center transition
-        [-0.135, 0.26], [-0.09, 0.26], [-0.045, 0.26], [0.045, 0.26], [0.09, 0.26], [0.135, 0.26],
-        [-0.135, 0.185], [-0.09, 0.185], [-0.045, 0.185], [0.045, 0.185], [0.09, 0.185], [0.135, 0.185],
-        [-0.135, 0.11], [-0.09, 0.11], [-0.045, 0.11], [0.045, 0.11], [0.09, 0.11], [0.135, 0.11],
-        // Lower middle section
-        [-0.225, -0.075], [-0.2, -0.075], [-0.175, -0.075], [-0.15, -0.075], [-0.1, -0.075], [-0.05, -0.075], [0.05, -0.075], [0.1, -0.075], [0.15, -0.075], [0.175, -0.075], [0.2, -0.075], [0.225, -0.075],
-        [-0.18, -0.225], [-0.15, -0.225], [-0.12, -0.225], [-0.09, -0.225], [-0.06, -0.225], [-0.03, -0.225], [0, -0.225], [0.03, -0.225], [0.06, -0.225], [0.09, -0.225], [0.12, -0.225], [0.15, -0.225], [0.18, -0.225],
-        [-0.225, -0.375], [-0.2, -0.375], [-0.175, -0.375], [-0.15, -0.375], [-0.1, -0.375], [-0.05, -0.375], [0.05, -0.375], [0.1, -0.375], [0.15, -0.375], [0.175, -0.375], [0.2, -0.375], [0.225, -0.375],
-        // Bottom curve
-        [-0.18, -0.45], [-0.15, -0.47], [-0.12, -0.48], [-0.09, -0.48], [-0.06, -0.48], [-0.03, -0.495], [0, -0.5], [0.03, -0.495], [0.06, -0.48], [0.09, -0.48], [0.12, -0.48], [0.15, -0.47], [0.18, -0.45],
-        [-0.21, -0.41], [-0.16, -0.44], [-0.11, -0.46], [-0.07, -0.47], [-0.02, -0.475], [0.02, -0.475], [0.07, -0.47], [0.11, -0.46], [0.16, -0.44], [0.21, -0.41],
-        // Vertical connectors (denser)
-        [-0.225, 0.3], [-0.225, 0.25], [-0.225, 0.2], [-0.225, 0.1], [-0.225, 0.05], [-0.225, -0.05], [-0.225, -0.1], [-0.225, -0.2], [-0.225, -0.25], [-0.225, -0.3],
-        [-0.19, 0.35], [-0.19, 0.28], [-0.19, 0.03], [-0.19, -0.03], [-0.19, -0.28], [-0.19, -0.35],
-        [0.225, 0.3], [0.225, 0.25], [0.225, 0.2], [0.225, 0.1], [0.225, 0.05], [0.225, -0.05], [0.225, -0.1], [0.225, -0.2], [0.225, -0.25], [0.225, -0.3],
-        [0.19, 0.35], [0.19, 0.28], [0.19, 0.03], [0.19, -0.03], [0.19, -0.28], [0.19, -0.35]
+    // Define L484 letter patterns
+    const unityLetters = [
+      // L - Letter at position -1.5
+      { x: -1.5, y: 0, patterns: [
+        // Vertical line
+        [-0.2, 0.4], [-0.2, 0.3], [-0.2, 0.2], [-0.2, 0.1], [-0.2, 0], [-0.2, -0.1], [-0.2, -0.2], [-0.2, -0.3], [-0.2, -0.4],
+        // Bottom horizontal
+        [-0.15, -0.4], [-0.1, -0.4], [-0.05, -0.4], [0, -0.4], [0.05, -0.4], [0.1, -0.4], [0.15, -0.4], [0.2, -0.4]
       ]},
-      // O - Perfect Circle for Clear Recognition
-      { x: -4.05, y: 0, patterns: [
-        // Outer ring (1.5x size + high density)
-        [-0.18, 0.45], [-0.15, 0.47], [-0.12, 0.485], [-0.09, 0.495], [-0.06, 0.5], [-0.03, 0.502], [0, 0.505], [0.03, 0.502], [0.06, 0.5], [0.09, 0.495], [0.12, 0.485], [0.15, 0.47], [0.18, 0.45],
-        [-0.27, 0.3], [-0.24, 0.36], [-0.21, 0.4], [-0.18, 0.42], [-0.15, 0.435], [0.15, 0.435], [0.18, 0.42], [0.21, 0.4], [0.24, 0.36], [0.27, 0.3],
-        [-0.3, 0.15], [-0.285, 0.2], [-0.27, 0.25], [-0.24, 0.28], [0.24, 0.28], [0.27, 0.25], [0.285, 0.2], [0.3, 0.15],
-        [-0.3, 0], [-0.285, 0.05], [-0.27, 0.1], [-0.24, 0.12], [0.24, 0.12], [0.27, 0.1], [0.285, 0.05], [0.3, 0],
-        [-0.3, -0.15], [-0.285, -0.1], [-0.27, -0.05], [-0.24, -0.02], [0.24, -0.02], [0.27, -0.05], [0.285, -0.1], [0.3, -0.15],
-        [-0.27, -0.3], [-0.24, -0.26], [-0.21, -0.22], [-0.18, -0.18], [0.18, -0.18], [0.21, -0.22], [0.24, -0.26], [0.27, -0.3],
-        [-0.18, -0.45], [-0.15, -0.47], [-0.12, -0.485], [-0.09, -0.495], [-0.06, -0.5], [-0.03, -0.502], [0, -0.505], [0.03, -0.502], [0.06, -0.5], [0.09, -0.495], [0.12, -0.485], [0.15, -0.47], [0.18, -0.45],
-        // Multiple ring layers for thickness
-        [-0.21, 0.35], [-0.18, 0.375], [-0.15, 0.39], [-0.12, 0.4], [-0.09, 0.405], [0.09, 0.405], [0.12, 0.4], [0.15, 0.39], [0.18, 0.375], [0.21, 0.35],
-        [-0.24, 0.2], [-0.21, 0.23], [-0.18, 0.25], [-0.15, 0.26], [0.15, 0.26], [0.18, 0.25], [0.21, 0.23], [0.24, 0.2],
-        [-0.24, 0], [-0.21, 0.03], [-0.18, 0.05], [-0.15, 0.06], [0.15, 0.06], [0.18, 0.05], [0.21, 0.03], [0.24, 0],
-        [-0.24, -0.2], [-0.21, -0.17], [-0.18, -0.15], [-0.15, -0.14], [0.15, -0.14], [0.18, -0.15], [0.21, -0.17], [0.24, -0.2],
-        [-0.21, -0.35], [-0.18, -0.325], [-0.15, -0.31], [-0.12, -0.3], [0.12, -0.3], [0.15, -0.31], [0.18, -0.325], [0.21, -0.35],
-        // Inner detail layers
-        [-0.15, 0.3], [-0.12, 0.32], [-0.09, 0.33], [0.09, 0.33], [0.12, 0.32], [0.15, 0.3],
-        [-0.18, 0], [-0.15, 0], [-0.12, 0], [-0.09, 0], [0.09, 0], [0.12, 0], [0.15, 0], [0.18, 0],
-        [-0.15, -0.3], [-0.12, -0.32], [-0.09, -0.33], [0.09, -0.33], [0.12, -0.32], [0.15, -0.3]
+      // 4 - Letter at position -0.5
+      { x: -0.5, y: 0, patterns: [
+        // Left vertical (top part)
+        [-0.2, 0.4], [-0.2, 0.3], [-0.2, 0.2], [-0.2, 0.1], [-0.2, 0],
+        // Right vertical (full)
+        [0.2, 0.4], [0.2, 0.3], [0.2, 0.2], [0.2, 0.1], [0.2, 0], [0.2, -0.1], [0.2, -0.2], [0.2, -0.3], [0.2, -0.4],
+        // Horizontal crossbar
+        [-0.15, 0], [-0.1, 0], [-0.05, 0], [0, 0], [0.05, 0], [0.1, 0], [0.15, 0]
       ]},
-      // V - Sharp V-shape for Clear Definition
-      { x: -2.7, y: 0, patterns: [
-        // Left side (1.5x size + high density)
-        [-0.27, 0.45], [-0.24, 0.465], [-0.21, 0.47], [-0.18, 0.375], [-0.15, 0.3], [-0.12, 0.225], [-0.09, 0.15], [-0.06, 0.075], [-0.03, 0], [0, -0.075],
-        [-0.015, -0.075], [-0.01, -0.15], [0.015, -0.225], [0.03, -0.3], [0.045, -0.375], [0.06, -0.45],
-        // Right side (1.5x size + high density)
-        [0.27, 0.45], [0.24, 0.465], [0.21, 0.47], [0.18, 0.375], [0.15, 0.3], [0.12, 0.225], [0.09, 0.15], [0.06, 0.075], [0.03, 0],
-        // Dense intermediate layers
-        [-0.24, 0.42], [-0.21, 0.44], [-0.18, 0.33], [-0.15, 0.27], [-0.12, 0.2], [-0.09, 0.135], [-0.06, 0.07], [-0.03, 0.005],
-        [0.24, 0.42], [0.21, 0.44], [0.18, 0.33], [0.15, 0.27], [0.12, 0.2], [0.09, 0.135], [0.06, 0.07], [0.03, 0.005],
-        // More density points
-        [-0.255, 0.435], [-0.225, 0.45], [-0.195, 0.36], [-0.165, 0.285], [-0.135, 0.21], [-0.105, 0.14], [-0.075, 0.065], [-0.045, -0.01],
-        [0.255, 0.435], [0.225, 0.45], [0.195, 0.36], [0.165, 0.285], [0.135, 0.21], [0.105, 0.14], [0.075, 0.065], [0.045, -0.01],
-        // Central connecting particles
-        [-0.075, 0.12], [-0.045, 0.04], [-0.015, -0.03], [0.015, -0.12], [0.045, -0.18], [0.075, -0.24],
-        [0.075, 0.12], [0.045, 0.04], [0.015, -0.03], [-0.015, -0.12], [-0.045, -0.18], [-0.075, -0.24],
-        // Extra thickness fill
-        [-0.21, 0.41], [-0.18, 0.35], [-0.15, 0.29], [-0.12, 0.23], [-0.09, 0.17], [-0.06, 0.11], [-0.03, 0.05], [0, -0.01],
-        [0.21, 0.41], [0.18, 0.35], [0.15, 0.29], [0.12, 0.23], [0.09, 0.17], [0.06, 0.11], [0.03, 0.05], [0, -0.01],
-        // V-bottom particles
-        [0.01, -0.1], [0.02, -0.2], [0.035, -0.3], [0.05, -0.4], [-0.01, -0.1], [-0.02, -0.2], [-0.035, -0.3], [-0.05, -0.4]
+      // 8 - Letter at position 0.5
+      { x: 0.5, y: 0, patterns: [
+        // Top horizontal
+        [-0.15, 0.4], [-0.1, 0.4], [-0.05, 0.4], [0, 0.4], [0.05, 0.4], [0.1, 0.4], [0.15, 0.4],
+        // Middle horizontal
+        [-0.15, 0], [-0.1, 0], [-0.05, 0], [0, 0], [0.05, 0], [0.1, 0], [0.15, 0],
+        // Bottom horizontal
+        [-0.15, -0.4], [-0.1, -0.4], [-0.05, -0.4], [0, -0.4], [0.05, -0.4], [0.1, -0.4], [0.15, -0.4],
+        // Left vertical
+        [-0.2, 0.3], [-0.2, 0.2], [-0.2, 0.1], [-0.2, -0.1], [-0.2, -0.2], [-0.2, -0.3],
+        // Right vertical
+        [0.2, 0.3], [0.2, 0.2], [0.2, 0.1], [0.2, -0.1], [0.2, -0.2], [0.2, -0.3]
       ]},
-      // E - Bold E-shape with Clear Horizontals
-      { x: -1.35, y: 0, patterns: [
-        // Horizontal lines (1.5x size + high density)
-        [-0.18, 0.45], [-0.15, 0.45], [-0.12, 0.45], [-0.09, 0.45], [-0.06, 0.45], [-0.03, 0.45], [0, 0.45], [0.03, 0.45], [0.06, 0.45], [0.09, 0.45], [0.12, 0.45], [0.15, 0.45], [0.18, 0.45],
-        [-0.18, 0.225], [-0.15, 0.225], [-0.12, 0.225], [-0.09, 0.225], [-0.06, 0.225], [-0.03, 0.225], [0, 0.225], [0.03, 0.225], [0.06, 0.225], [0.09, 0.225],
-        [-0.18, 0], [-0.15, 0], [-0.12, 0], [-0.09, 0], [-0.06, 0], [-0.03, 0], [0, 0], [0.03, 0], [0.06, 0], [0.09, 0],
-        [-0.18, -0.225], [-0.15, -0.225], [-0.12, -0.225], [-0.09, -0.225], [-0.06, -0.225], [-0.03, -0.225], [0, -0.225], [0.03, -0.225], [0.06, -0.225], [0.09, -0.225], [0.12, -0.225], [0.15, -0.225], [0.18, -0.225],
-        [-0.18, -0.45], [-0.15, -0.45], [-0.12, -0.45], [-0.09, -0.45], [-0.06, -0.45], [-0.03, -0.45], [0, -0.45], [0.03, -0.45], [0.06, -0.45], [0.09, -0.45], [0.12, -0.45], [0.15, -0.45], [0.18, -0.45],
-        // Vertical line (thicker + more particles)
-        [-0.18, 0.375], [-0.18, 0.33], [-0.18, 0.285], [-0.18, 0.24], [-0.18, 0.195], [-0.18, 0.15], [-0.18, 0.105], [-0.18, 0.06], [-0.18, 0.03],
-        [-0.18, -0.03], [-0.18, -0.06], [-0.18, -0.105], [-0.18, -0.15], [-0.18, -0.195], [-0.18, -0.24], [-0.18, -0.285], [-0.18, -0.33], [-0.18, -0.375],
-        // Multiple thickness layers
-        [-0.15, 0.42], [-0.15, 0.36], [-0.15, 0.18], [-0.15, -0.045], [-0.15, -0.27], [-0.15, -0.42],
-        [-0.12, 0.39], [-0.12, 0.39], [-0.12, 0.21], [-0.12, -0.015], [-0.12, -0.24], [-0.12, -0.39],
-        [-0.135, 0.405], [-0.135, 0.285], [-0.135, 0.045], [-0.135, -0.135], [-0.135, -0.315], [-0.135, -0.405],
-        // Additional horizontal thickness
-        [-0.21, 0.415], [-0.045, 0.415], [0.045, 0.415], [0.135, 0.415],
-        [-0.21, 0.185], [-0.045, 0.185], [0.045, 0.185],
-        [-0.21, -0.035], [-0.045, -0.035], [0.045, -0.035],
-        [-0.21, -0.265], [-0.045, -0.265], [0.045, -0.265], [0.135, -0.265],
-        [-0.21, -0.415], [-0.045, -0.415], [0.045, -0.415], [0.135, -0.415],
-        // Fill particles
-        [-0.165, 0.345], [-0.165, 0.12], [-0.165, -0.09], [-0.165, -0.345]
-      ]},
-      // R - Distinctive R-shape with Clear Diagonal
-      { x: 0, y: 0, patterns: [
-        // Top horizontal (1.5x size + high density)
-        [-0.18, 0.45], [-0.15, 0.45], [-0.12, 0.45], [-0.09, 0.45], [-0.06, 0.45], [-0.03, 0.45], [0, 0.45], [0.03, 0.45], [0.06, 0.45], [0.09, 0.45], [0.12, 0.45], [0.15, 0.45], [0.18, 0.45],
-        // Middle horizontal (high density)
-        [-0.18, 0.225], [-0.15, 0.225], [-0.12, 0.225], [-0.09, 0.225], [-0.06, 0.225], [-0.03, 0.225], [0, 0.225], [0.03, 0.225], [0.06, 0.225], [0.09, 0.225], [0.12, 0.225], [0.15, 0.225], [0.18, 0.225],
-        // Vertical spine (dense)
-        [-0.18, 0.375], [-0.18, 0.33], [-0.18, 0.285], [-0.18, 0.24], [-0.18, 0.195], [-0.18, 0.15], [-0.18, 0.105], [-0.18, 0.06], [-0.18, 0.03],
-        [-0.18, 0], [-0.18, -0.03], [-0.18, -0.06], [-0.18, -0.105], [-0.18, -0.15], [-0.18, -0.195], [-0.18, -0.24], [-0.18, -0.285], [-0.18, -0.33], [-0.18, -0.375], [-0.18, -0.42], [-0.18, -0.45],
-        // Right vertical (upper) (dense)
-        [0.18, 0.375], [0.18, 0.33], [0.18, 0.285], [0.18, 0.24], [0.18, 0.195], [0.18, 0.15], [0.18, 0.105], [0.18, 0.06], [0.18, 0.03],
-        // Diagonal leg (dense)
-        [0.15, 0], [0.135, -0.03], [0.12, -0.075], [0.105, -0.12], [0.09, -0.165], [0.075, -0.21], [0.06, -0.255], [0.045, -0.3],
-        [0.03, -0.345], [0.045, -0.375], [0.075, -0.405], [0.12, -0.435], [0.165, -0.45], [0.18, -0.45],
-        // Extra thickness layers
-        [-0.15, 0.42], [-0.15, 0.36], [-0.15, 0.18], [-0.15, -0.045], [-0.15, -0.24], [-0.15, -0.42],
-        [0.15, 0.42], [0.15, 0.36], [0.15, 0.18], [0.105, -0.045], [0.15, -0.42],
-        // Additional horizontal thickness
-        [-0.21, 0.415], [-0.045, 0.415], [0.045, 0.415], [0.135, 0.415],
-        [-0.21, 0.185], [-0.045, 0.185], [0.045, 0.185], [0.135, 0.185],
-        // Spine thickness
-        [-0.135, 0.39], [-0.135, 0.21], [-0.135, -0.015], [-0.135, -0.24], [-0.135, -0.39],
-        [0.135, 0.39], [0.135, 0.21], [0.165, -0.015], [0.135, -0.39],
-        // Diagonal thickness
-        [0.12, -0.045], [0.105, -0.09], [0.09, -0.135], [0.075, -0.18], [0.06, -0.225], [0.045, -0.27], [0.06, -0.315], [0.09, -0.36], [0.135, -0.405], [0.15, -0.42]
-      ]},
-      // E - Second E-shape with Enhanced Clarity
-      { x: 1.35, y: 0, patterns: [
-        // Horizontal lines (1.5x size + high density)
-        [-0.18, 0.45], [-0.15, 0.45], [-0.12, 0.45], [-0.09, 0.45], [-0.06, 0.45], [-0.03, 0.45], [0, 0.45], [0.03, 0.45], [0.06, 0.45], [0.09, 0.45], [0.12, 0.45], [0.15, 0.45], [0.18, 0.45],
-        [-0.18, 0.225], [-0.15, 0.225], [-0.12, 0.225], [-0.09, 0.225], [-0.06, 0.225], [-0.03, 0.225], [0, 0.225], [0.03, 0.225], [0.06, 0.225], [0.09, 0.225],
-        [-0.18, 0], [-0.15, 0], [-0.12, 0], [-0.09, 0], [-0.06, 0], [-0.03, 0], [0, 0], [0.03, 0], [0.06, 0], [0.09, 0],
-        [-0.18, -0.225], [-0.15, -0.225], [-0.12, -0.225], [-0.09, -0.225], [-0.06, -0.225], [-0.03, -0.225], [0, -0.225], [0.03, -0.225], [0.06, -0.225], [0.09, -0.225], [0.12, -0.225], [0.15, -0.225], [0.18, -0.225],
-        [-0.18, -0.45], [-0.15, -0.45], [-0.12, -0.45], [-0.09, -0.45], [-0.06, -0.45], [-0.03, -0.45], [0, -0.45], [0.03, -0.45], [0.06, -0.45], [0.09, -0.45], [0.12, -0.45], [0.15, -0.45], [0.18, -0.45],
-        // Vertical line (thicker + more particles)
-        [-0.18, 0.375], [-0.18, 0.33], [-0.18, 0.285], [-0.18, 0.24], [-0.18, 0.195], [-0.18, 0.15], [-0.18, 0.105], [-0.18, 0.06], [-0.18, 0.03],
-        [-0.18, -0.03], [-0.18, -0.06], [-0.18, -0.105], [-0.18, -0.15], [-0.18, -0.195], [-0.18, -0.24], [-0.18, -0.285], [-0.18, -0.33], [-0.18, -0.375],
-        // Multiple thickness layers
-        [-0.15, 0.42], [-0.15, 0.36], [-0.15, 0.18], [-0.15, -0.045], [-0.15, -0.27], [-0.15, -0.42],
-        [-0.12, 0.39], [-0.12, 0.39], [-0.12, 0.21], [-0.12, -0.015], [-0.12, -0.24], [-0.12, -0.39],
-        [-0.135, 0.405], [-0.135, 0.285], [-0.135, 0.045], [-0.135, -0.135], [-0.135, -0.315], [-0.135, -0.405],
-        // Additional horizontal thickness
-        [-0.21, 0.415], [-0.045, 0.415], [0.045, 0.415], [0.135, 0.415],
-        [-0.21, 0.185], [-0.045, 0.185], [0.045, 0.185],
-        [-0.21, -0.035], [-0.045, -0.035], [0.045, -0.035],
-        [-0.21, -0.265], [-0.045, -0.265], [0.045, -0.265], [0.135, -0.265],
-        [-0.21, -0.415], [-0.045, -0.415], [0.045, -0.415], [0.135, -0.415],
-        // Fill particles
-        [-0.165, 0.345], [-0.165, 0.12], [-0.165, -0.09], [-0.165, -0.345]
-      ]},
-      // I - Clean Vertical Line for I
-      { x: 2.7, y: 0, patterns: [
-        // Top serif for I
-        [-0.09, 0.45], [-0.06, 0.45], [-0.03, 0.45], [0, 0.45], [0.03, 0.45], [0.06, 0.45], [0.09, 0.45],
-        [-0.06, 0.42], [-0.03, 0.42], [0, 0.42], [0.03, 0.42], [0.06, 0.42],
-        // Main vertical (1.5x size + high density)
-        [0, 0.39], [0, 0.36], [0, 0.33], [0, 0.3], [0, 0.27], [0, 0.24], [0, 0.21], [0, 0.18], [0, 0.15], [0, 0.12], [0, 0.09], [0, 0.06], [0, 0.03],
-        [0, 0], [0, -0.03], [0, -0.06], [0, -0.09], [0, -0.12], [0, -0.15], [0, -0.18], [0, -0.21], [0, -0.24], [0, -0.27], [0, -0.3], [0, -0.33], [0, -0.36], [0, -0.39],
-        // Bottom serif for I
-        [-0.06, -0.42], [-0.03, -0.42], [0, -0.42], [0.03, -0.42], [0.06, -0.42],
-        [-0.09, -0.45], [-0.06, -0.45], [-0.03, -0.45], [0, -0.45], [0.03, -0.45], [0.06, -0.45], [0.09, -0.45],
-        // Parallel lines for thickness (dense)
-        [-0.03, 0.42], [-0.03, 0.36], [-0.03, 0.3], [-0.03, 0.24], [-0.03, 0.18], [-0.03, 0.12], [-0.03, 0.06], [-0.03, 0], [-0.03, -0.06], [-0.03, -0.12], [-0.03, -0.18], [-0.03, -0.24], [-0.03, -0.3], [-0.03, -0.36], [-0.03, -0.42],
-        [0.03, 0.42], [0.03, 0.36], [0.03, 0.3], [0.03, 0.24], [0.03, 0.18], [0.03, 0.12], [0.03, 0.06], [0.03, 0], [0.03, -0.06], [0.03, -0.12], [0.03, -0.18], [0.03, -0.24], [0.03, -0.3], [0.03, -0.36], [0.03, -0.42],
-        // Extra thickness layers (dense)
-        [-0.06, 0.39], [-0.06, 0.33], [-0.06, 0.27], [-0.06, 0.21], [-0.06, 0.15], [-0.06, 0.09], [-0.06, 0.03], [-0.06, -0.03], [-0.06, -0.09], [-0.06, -0.15], [-0.06, -0.21], [-0.06, -0.27], [-0.06, -0.33], [-0.06, -0.39],
-        [0.06, 0.39], [0.06, 0.33], [0.06, 0.27], [0.06, 0.21], [0.06, 0.15], [0.06, 0.09], [0.06, 0.03], [0.06, -0.03], [0.06, -0.09], [0.06, -0.15], [0.06, -0.21], [0.06, -0.27], [0.06, -0.33], [0.06, -0.39],
-        // Additional fill particles
-        [-0.015, 0.435], [-0.015, 0.375], [-0.015, 0.315], [-0.015, 0.255], [-0.015, 0.195], [-0.015, 0.135], [-0.015, 0.075], [-0.015, 0.015], [-0.015, -0.045], [-0.015, -0.105], [-0.015, -0.165], [-0.015, -0.225], [-0.015, -0.285], [-0.015, -0.345], [-0.015, -0.405],
-        [0.015, 0.435], [0.015, 0.375], [0.015, 0.315], [0.015, 0.255], [0.015, 0.195], [0.015, 0.135], [0.015, 0.075], [0.015, 0.015], [0.015, -0.045], [0.015, -0.105], [0.015, -0.165], [0.015, -0.225], [0.015, -0.285], [0.015, -0.345], [0.015, -0.405]
-      ]},
-      // G - Distinctive G-shape with Clear Opening
-      { x: 4.05, y: 0, patterns: [
-        // Top curve (1.5x size + high density)
-        [-0.18, 0.45], [-0.15, 0.47], [-0.12, 0.485], [-0.09, 0.495], [-0.06, 0.5], [-0.03, 0.502], [0, 0.505], [0.03, 0.502], [0.06, 0.5], [0.09, 0.495], [0.12, 0.485], [0.15, 0.47], [0.18, 0.45],
-        // Left vertical (dense)
-        [-0.27, 0.3], [-0.27, 0.27], [-0.27, 0.24], [-0.27, 0.21], [-0.27, 0.18], [-0.27, 0.15], [-0.27, 0.12], [-0.27, 0.09], [-0.27, 0.06], [-0.27, 0.03],
-        [-0.27, 0], [-0.27, -0.03], [-0.27, -0.06], [-0.27, -0.09], [-0.27, -0.12], [-0.27, -0.15], [-0.27, -0.18], [-0.27, -0.21], [-0.27, -0.24], [-0.27, -0.27], [-0.27, -0.3], [-0.27, -0.33], [-0.27, -0.36], [-0.27, -0.375],
-        // Bottom curve (dense)
-        [-0.18, -0.45], [-0.15, -0.47], [-0.12, -0.485], [-0.09, -0.495], [-0.06, -0.5], [-0.03, -0.502], [0, -0.505], [0.03, -0.502], [0.06, -0.5], [0.09, -0.495], [0.12, -0.485], [0.15, -0.47], [0.18, -0.45],
-        // Right side opening - Clear G opening
-        [0.27, 0.3], [0.27, 0.27], [0.27, 0.24], [0.27, 0.21], [0.27, 0.18], [0.27, 0.15], [0.27, 0.12], [0.27, 0.09], [0.27, 0.06], [0.27, 0.03],
-        // Horizontal closure bar - G's distinctive feature
-        [0.09, 0], [0.12, 0], [0.15, 0], [0.18, 0], [0.21, 0], [0.24, 0], [0.27, 0],
-        [0.27, -0.03], [0.27, -0.06], [0.27, -0.09], [0.27, -0.12], [0.27, -0.15], [0.27, -0.18], [0.27, -0.21], [0.27, -0.24], [0.27, -0.27], [0.27, -0.3],
-        // Extended closure for G clarity
-        [0.24, -0.015], [0.21, -0.015], [0.18, -0.015], [0.15, -0.015], [0.12, -0.015],
-        // Left thickness layers
-        [-0.24, 0.42], [-0.24, 0.36], [-0.24, 0.3], [-0.24, 0.24], [-0.24, 0.18], [-0.24, 0.12], [-0.24, 0.06], [-0.24, 0], [-0.24, -0.06], [-0.24, -0.12], [-0.24, -0.18], [-0.24, -0.24], [-0.24, -0.3], [-0.24, -0.36], [-0.24, -0.42],
-        [-0.21, 0.39], [-0.21, 0.33], [-0.21, 0.27], [-0.21, 0.21], [-0.21, 0.15], [-0.21, 0.09], [-0.21, 0.03], [-0.21, -0.03], [-0.21, -0.09], [-0.21, -0.15], [-0.21, -0.21], [-0.21, -0.27], [-0.21, -0.33], [-0.21, -0.39],
-        // Right thickness layers
-        [0.24, 0.27], [0.24, 0.21], [0.24, 0.15], [0.24, 0.09], [0.24, 0.03], [0.24, -0.03], [0.24, -0.09], [0.24, -0.15], [0.24, -0.21], [0.24, -0.27],
-        [0.21, 0.24], [0.21, 0.18], [0.21, 0.12], [0.21, 0.06], [0.21, 0], [0.21, -0.06], [0.21, -0.12], [0.21, -0.18], [0.21, -0.24],
-        // Horizontal closure thickness
-        [0.09, -0.015], [0.12, -0.015], [0.15, -0.015], [0.18, -0.015], [0.21, -0.015], [0.24, -0.015],
-        [0.105, -0.03], [0.135, -0.03], [0.165, -0.03], [0.195, -0.03], [0.225, -0.03], [0.255, -0.03],
-        // Curve thickness layers
-        [-0.21, 0.41], [-0.18, 0.43], [-0.15, 0.445], [-0.12, 0.455], [-0.09, 0.465], [0.09, 0.465], [0.12, 0.455], [0.15, 0.445], [0.18, 0.43], [0.21, 0.41],
-        [-0.21, -0.41], [-0.18, -0.43], [-0.15, -0.445], [-0.12, -0.455], [-0.09, -0.465], [0.09, -0.465], [0.12, -0.455], [0.15, -0.445], [0.18, -0.43], [0.21, -0.41]
-      ]},
-      // N - Strong N-shape with Clear Diagonal
-      { x: 5.4, y: 0, patterns: [
-        // Left vertical (1.5x size + high density)
-        [-0.18, 0.45], [-0.18, 0.42], [-0.18, 0.39], [-0.18, 0.36], [-0.18, 0.33], [-0.18, 0.3], [-0.18, 0.27], [-0.18, 0.24], [-0.18, 0.21], [-0.18, 0.18], [-0.18, 0.15], [-0.18, 0.12], [-0.18, 0.09], [-0.18, 0.06], [-0.18, 0.03],
-        [-0.18, 0], [-0.18, -0.03], [-0.18, -0.06], [-0.18, -0.09], [-0.18, -0.12], [-0.18, -0.15], [-0.18, -0.18], [-0.18, -0.21], [-0.18, -0.24], [-0.18, -0.27], [-0.18, -0.3], [-0.18, -0.33], [-0.18, -0.36], [-0.18, -0.39], [-0.18, -0.42], [-0.18, -0.45],
-        // Right vertical (1.5x size + high density)
-        [0.18, 0.45], [0.18, 0.42], [0.18, 0.39], [0.18, 0.36], [0.18, 0.33], [0.18, 0.3], [0.18, 0.27], [0.18, 0.24], [0.18, 0.21], [0.18, 0.18], [0.18, 0.15], [0.18, 0.12], [0.18, 0.09], [0.18, 0.06], [0.18, 0.03],
-        [0.18, 0], [0.18, -0.03], [0.18, -0.06], [0.18, -0.09], [0.18, -0.12], [0.18, -0.15], [0.18, -0.18], [0.18, -0.21], [0.18, -0.24], [0.18, -0.27], [0.18, -0.3], [0.18, -0.33], [0.18, -0.36], [0.18, -0.39], [0.18, -0.42], [0.18, -0.45],
-        // Diagonal (dense)
-        [-0.12, 0.375], [-0.09, 0.33], [-0.06, 0.285], [-0.03, 0.24], [0, 0.195], [0.03, 0.15], [0.06, 0.105], [0.09, 0.06], [0.12, 0.015],
-        [-0.15, 0.405], [-0.12, 0.36], [-0.09, 0.315], [-0.06, 0.27], [-0.03, 0.225], [0, 0.18], [0.03, 0.135], [0.06, 0.09], [0.09, 0.045], [0.12, 0], [0.15, -0.03],
-        [-0.09, 0.345], [-0.06, 0.3], [-0.03, 0.255], [0, 0.21], [0.03, 0.165], [0.06, 0.12], [0.09, 0.075], [0.12, 0.03],
-        // Thickness layers for verticals
-        [-0.15, 0.42], [-0.15, 0.36], [-0.15, 0.3], [-0.15, 0.24], [-0.15, 0.18], [-0.15, 0.12], [-0.15, 0.06], [-0.15, 0], [-0.15, -0.06], [-0.15, -0.12], [-0.15, -0.18], [-0.15, -0.24], [-0.15, -0.3], [-0.15, -0.36], [-0.15, -0.42],
-        [0.15, 0.42], [0.15, 0.36], [0.15, 0.3], [0.15, 0.24], [0.15, 0.18], [0.15, 0.12], [0.15, 0.06], [0.15, 0], [0.15, -0.06], [0.15, -0.12], [0.15, -0.18], [0.15, -0.24], [0.15, -0.3], [0.15, -0.36], [0.15, -0.42],
-        [-0.12, 0.39], [-0.12, 0.33], [-0.12, 0.27], [-0.12, 0.21], [-0.12, 0.15], [-0.12, 0.09], [-0.12, 0.03], [-0.12, -0.03], [-0.12, -0.09], [-0.12, -0.15], [-0.12, -0.21], [-0.12, -0.27], [-0.12, -0.33], [-0.12, -0.39],
-        [0.12, 0.39], [0.12, 0.33], [0.12, 0.27], [0.12, 0.21], [0.12, 0.15], [0.12, 0.09], [0.12, 0.03], [0.12, -0.03], [0.12, -0.09], [0.12, -0.15], [0.12, -0.21], [0.12, -0.27], [0.12, -0.33], [0.12, -0.39],
-        // Additional diagonal thickness
-        [-0.135, 0.39], [-0.105, 0.345], [-0.075, 0.3], [-0.045, 0.255], [-0.015, 0.21], [0.015, 0.165], [0.045, 0.12], [0.075, 0.075], [0.105, 0.03], [0.135, -0.015],
-        [-0.105, 0.375], [-0.075, 0.33], [-0.045, 0.285], [-0.015, 0.24], [0.015, 0.195], [0.045, 0.15], [0.075, 0.105], [0.105, 0.06], [0.135, 0.015]
+      // 4 - Letter at position 1.5 (same as first 4)
+      { x: 1.5, y: 0, patterns: [
+        // Left vertical (top part)
+        [-0.2, 0.4], [-0.2, 0.3], [-0.2, 0.2], [-0.2, 0.1], [-0.2, 0],
+        // Right vertical (full)
+        [0.2, 0.4], [0.2, 0.3], [0.2, 0.2], [0.2, 0.1], [0.2, 0], [0.2, -0.1], [0.2, -0.2], [0.2, -0.3], [0.2, -0.4],
+        // Horizontal crossbar
+        [-0.15, 0], [-0.1, 0], [-0.05, 0], [0, 0], [0.05, 0], [0.1, 0], [0.15, 0]
       ]}
     ];
 
-    letters.forEach((letter) => {
-      letter.patterns.forEach((pattern, index) => {
-        const randomOffset = () => (Math.random() - 0.5) * 0.1;
+    // Generate symmetrical cube with clear particle lines
+    const cubeSize = 2.0;
+    const halfSize = cubeSize / 2;
+    const lineResolution = 16; // Particles per line for smooth definition
+    const cubePositions: Array<[number, number, number]> = [];
+    
+    // Generate 12 cube edges with clear particle lines
+    for (let i = 0; i < lineResolution; i++) {
+      const t = i / (lineResolution - 1);
+      const coord = (t - 0.5) * cubeSize;
+      
+      // Bottom face edges (4 lines)
+      cubePositions.push([coord, -halfSize, -halfSize]); // Front bottom
+      cubePositions.push([coord, -halfSize, halfSize]);  // Back bottom
+      cubePositions.push([-halfSize, -halfSize, coord]); // Left bottom
+      cubePositions.push([halfSize, -halfSize, coord]);  // Right bottom
+      
+      // Top face edges (4 lines)
+      cubePositions.push([coord, halfSize, -halfSize]); // Front top
+      cubePositions.push([coord, halfSize, halfSize]);  // Back top
+      cubePositions.push([-halfSize, halfSize, coord]); // Left top
+      cubePositions.push([halfSize, halfSize, coord]);  // Right top
+      
+      // Vertical edges (4 lines)
+      cubePositions.push([-halfSize, coord, -halfSize]); // Front left
+      cubePositions.push([halfSize, coord, -halfSize]);  // Front right
+      cubePositions.push([-halfSize, coord, halfSize]);  // Back left
+      cubePositions.push([halfSize, coord, halfSize]);   // Back right
+    }
+    
+    // Add face grid lines for structure (every 4th position)
+    const faceGrid = 8; // Grid resolution for faces
+    for (let i = 1; i < faceGrid - 1; i += 2) { // Skip edges, use every other line
+      for (let j = 1; j < faceGrid - 1; j += 2) {
+        const u = (i / (faceGrid - 1) - 0.5) * cubeSize;
+        const v = (j / (faceGrid - 1) - 0.5) * cubeSize;
         
-        particleArray.push({
-          position: [
-            letter.x + pattern[0] + randomOffset(),
-            letter.y + pattern[1] + randomOffset(),
-            (Math.random() - 0.5) * 2
-          ],
-          targetPosition: [
-            letter.x + pattern[0],
-            letter.y + pattern[1],
-            0
-          ],
-          delay: index * 0.1 + Math.random() * 2
-        });
+        // Front and back faces
+        cubePositions.push([u, v, -halfSize]); // Front face
+        cubePositions.push([u, v, halfSize]);  // Back face
+        
+        // Left and right faces
+        cubePositions.push([-halfSize, u, v]); // Left face
+        cubePositions.push([halfSize, u, v]);  // Right face
+        
+        // Top and bottom faces
+        cubePositions.push([u, -halfSize, v]); // Bottom face
+        cubePositions.push([u, halfSize, v]);  // Top face
+      }
+    }
+    
+    // Generate L484 positions
+    const unityPositions: Array<[number, number, number]> = [];
+    unityLetters.forEach((letter) => {
+      letter.patterns.forEach((pattern) => {
+        unityPositions.push([
+          letter.x + pattern[0],
+          letter.y + pattern[1],
+          0
+        ]);
       });
     });
+
+    // Generate particles for cube formation
+    const totalParticles = cubePositions.length;
+    for (let i = 0; i < totalParticles; i++) {
+      // Create random initial position (spread out widely)
+      const randomRadius = 5 + Math.random() * 3; // 5-8 units from center
+      const randomAngle = Math.random() * Math.PI * 2;
+      const randomHeight = (Math.random() - 0.5) * 8;
+      
+      const initialX = Math.cos(randomAngle) * randomRadius;
+      const initialY = randomHeight;
+      const initialZ = Math.sin(randomAngle) * randomRadius;
+      
+      // Assign L484 position (cycle through available positions)
+      const unityPos = unityPositions[i % unityPositions.length] || [0, 0, 0];
+      
+      particleArray.push({
+        initialPosition: [initialX, initialY, initialZ],
+        cubePosition: cubePositions[i],
+        unityPosition: unityPos,
+        delay: Math.random() * 3, // Random delay up to 3 seconds
+        convergenceSpeed: 0.1 + Math.random() * 0.2 // Speed between 0.1-0.3
+      });
+    }
 
     return particleArray;
   }, []);
@@ -338,9 +288,12 @@ function ParticleSystem() {
       {particles.map((particle, index) => (
         <Particle
           key={index}
-          position={particle.position}
-          targetPosition={particle.targetPosition}
+          initialPosition={particle.initialPosition}
+          cubePosition={particle.cubePosition}
+          unityPosition={particle.unityPosition}
           delay={particle.delay}
+          convergenceSpeed={particle.convergenceSpeed}
+          showUnity={showUnity}
         />
       ))}
     </>
@@ -349,44 +302,12 @@ function ParticleSystem() {
 
 interface ParticleLogoProps {
   className?: string;
+  showUnity?: boolean;
 }
 
-export default function ParticleLogo({ className }: ParticleLogoProps) {
-  const [showFlash, setShowFlash] = useState(false);
-  const [flashCount, setFlashCount] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // Start the 4-flash sequence
-      setFlashCount(0);
-      
-      // Create 4 quick flashes (on-off-on-off-on-off-on-off)
-      const flashSequence = () => {
-        for (let i = 0; i < 4; i++) {
-          setTimeout(() => {
-            setShowFlash(true);
-            setTimeout(() => setShowFlash(false), 100); // 100ms on
-          }, i * 200); // 200ms between each flash start (100ms on + 100ms off)
-        }
-      };
-      
-      flashSequence();
-    }, 5000); // Flash sequence every 5 seconds
-
-    return () => clearInterval(interval);
-  }, []);
-
+export default function ParticleLogo({ className, showUnity = false }: ParticleLogoProps) {
   return (
     <div className={`w-full h-full ${className} relative`}>
-      {/* Background text flash */}
-      <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-75 ${
-        showFlash ? 'opacity-20' : 'opacity-0'
-      }`}>
-        <span className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold text-black select-none pointer-events-none blur-sm" style={{ letterSpacing: '0.4em' }}>
-          SOVEREIGN
-        </span>
-      </div>
-      
       {/* Particle canvas */}
       <Canvas
         camera={{ position: [0, 0, 3], fov: 75 }}
@@ -395,7 +316,7 @@ export default function ParticleLogo({ className }: ParticleLogoProps) {
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} intensity={1} />
         <pointLight position={[-10, -10, -10]} intensity={0.5} />
-        <ParticleSystem />
+        <ParticleSystem showUnity={showUnity} />
       </Canvas>
     </div>
   );
