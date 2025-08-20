@@ -312,7 +312,7 @@ function App() {
                             <TypingText 
                               text="We've been taught that the universe and the body are destined for entropy:" 
                               delay={4.7} 
-                              duration={5.0} 
+                              duration={4.0} 
                             />
                           </motion.span>
                           <motion.span
@@ -343,14 +343,14 @@ function App() {
                           <motion.span
                             initial={{ opacity: 0 }}
                             animate={{ opacity: [0, 1, 1, 0.5] }}
-                            transition={{ duration: 4.0, delay: 15.7, times: [0, 0.5, 0.75, 1] }}
+                            transition={{ duration: 2.5, delay: 15.7, times: [0, 0.6, 0.8, 1], ease: 'easeInOut' }}
                           >
                             —conscious,
                           </motion.span>
                           <motion.span
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 1] }}
-                            transition={{ duration: 2.0, delay: 17.7, times: [0, 0.5, 1] }}
+                            animate={{ opacity: [0, 1, 0.5] }}
+                            transition={{ duration: 3.0, delay: 16.2, times: [0, 0.6, 1], ease: 'easeInOut' }}
                           >
                             {' '}intelligent,{' '}
                           </motion.span>
