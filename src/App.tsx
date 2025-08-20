@@ -1,161 +1,47 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
-import ParticleLogo from './components/ParticleLogo';
-import NodeNetworkAnimation from './components/NodeNetworkAnimation';
 import './App.css';
+
+// Letter-by-letter typing animation component
+const TypingText = ({ text, delay = 0, duration = 5 }: { text: string; delay?: number; duration?: number }) => {
+  const letters = text.split('');
+  const letterDelay = duration / letters.length;
+
+  return (
+    <>
+      {letters.map((letter, index) => (
+        <motion.span
+          key={index}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{
+            delay: delay + (index * letterDelay),
+            duration: 0.1,
+            ease: 'easeInOut'
+          }}
+        >
+          {letter === ' ' ? '\u00A0' : letter}
+        </motion.span>
+      ))}
+    </>
+  );
+};
 
 function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [currentSection, setCurrentSection] = useState('siop');
+  const [currentSection, setCurrentSection] = useState('syntropy-1');
   const [navLinePosition, setNavLinePosition] = useState({ x: 0, width: 0 });
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [isExporting, setIsExporting] = useState(false);
-  const [showUnity, setShowUnity] = useState(false);
-  const [lightboxImage, setLightboxImage] = useState<{src: string, name: string} | null>(null);
   const [lightboxText, setLightboxText] = useState<{title: string, content: string} | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
 
-  
-  // Helper functions for colors
-  const getLightGrayBg = () => 'bg-light-gray';
-  const getBlackText = () => 'text-black';
-  const getGrayText = () => 'text-gray-700';
-
-  const navItems = ['Bitcoin', 'Identity', 'Networks', 'Syntropy', 'Vehicles', 'Work', 'Cybersecurity'];
+  const navItems = ['Syntropy 1', 'Syntropy 2', 'Syntropy 3', 'Syntropy 4', 'Syntropy 5'];
 
 
 
 
 
-  // PDF Export Function
-  const exportToPDF = async () => {
-    setIsExporting(true);
-    
-    try {
-      console.log('Starting PDF export...');
-      
-      const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'px',
-        format: [1920, 1080]
-      });
 
-      const sections = ['siop', 'bitcoin', 'identity', 'networks', 'syntropy', 'vehicles', 'work', 'cybersecurity'];
-      
-      const originalScrollY = window.scrollY;
-      
-      for (let i = 0; i < sections.length; i++) {
-        const sectionId = sections[i];
-        console.log(`Processing section ${i + 1}/${sections.length}: ${sectionId}`);
-        
-        const element = document.getElementById(sectionId);
-        
-        if (!element) {
-          console.error(`Element with ID '${sectionId}' not found`);
-          continue;
-        }
-
-        element.scrollIntoView({ behavior: 'auto', block: 'start' });
-        
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        try {
-          console.log(`Capturing ${sectionId}...`);
-          
-          await document.fonts.ready;
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          const originalStyles = {
-            width: element.style.width,
-            height: element.style.height,
-            position: element.style.position,
-            top: element.style.top,
-            left: element.style.left,
-            transform: element.style.transform,
-            overflow: element.style.overflow
-          };
-          
-          element.style.width = '1920px';
-          element.style.height = '1080px';
-          element.style.position = 'fixed';
-          element.style.top = '0';
-          element.style.left = '0';
-          element.style.transform = 'none';
-          element.style.overflow = 'hidden';
-          
-          await new Promise(resolve => setTimeout(resolve, 300));
-          
-          const canvas = await html2canvas(element, {
-            width: 1920,
-            height: 1080,
-            scale: 1,
-            useCORS: true,
-            allowTaint: true,
-            backgroundColor: null,
-            logging: true,
-            foreignObjectRendering: false,
-            ignoreElements: (el) => {
-              return el.id === 'export-button' || el.closest('#export-button') !== null;
-            }
-          });
-          
-          Object.keys(originalStyles).forEach(key => {
-            const styleKey = key as keyof typeof originalStyles;
-            element.style[styleKey] = originalStyles[styleKey];
-          });
-          
-          console.log(`Canvas created for ${sectionId}:`, canvas.width, 'x', canvas.height);
-          
-          const imgData = canvas.toDataURL('image/png', 1.0);
-          
-          if (!imgData || imgData === 'data:,') {
-            throw new Error(`Failed to generate image data for section: ${sectionId}`);
-          }
-          
-          console.log(`Image data generated for ${sectionId}, size: ${imgData.length} chars`);
-          
-          if (i > 0) {
-            pdf.addPage([1920, 1080], 'landscape');
-            console.log(`Added new page ${i + 1}`);
-          }
-          
-          pdf.addImage(imgData, 'PNG', 0, 0, 1920, 1080);
-          console.log(`Added ${sectionId} to PDF (page ${i + 1}/${sections.length})`);
-          
-        } catch (sectionError) {
-          console.error(`Error processing section ${sectionId}:`, sectionError);
-          if (i > 0) {
-            pdf.addPage([1920, 1080], 'landscape');
-          }
-          pdf.setFontSize(20);
-          pdf.text(`Error capturing section: ${sectionId}`, 100, 100);
-        }
-      }
-      
-      window.scrollTo(0, originalScrollY);
-      
-      console.log('Saving PDF...');
-      
-      pdf.save('SiOP-Portfolio.pdf');
-      console.log('PDF saved successfully!');
-      
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      
-      let errorMessage = 'Error generating PDF. ';
-      if (error instanceof Error && error.message) {
-        errorMessage += `Details: ${error.message}`;
-      } else {
-        errorMessage += 'Please check the console for more details and try again.';
-      }
-      
-      alert(errorMessage);
-    } finally {
-      setIsExporting(false);
-    }
-  };
 
   useEffect(() => {
     const checkMobile = () => {
@@ -173,18 +59,15 @@ function App() {
     const scrollToTarget = () => {
       const element = document.getElementById(targetId);
       if (element) {
-        // Set navigation state to prevent scroll handler interference
         setIsNavigating(true);
         setCurrentSection(targetId);
         
-        // Use smooth scrolling on mobile too for better UX
         element.scrollIntoView({ 
           behavior: 'smooth',
           block: 'start',
           inline: 'nearest'
         });
         
-        // Clear navigation state after scroll completes
         setTimeout(() => {
           setIsNavigating(false);
         }, 1000);
@@ -200,7 +83,7 @@ function App() {
   };
 
   const shouldInvertNav = () => {
-    return currentSection === 'syntropy' || currentSection === 'identity';
+    return true; // Always use inverted nav for Syntropy theme
   };
 
   useEffect(() => {
@@ -219,10 +102,9 @@ function App() {
 
   useEffect(() => {
     const handleScroll = () => {
-      // Don't update current section while navigating
       if (isNavigating) return;
       
-      const sections = ['siop', 'bitcoin', 'identity', 'networks', 'syntropy', 'vehicles', 'work', 'cybersecurity'];
+      const sections = ['syntropy-1', 'syntropy-2', 'syntropy-3', 'syntropy-4', 'syntropy-5'];
       const scrollPosition = window.scrollY + window.innerHeight / 2;
 
       for (const sectionId of sections) {
@@ -235,19 +117,9 @@ function App() {
           if (scrollPosition >= elementTop && scrollPosition <= elementBottom) {
             setCurrentSection(sectionId);
             
-            if (sectionId === 'siop' && mobileMenuOpen) {
-              setMobileMenuOpen(false);
-            }
-            
             const metaThemeColor = document.getElementById('theme-color-meta') as HTMLMetaElement;
             if (metaThemeColor) {
-              if (sectionId === 'identity') {
-                metaThemeColor.setAttribute('content', '#808080');
-              } else if (sectionId === 'syntropy') {
                 metaThemeColor.setAttribute('content', '#000000');
-              } else {
-              metaThemeColor.setAttribute('content', '#FAFAFA');
-              }
             }
             
             break;
@@ -289,53 +161,20 @@ function App() {
 
   return (
     <div 
-      className={`font-futuristic relative transition-all duration-1000 ease-in-out bg-transition ${
-      currentSection === 'syntropy' 
-          ? 'bg-cover bg-center bg-no-repeat'
-          : currentSection === 'identity'
-            ? 'bg-black'
-            : getLightGrayBg()
-      }`} 
-      style={currentSection === 'syntropy' ? { backgroundImage: 'url(/syntropy.jpg)' } : {}}
+      className="font-futuristic relative transition-all duration-1000 ease-in-out bg-transition bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: 'url(/syntropy.jpg)' }}
     >
-      {currentSection === 'identity' && (
-        <video
-          autoPlay
-          muted
-          playsInline
-          className="fixed inset-0 w-full h-full object-cover z-0"
-          style={{ minWidth: '100vw', minHeight: '100vh', width: '100vw', height: '100vh' }}
-        >
-          <source src="/nano.mov" type="video/mp4" />
-        </video>
-      )}
-
-      <div className={`fixed inset-0 z-10 pointer-events-none transition-all duration-1000 ease-in-out ${
-        currentSection === 'syntropy' ? 'bg-black/40' :
-        currentSection === 'identity' ? 'bg-black/70' :
-        'bg-transparent'
-      }`}></div>
+      <div className="fixed inset-0 z-10 pointer-events-none transition-all duration-1000 ease-in-out bg-black/40"></div>
       
-      <header className={`sticky top-0 z-50 transition-all duration-1000 ease-in-out ${
-        shouldInvertNav() ? 'bg-transparent' : getLightGrayBg()
-      } relative`} style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+      <header className="sticky top-0 z-50 transition-all duration-1000 ease-in-out bg-transparent relative" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="relative flex h-16 items-center justify-between px-4 sm:h-24 sm:block sm:px-0">
-          {currentSection !== 'siop' && (
-            <a href="#siop" onClick={(e) => handleLinkClick(e, 'siop')}>
-              <div
-                className={`text-lg font-bold sm:absolute sm:top-8 sm:left-8 sm:text-2xl transition-colors duration-300 ${
-                  shouldInvertNav() ? 'text-white' : getBlackText()
-                }`}
-              >
-                L484
-              </div>
-            </a>
-          )}
+                    <a href="#syntropy-1" onClick={(e) => handleLinkClick(e, 'syntropy-1')}>
+            <div className="text-lg font-ivymode font-light sm:absolute sm:top-8 sm:left-8 sm:text-2xl transition-colors duration-300 text-white uppercase tracking-wide">
+              Syntropy.Institute
+            </div>
+          </a>
 
-          {currentSection !== 'siop' && (
-            <nav className={`hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 ${
-              shouldInvertNav() ? 'text-white' : getBlackText()
-            } relative`}>
+          <nav className="hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 text-white relative">
               {navItems.map((item) => {
                 const targetId = item.toLowerCase().replace(/\s+/g, '-');
                 return (
@@ -346,9 +185,7 @@ function App() {
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
-                    className={`cursor-pointer transition-colors relative ${
-                      shouldInvertNav() ? 'hover:text-gray-300' : 'hover:text-gray-600'
-                    }`}
+                className="cursor-pointer transition-colors relative hover:text-gray-300"
                     id={`nav-${targetId}`}
                   >
                     {item}
@@ -357,9 +194,7 @@ function App() {
               })}
               
               <motion.div
-                className={`absolute bottom-0 h-0.5 transition-colors duration-300 ${
-                  shouldInvertNav() ? 'bg-white' : 'bg-black'
-                }`}
+              className="absolute bottom-0 h-0.5 bg-white transition-colors duration-300"
                 initial={{ opacity: 0, width: 0 }}
                 animate={{
                   opacity: 1,
@@ -375,9 +210,7 @@ function App() {
                 style={{ bottom: '-8px' }}
               />
             </nav>
-          )}
 
-          {currentSection !== 'siop' && (
             <motion.button
               className="z-50 flex h-8 w-8 flex-col items-center justify-center sm:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -385,24 +218,17 @@ function App() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
             >
-              <motion.span className={`mb-1 h-0.5 w-6 transition-colors duration-300 ${
-                shouldInvertNav() ? 'bg-white' : 'bg-black'
-              }`} animate={{ rotate: mobileMenuOpen ? 45 : 0, y: mobileMenuOpen ? 6 : 0 }} />
-              <motion.span className={`mb-1 h-0.5 w-6 transition-colors duration-300 ${
-                shouldInvertNav() ? 'bg-white' : 'bg-black'
-              }`} animate={{ opacity: mobileMenuOpen ? 0 : 1 }} />
-              <motion.span className={`h-0.5 w-6 transition-colors duration-300 ${
-                shouldInvertNav() ? 'bg-white' : 'bg-black'
-              }`} animate={{ rotate: mobileMenuOpen ? -45 : 0, y: mobileMenuOpen ? -6 : 0 }} />
+            <motion.span className="mb-1 h-0.5 w-6 transition-colors duration-300 bg-white" animate={{ rotate: mobileMenuOpen ? 45 : 0, y: mobileMenuOpen ? 6 : 0 }} />
+            <motion.span className="mb-1 h-0.5 w-6 transition-colors duration-300 bg-white" animate={{ opacity: mobileMenuOpen ? 0 : 1 }} />
+            <motion.span className="h-0.5 w-6 transition-colors duration-300 bg-white" animate={{ rotate: mobileMenuOpen ? -45 : 0, y: mobileMenuOpen ? -6 : 0 }} />
             </motion.button>
-          )}
         </div>
               </header>
         
       <AnimatePresence>
-        {mobileMenuOpen && currentSection !== 'siop' && (
+        {mobileMenuOpen && (
           <motion.div
-            className="sm:hidden fixed inset-0 z-40 flex flex-col items-center justify-center bg-white"
+            className="sm:hidden fixed inset-0 z-40 flex flex-col items-center justify-center bg-black/90 backdrop-blur-lg"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -414,7 +240,7 @@ function App() {
                   key={item}
                   href={`#${targetId}`}
                   onClick={(e) => handleLinkClick(e, targetId)}
-                  className="text-2xl font-medium mb-8 cursor-pointer transition-colors text-black hover:text-gray-600"
+                  className="text-2xl font-medium mb-8 cursor-pointer transition-colors text-white hover:text-gray-300"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 20 }}
@@ -429,109 +255,124 @@ function App() {
       </AnimatePresence>
 
       <main className="-mt-16 sm:-mt-24">
-        <section id="siop" className={`snap-section flex items-center justify-center overflow-hidden relative px-4 sm:px-0 ${getLightGrayBg()} snap-start`}>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-full max-w-7xl h-72 sm:h-80 md:h-96 lg:h-[28rem] relative">
-              <ParticleLogo className="absolute inset-0" showUnity={showUnity} />
-            </div>
-          </div>
-          
-          {currentSection === 'siop' && !isMobile && (
-            <motion.button
-              onClick={() => setShowUnity(true)}
-              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 px-8 py-3 rounded-full border-2 font-medium text-lg transition-all duration-300 bg-white text-black border-black hover:bg-gray-100 hover:scale-105 z-10"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 6, duration: 0.5 }}
-            >
-              UNITE
-            </motion.button>
-          )}
-        </section>
-
-        {navItems.map((item) => {
-          const targetId = item.toLowerCase().replace(/\s+/g, '-');
-          const bgColor = getLightGrayBg();
-          const textColor = getBlackText();
-          const subTextColor = getGrayText();
+        {[1, 2, 3, 4, 5].map((sectionNumber) => {
+          const targetId = `syntropy-${sectionNumber}`;
           
           return (
-            <section key={targetId} id={targetId} className={`snap-section flex flex-col snap-start min-h-screen ${
-              item === 'Syntropy' || item === 'Identity' ? 'bg-transparent relative' : bgColor + ' relative'
-            }`}>
+            <section key={targetId} id={targetId} className="snap-section flex flex-col snap-start min-h-screen bg-transparent relative">
 
-              <div className={`flex-1 flex items-center justify-center min-h-0 relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4`}>
-                <div className={`text-center max-w-2xl w-full mx-auto ${textColor}`}>
-                  {item === 'Vehicles' || item === 'Networks' ? (
-                    <motion.h2 
-                      className="text-3xl sm:text-4xl font-rajdhani font-bold tracking-wide uppercase"
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      transition={{ duration: 0.8, delay: 4.0, ease: "easeOut" }}
-                      viewport={{ once: true, amount: 0.3 }}
-                    >
-                      {item}
-                    </motion.h2>
-                  ) : item === 'Bitcoin' ? (
-                    <motion.h2 
-                      className="text-3xl sm:text-4xl font-rajdhani font-bold tracking-wide uppercase relative z-20"
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      transition={{ duration: 0.8, delay: 3.0, ease: "easeOut" }}
-                      viewport={{ once: true, amount: 0.3 }}
-                    >
-                      {item}
-                    </motion.h2>
+              <div className="flex-1 flex items-center justify-center min-h-0 relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4">
+                                <div className="text-center max-w-xs sm:max-w-2xl md:max-w-3xl lg:max-w-4xl w-full mx-auto px-4">
+                  {sectionNumber === 1 ? (
+                    <motion.div className="relative z-20 min-h-[16rem] flex items-center justify-center">
+                      {/* Vertically centered container that shows title then paragraph in same place */}
+                      <div className="relative min-h-[10rem] w-full flex items-center justify-center">
+                        {/* Title with Medicine using clipPath and Reimagined using fade */}
+                        <div className="absolute text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-kudryashev text-white drop-shadow-xl tracking-wide uppercase whitespace-nowrap">
+                          {/* Medicine with original clipPath animation, holds 1 second after full text */}
+                          <motion.span
+                            className="inline-block"
+                            initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
+                            animate={{
+                              opacity: [0, 1, 1, 0],
+                              clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0 0 100%)']
+                            }}
+                            transition={{ duration: 4.2, delay: 0.5, ease: 'easeInOut', times: [0, 0.17, 0.81, 1] }}
+                            style={{ willChange: 'clip-path, opacity' }}
+                          >
+                            Medicine
+                          </motion.span>
+                          {/* Space between words */}
+                          <span> </span>
+                          {/* Reimagined with fade animation, holds 1 second after fully visible */}
+                          <motion.span
+                            className="inline-block"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: [0, 1, 1, 0] }}
+                            transition={{ duration: 3.5, delay: 1.2, ease: 'easeInOut', times: [0, 0.57, 0.86, 1] }}
+                          >
+                            Reimagined
+                          </motion.span>
+                        </div>
+
+                        {/* Paragraph sequence inline: start only after title fully exits */}
+                        <motion.p
+                          className="absolute text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl leading-relaxed text-white/95 drop-shadow-lg font-playfair font-normal text-center px-4 sm:px-6"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 4.7, duration: 0.3 }}
+                          style={{ maxWidth: '95vw', lineHeight: '1.5', wordWrap: 'break-word' }}
+                        >
+                          {/* first text uses letter-by-letter typing effect, starts after title fades out */}
+                          <motion.span
+                            initial={{ opacity: 1 }}
+                            animate={{ opacity: [1, 1, 0.5, 0.5, 0.5, 0.5, 0.5] }}
+                            transition={{ duration: 15.0, delay: 4.7, times: [0, 0.33, 0.36, 0.45, 0.55, 0.67, 1] }}
+                          >
+                            <TypingText 
+                              text="We've been taught that the universe and the body are destined for entropy:" 
+                              delay={4.7} 
+                              duration={5.0} 
+                            />
+                          </motion.span>
+                          <motion.span
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: [0, 1, 1, 0.5, 0.5, 0.5, 0.5] }}
+                            transition={{ duration: 10.0, delay: 9.7, times: [0, 0.2, 0.4, 0.45, 0.6, 0.8, 1] }}
+                          >
+                            {' '}
+                            decay, disorder, decline.
+                            {' '}
+                          </motion.span>
+                          <motion.span
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: [0, 1, 1, 0.5, 0.5, 0.5] }}
+                            transition={{ duration: 8.0, delay: 11.7, times: [0, 0.25, 0.5, 0.56, 0.75, 1] }}
+                          >
+                            Yet life itself is
+                          </motion.span>
+                          <motion.span
+                            className="italic"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: [0, 1, 1, 0.5, 0.5] }}
+                            transition={{ duration: 6.0, delay: 13.7, times: [0, 0.33, 0.67, 0.75, 1] }}
+                          >
+                            {' '}
+                            inherently syntropic
+                          </motion.span>
+                          <motion.span
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: [0, 1, 1, 0.5] }}
+                            transition={{ duration: 4.0, delay: 15.7, times: [0, 0.5, 0.75, 1] }}
+                          >
+                            —conscious,
+                          </motion.span>
+                          <motion.span
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: [0, 1, 1] }}
+                            transition={{ duration: 2.0, delay: 17.7, times: [0, 0.5, 1] }}
+                          >
+                            {' '}intelligent,{' '}
+                          </motion.span>
+                          <br />
+                          <motion.span
+                            className="font-semibold"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 2.0, delay: 19.7, ease: 'easeInOut' }}
+                          >
+                            self-healing.
+                          </motion.span>
+                        </motion.p>
+                      </div>
+                    </motion.div>
                   ) : (
-                    <h2 className={`${
-                      item === 'Syntropy' 
-                        ? 'text-6xl sm:text-7xl font-ivymode font-light text-white drop-shadow-xl relative z-20' 
-                        : item === 'Identity'
-                          ? 'text-3xl sm:text-4xl font-rajdhani font-bold text-white drop-shadow-xl relative z-20'
-                        : 'text-3xl sm:text-4xl font-rajdhani font-bold'
-                    } tracking-wide uppercase`}>
-                      {item}
+                    <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-ivymode font-light text-white drop-shadow-xl relative z-20 tracking-wide uppercase whitespace-nowrap mx-auto text-center">
+                      Syntropy {sectionNumber}
                     </h2>
-                  )}
+                  )} 
                   
-                                {item === 'Bitcoin' && (
-                  <>
-                    {/* Node Network Animation Background */}
-                    <NodeNetworkAnimation className="z-0" />
-                    
-                    {/* Text Content */}
-                    <motion.div
-                      className="relative z-20"
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      transition={{ duration: 0.8, delay: 3.0, ease: "easeOut" }}
-                      viewport={{ once: true, amount: 0.3 }}
-                    >
-                      <motion.p 
-                        className="text-xl sm:text-2xl font-semibold text-black mt-2 mb-4 drop-shadow-lg font-rajdhani"
-                        initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        transition={{ duration: 0.8, delay: 3.3, ease: "easeOut" }}
-                        viewport={{ once: true, amount: 0.3 }}
-                      >
-                        Sovereign & Secure
-                      </motion.p>
-                      <motion.p 
-                        className={`mt-4 text-lg sm:text-xl leading-relaxed ${subTextColor}`}
-                        initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        transition={{ duration: 0.8, delay: 3.6, ease: "easeOut" }}
-                        viewport={{ once: true, amount: 0.3 }}
-                      >
-                        Bitcoin, new financial systems, and the evolution of value exchange. Creating solutions with blockchain technology, cryptocurrency, and self-hosted technology to return power to the people.
-                      </motion.p>
-                    </motion.div>
-                  </>
-                )}
-
-                {item === 'Identity' && (
+                  {sectionNumber !== 1 && (
                   <motion.div 
                     className="relative z-20"
                     initial={{ opacity: 0 }}
@@ -539,92 +380,11 @@ function App() {
                     transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
                     viewport={{ once: true, amount: 0.3 }}
                   >
-                    <p className={`mt-4 text-lg sm:text-xl leading-relaxed text-center mx-auto text-white`}>
-                      1984 looks tame compared to the true surveillance dystopia we live in today. These companies collect data on us and use it to control our lives. We're building the beginning of that end.
-                    </p>
-                  </motion.div>
-                )}
-
-                {item === 'Networks' && (
-                  <div className="w-full relative">
-                    <div className="absolute inset-0 flex items-center justify-center z-0">
-                      <motion.div
-                        initial={{ opacity: 0, y: 50, scale: 0.8 }}
-                        whileInView={{ 
-                          opacity: [0, 1, 1, 0.15],
-                          y: [50, 0, 0, 0],
-                          scale: [0.8, 1, 1, 1]
-                        }}
-                        transition={{ 
-                          duration: 3.5, 
-                          delay: 0.2, 
-                          ease: "easeOut",
-                          times: [0, 0.3, 0.7, 1]
-                        }}
-                        viewport={{ once: true, amount: 0.3 }}
-                        className="flex items-center justify-center w-full h-full"
-                      >
-                        <img 
-                          src="/meshtastic.png" 
-                          alt="Meshtastic Network"
-                          className="max-w-[80vw] max-h-[80vh] w-auto h-auto object-contain"
-                        />
-                      </motion.div>
-                    </div>
-                    
-                    <motion.div 
-                      className="relative z-20"
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      transition={{ duration: 0.8, delay: 4.0, ease: "easeOut" }}
-                      viewport={{ once: true, amount: 0.3 }}
-                    >
-                      <p className={`mt-4 text-lg sm:text-xl leading-relaxed ${subTextColor} relative`}>
-                        The infrastructure and protocols that connect our world. Decentralized mesh networks, resilient communication systems, and the protocols that enable global connectivity beyond traditional internet infrastructure.
-                      </p>
-                      
-                      <motion.div 
-                        className="flex flex-wrap justify-center gap-3 mt-6"
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 4.6, ease: "easeOut" }}
-                        viewport={{ once: true, amount: 0.3 }}
-                      >
-                        <motion.button
-                          onClick={() => setLightboxImage({src: '/meshtastic.png', name: 'Meshtastic'})}
-                          className={`px-4 py-2 text-sm font-medium border-2 border-black rounded-full transition-all duration-300 hover:bg-black hover:text-white ${getBlackText()} bg-transparent`}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          Meshtastic
-                        </motion.button>
-                        
-                        <motion.button
-                          onClick={() => setLightboxImage({src: '/node.webp', name: 'Nodes'})}
-                          className={`px-4 py-2 text-sm font-medium border-2 border-black rounded-full transition-all duration-300 hover:bg-black hover:text-white ${getBlackText()} bg-transparent`}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          Nodes
-                        </motion.button>
-                      </motion.div>
-                    </motion.div>
-                  </div>
-                )}
-
-                {item === 'Syntropy' && (
-                  <motion.div 
-                    className="relative z-20"
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-                    viewport={{ once: true, amount: 0.3 }}
-                  >
-                    <p className="text-xl sm:text-2xl font-semibold text-white mt-2 mb-4 drop-shadow-lg font-rajdhani">
+                    <p className="text-lg sm:text-xl md:text-2xl font-semibold text-white mt-2 mb-4 drop-shadow-lg font-rajdhani">
                       Medicine Reimagined
                     </p>
-                    <p className="mt-4 text-lg sm:text-xl leading-relaxed text-white/90 drop-shadow-lg font-rajdhani">
-                    We’ve been taught that the universe and the body inevitably slip toward entropy: decay, disorder, decline.
+                    <p className="mt-4 text-base sm:text-lg md:text-xl leading-relaxed text-white/90 drop-shadow-lg font-rajdhani px-4">
+                        We've been taught that the universe and the body inevitably slip toward entropy: decay, disorder, decline.
                     Yet life itself is inherently syntropic—conscious, intelligent, self-healing..
                     </p>
                     
@@ -640,7 +400,7 @@ function App() {
                           title: 'Manual Kinetics', 
                           content: 'Syntropy Manual Kinetics is the science of biological optimization, integrating advanced muscle testing, facial analysis, iridology, and manual field diagnostics to assess the body\'s structural and functional condition.'
                         })}
-                        className="px-4 py-2 text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
+                        className="px-3 py-2 text-xs sm:text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -652,7 +412,7 @@ function App() {
                           title: 'Frequency Analysis-Therapy', 
                           content: 'Syntropy Frequency Analysis-Therapy represents the leading edge of frequency-based healing in the United States, specializing in individualized frequency protocols and digital homeopathy. Using advanced Swiss-German technology, we identify and address the root causes of cellular energy loss, leveraging over 200 million trackable data points.'
                         })}
-                        className="px-4 py-2 text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
+                        className="px-3 py-2 text-xs sm:text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -664,169 +424,13 @@ function App() {
                           title: 'Syntropy Concierge', 
                           content: 'The individualized protocol developed through Kinetic assessment and frequency analysis will be seamlessly integrated into your daily lifestyle—including nutrition, supplementation, herbal support, and movement practices tailored to your unique needs and goals.'
                         })}
-                        className="px-4 py-2 text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
+                        className="px-3 py-2 text-xs sm:text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
                         Syntropy Concierge
                       </motion.button>
                     </motion.div>
-                  </motion.div>
-                )}
-
-                {item === 'Vehicles' && (
-                  <div className="w-full relative">
-                    <div className="absolute inset-0 flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-12 z-0">
-                      <motion.div
-                        initial={{ opacity: 0, y: 50, scale: 0.8 }}
-                        whileInView={{ 
-                          opacity: [0, 1, 1, 0.15],
-                          y: [50, 0, 0, 0],
-                          scale: [0.8, 1, 1, 1]
-                        }}
-                        transition={{ 
-                          duration: 3.5, 
-                          delay: 0.2, 
-                          ease: "easeOut",
-                          times: [0, 0.3, 0.7, 1]
-                        }}
-                        viewport={{ once: true, amount: 0.3 }}
-                      >
-                        <img 
-                          src="/im-climber.png" 
-                          alt="Inmotion Climber"
-                          className="w-48 h-48 sm:w-64 sm:h-64 object-cover rounded-xl"
-                        />
-                      </motion.div>
-                      
-                      <motion.div
-                        initial={{ opacity: 0, y: 50, scale: 0.8 }}
-                        whileInView={{ 
-                          opacity: [0, 1, 1, 0.15],
-                          y: [50, 0, 0, 0],
-                          scale: [0.8, 1, 1, 1]
-                        }}
-                        transition={{ 
-                          duration: 3.5, 
-                          delay: 0.4, 
-                          ease: "easeOut",
-                          times: [0, 0.3, 0.7, 1]
-                        }}
-                        viewport={{ once: true, amount: 0.3 }}
-                      >
-                        <img 
-                          src="/im-air-pro.png" 
-                          alt="Inmotion Air Pro"
-                          className="w-48 h-48 sm:w-64 sm:h-64 object-cover rounded-xl"
-                        />
-                      </motion.div>
-                      
-                      <motion.div
-                        initial={{ opacity: 0, y: 50, scale: 0.8 }}
-                        whileInView={{ 
-                          opacity: [0, 1, 1, 0.15],
-                          y: [50, 0, 0, 0],
-                          scale: [0.8, 1, 1, 1]
-                        }}
-                        transition={{ 
-                          duration: 3.5, 
-                          delay: 0.6, 
-                          ease: "easeOut",
-                          times: [0, 0.3, 0.7, 1]
-                        }}
-                        viewport={{ once: true, amount: 0.3 }}
-                      >
-                        <img 
-                          src="/im-rs.png" 
-                          alt="Inmotion RS"
-                          className="w-48 h-48 sm:w-64 sm:h-64 object-cover rounded-xl"
-                        />
-                      </motion.div>
-                    </div>
-                    
-                    <motion.div 
-                      className="relative z-20"
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      transition={{ duration: 0.8, delay: 4.0, ease: "easeOut" }}
-                      viewport={{ once: true, amount: 0.3 }}
-                    >
-                      <p className={`mt-4 text-lg sm:text-xl leading-relaxed ${subTextColor}`}>
-                      Transportation innovation and autonomous systems. The future of mobility, from alternative fuel to connected transportation networks fueled by the Bitcoin ecosystem.
-                      </p>
-                      
-                      <motion.div 
-                        className="flex flex-wrap justify-center gap-3 mt-6"
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 4.6, ease: "easeOut" }}
-                        viewport={{ once: true, amount: 0.3 }}
-                      >
-                        <motion.button
-                          onClick={() => setLightboxImage({src: '/im-climber.png', name: 'Inmotion Climber'})}
-                          className={`px-4 py-2 text-sm font-medium border-2 border-black rounded-full transition-all duration-300 hover:bg-black hover:text-white ${getBlackText()} bg-transparent`}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          Inmotion Climber
-                        </motion.button>
-                        
-                        <motion.button
-                          onClick={() => setLightboxImage({src: '/im-air-pro.png', name: 'Inmotion Air Pro'})}
-                          className={`px-4 py-2 text-sm font-medium border-2 border-black rounded-full transition-all duration-300 hover:bg-black hover:text-white ${getBlackText()} bg-transparent`}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          Inmotion Air Pro
-                        </motion.button>
-                        
-                        <motion.button
-                          onClick={() => setLightboxImage({src: '/im-rs.png', name: 'Inmotion RS'})}
-                          className={`px-4 py-2 text-sm font-medium border-2 border-black rounded-full transition-all duration-300 hover:bg-black hover:text-white ${getBlackText()} bg-transparent`}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          Inmotion RS
-                        </motion.button>
-                        
-                        <motion.button
-                          onClick={() => setLightboxImage({src: '/sprinter.png', name: 'Sprinter'})}
-                          className={`px-4 py-2 text-sm font-medium border-2 border-black rounded-full transition-all duration-300 hover:bg-black hover:text-white ${getBlackText()} bg-transparent`}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          Sprinter
-                        </motion.button>
-                      </motion.div>
-                    </motion.div>
-                  </div>
-                )}
-                        
-                {item === 'Work' && (
-                  <motion.div 
-                    className="relative z-20"
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-                    viewport={{ once: true, amount: 0.3 }}
-                  >
-                    <p className={`mt-4 text-lg sm:text-xl leading-relaxed ${subTextColor}`}>
-                    The evolution of work in the Bitcoin era. Collaboration on secure local networks, private automation, and the changing nature of employment in a web5-driven economy.
-                  </p>
-                  </motion.div>
-                )}
-                          
-                {item === 'Cybersecurity' && (
-                  <motion.div 
-                    className="relative z-20"
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-                    viewport={{ once: true, amount: 0.3 }}
-                  >
-                    <p className={`mt-4 text-lg sm:text-xl leading-relaxed ${subTextColor}`}>
-                      Open Source technology that gives back privacy to individuals. New, sovereign systems that protect against AI and hackers for our rapidly changing digital landscape.
-                    </p>
                   </motion.div>
                 )}
                                 </div>
@@ -836,107 +440,11 @@ function App() {
         })}
       </main>
 
-      {/* PDF Export Button - Hidden until fully functional */}
-      {false && (
-      <motion.button
-        id="export-button"
-        onClick={exportToPDF}
-        disabled={isExporting}
-          className={`fixed bottom-8 left-8 z-50 flex items-center justify-center w-14 h-14 rounded-full border-2 shadow-lg transition-all duration-300 ${
-          isExporting 
-              ? 'bg-gray-400 cursor-not-allowed border-gray-400 text-white' 
-              : currentSection === 'identity' || currentSection === 'syntropy'
-                ? 'bg-transparent border-white text-white hover:bg-white/20 hover:scale-110'
-                : 'bg-transparent border-black text-black hover:bg-gray-100 hover:scale-110'
-        } font-medium`}
-        whileHover={!isExporting ? { scale: 1.1 } : {}}
-        whileTap={!isExporting ? { scale: 0.95 } : {}}
-        initial={{ opacity: 0, y: 100 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1, duration: 0.5 }}
-        title="Export to PDF"
-      >
-        {isExporting ? (
-          <motion.div
-            className="w-6 h-6 border-2 border-white border-t-transparent rounded-full"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          />
-        ) : (
-          <svg 
-            width="24" 
-            height="24" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-6 h-6"
-          >
-            <path 
-              d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            />
-            <polyline 
-              points="14,2 14,8 20,8" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            />
-            <line 
-              x1="16" 
-              y1="13" 
-              x2="8" 
-              y2="13" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            />
-            <line 
-              x1="16" 
-              y1="17" 
-              x2="8" 
-              y2="17" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            />
-            <polyline 
-              points="10,9 9,9 8,9" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            />
-          </svg>
-        )}
-      </motion.button>
-      )}
-
-      {/* Mobile Distribute Button */}
-      {isMobile && currentSection === 'siop' && (
-        <motion.button
-          onClick={() => setShowUnity(true)}
-          className="fixed bottom-8 right-40 z-50 flex items-center justify-center w-14 h-14 rounded-full border-2 bg-white border-black text-black shadow-lg"
-          initial={{ opacity: 0, y: 100 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.0, duration: 0.5 }}
-          whileTap={{ scale: 0.98 }}
-          title="Distribute"
-        >
-          <img src="/484-icon.svg" alt="Distribute" className="w-6 h-6" />
-        </motion.button>
-      )}
-
       {/* Floating Back Button */}
-      {currentSection !== 'siop' && (
+      {currentSection !== 'syntropy-1' && (
       <motion.button
         onClick={(e) => {
-          const sections = ['siop', 'bitcoin', 'identity', 'networks', 'syntropy', 'vehicles', 'work', 'cybersecurity'];
+          const sections = ['syntropy-1', 'syntropy-2', 'syntropy-3', 'syntropy-4', 'syntropy-5'];
           const currentIndex = sections.indexOf(currentSection);
           const prevIndex = currentIndex - 1;
           
@@ -949,26 +457,14 @@ function App() {
           isMobile 
             ? 'right-24 w-14 h-14 rounded-full border-2' 
             : 'right-40 px-6 py-3 rounded-full border-2 min-w-[120px]'
-        } ${
-          currentSection === 'siop' 
-            ? 'bg-transparent border-gray-300 text-gray-400 cursor-not-allowed opacity-50' 
-            : currentSection === 'syntropy' || currentSection === 'identity'
-              ? 'bg-white border-white text-black hover:bg-gray-100 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]'
-              : 'bg-transparent border-black text-black hover:bg-gray-100 hover:shadow-[0_0_20px_rgba(0,0,0,0.3)]'
-        } font-medium`}
-        whileHover={currentSection !== 'siop' ? { 
-          boxShadow: currentSection === 'syntropy' || currentSection === 'identity'
-            ? "0 0 25px rgba(255,255,255,0.8)" 
-            : "0 0 25px rgba(0,0,0,0.4)"
-        } : {}}
-        whileTap={currentSection !== 'siop' ? { scale: 0.98 } : {}}
+        } bg-white border-white text-black hover:bg-gray-100 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)] font-medium`}
+        whileHover={{ boxShadow: "0 0 25px rgba(255,255,255,0.8)" }}
+        whileTap={{ scale: 0.98 }}
         initial={{ opacity: 0, y: 100 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.0, duration: 0.5 }}
-        disabled={currentSection === 'siop'}
-        title={currentSection === 'siop' ? 'First section' : 'Go to previous section'}
+        title="Go to previous section"
       >
-        {currentSection !== 'siop' && (
           <svg 
             width="24" 
             height="24"
@@ -985,61 +481,36 @@ function App() {
               strokeLinejoin="round"
             />
           </svg>
-        )}
-        <span className="hidden sm:inline text-sm font-semibold">
-          {currentSection === 'siop' ? 'Start' : 'Back'}
-        </span>
+        <span className="hidden sm:inline text-sm font-semibold">Back</span>
       </motion.button>
       )}
 
       {/* Floating Next Button */}
+      {currentSection !== 'syntropy-5' && (
       <motion.button
         onClick={(e) => {
-          if (currentSection === 'siop') {
-                    handleLinkClick(e as any, 'bitcoin');
-      } else if (currentSection === 'bitcoin') {
-            handleLinkClick(e as any, 'identity');
-          } else if (currentSection === 'identity') {
-            handleLinkClick(e as any, 'networks');
-          } else if (currentSection === 'networks') {
-            handleLinkClick(e as any, 'syntropy');
-          } else if (currentSection === 'syntropy') {
-            handleLinkClick(e as any, 'vehicles');
-          } else if (currentSection === 'vehicles') {
-            handleLinkClick(e as any, 'work');
-          } else if (currentSection === 'work') {
-            handleLinkClick(e as any, 'cybersecurity');
+          const sections = ['syntropy-1', 'syntropy-2', 'syntropy-3', 'syntropy-4', 'syntropy-5'];
+          const currentIndex = sections.indexOf(currentSection);
+          const nextIndex = currentIndex + 1;
+          
+          if (nextIndex < sections.length) {
+            const nextSection = sections[nextIndex];
+            handleLinkClick(e as any, nextSection);
           }
         }}
         className={`fixed bottom-8 right-8 z-50 flex items-center justify-center shadow-lg transition-all duration-300 ${
           isMobile 
             ? 'w-14 h-14 rounded-full border-2' 
             : 'px-6 py-3 rounded-full border-2 min-w-[120px]'
-        } ${
-          currentSection === 'cybersecurity' 
-            ? 'bg-gray-400 border-gray-400 cursor-not-allowed opacity-50 text-white' 
-            : currentSection === 'syntropy'
-              ? 'border-white bg-black text-white hover:bg-gray-800 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]'
-              : currentSection === 'identity'
-                ? 'border-white bg-transparent text-white hover:bg-white/20 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)]'
-              : 'border-black bg-black text-white hover:bg-gray-800 hover:shadow-[0_0_20px_rgba(0,0,0,0.3)]'
-        } font-medium`}
-        whileHover={currentSection !== 'cybersecurity' ? { 
-          boxShadow: currentSection === 'syntropy' || currentSection === 'identity'
-            ? "0 0 25px rgba(255,255,255,0.8)" 
-            : "0 0 25px rgba(0,0,0,0.4)"
-        } : {}}
-        whileTap={currentSection !== 'cybersecurity' ? { scale: 0.98 } : {}}
+        } border-white bg-black text-white hover:bg-gray-800 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)] font-medium`}
+        whileHover={{ boxShadow: "0 0 25px rgba(255,255,255,0.8)" }}
+        whileTap={{ scale: 0.98 }}
         initial={{ opacity: 0, y: 100 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.2, duration: 0.5 }}
-        disabled={currentSection === 'cybersecurity'}
-        title={currentSection === 'cybersecurity' ? 'Last section' : 'Go to next section'}
+        title="Go to next section"
       >
-        <span className="hidden sm:inline text-sm font-semibold">
-          {currentSection === 'cybersecurity' ? 'End' : 'Next'}
-        </span>
-        {currentSection !== 'cybersecurity' && (
+        <span className="hidden sm:inline text-sm font-semibold">Next</span>
           <svg 
             width="24" 
             height="24" 
@@ -1056,77 +527,8 @@ function App() {
               strokeLinejoin="round"
             />
           </svg>
-        )}
       </motion.button>
-
-      <AnimatePresence>
-        {isExporting && (
-          <motion.div
-            className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              className="bg-white rounded-lg p-8 text-center max-w-sm mx-4"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-            >
-              <motion.div
-                className="w-12 h-12 border-4 border-nostr-purple border-t-transparent rounded-full mx-auto mb-4"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              />
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">Generating PDF</h3>
-              <p className="text-gray-600">Capturing sections and creating your portfolio...</p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {lightboxImage && (
-          <motion.div
-            className="fixed inset-0 z-[60] flex items-center justify-center bg-white/95 backdrop-blur-lg"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setLightboxImage(null)}
-          >
-            <motion.div
-              className="relative max-w-4xl max-h-[90vh] mx-4"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={() => setLightboxImage(null)}
-                className="absolute -top-14 right-2 text-black/80 hover:text-black transition-all duration-300 hover:scale-110 z-20"
-                aria-label="Close lightbox"
-              >
-                <div className="w-10 h-10 rounded-full bg-black/5 backdrop-blur-sm border border-black/10 flex items-center justify-center hover:bg-black/10 transition-all duration-300">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                </div>
-              </button>
-              
-              <motion.img
-                src={lightboxImage.src}
-                alt={lightboxImage.name}
-                className="w-full h-auto max-h-[80vh] object-contain rounded-xl"
-                initial={{ scale: 0.9 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.1 }}
-              />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      )}
 
        <AnimatePresence>
          {lightboxText && (
