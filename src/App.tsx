@@ -169,7 +169,7 @@ function App() {
       <header className="sticky top-0 z-50 transition-all duration-1000 ease-in-out bg-transparent relative" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="relative flex h-16 items-center justify-between px-4 sm:h-24 sm:block sm:px-0">
                     <a href="#syntropy-1" onClick={(e) => handleLinkClick(e, 'syntropy-1')}>
-            <div className="text-lg font-ivymode font-light sm:absolute sm:top-8 sm:left-8 sm:text-2xl transition-colors duration-300 text-white uppercase tracking-wide">
+            <div className="text-2xl font-ivymode font-light sm:absolute sm:top-8 sm:left-8 transition-colors duration-300 text-white uppercase tracking-wide">
               Syntropy.Institute
             </div>
           </a>
@@ -295,18 +295,18 @@ function App() {
                           </motion.span>
                         </div>
 
-                        {/* Paragraph sequence inline: start only after title fully exits */}
+                        {/* Paragraph sequence inline: start only after title fully exits, then fade out before SYNTROPY */}
                         <motion.p
                           className="absolute text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl leading-relaxed text-white/95 drop-shadow-lg font-playfair font-normal text-center px-4 sm:px-6"
                           initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 4.7, duration: 0.3 }}
+                          animate={{ opacity: [0, 1, 1, 0] }}
+                          transition={{ delay: 4.7, duration: 18.8, ease: 'easeInOut', times: [0, 0.02, 0.93, 1] }}
                           style={{ maxWidth: '95vw', lineHeight: '1.5', wordWrap: 'break-word' }}
                         >
                           {/* first text uses letter-by-letter typing effect, starts after title fades out */}
                           <motion.span
                             initial={{ opacity: 1 }}
-                            animate={{ opacity: [1, 1, 0.5, 0.5, 0.5, 0.5, 0.5] }}
+                            animate={{ opacity: [1, 1, 0.3, 0.3, 0.3, 0.3, 0.3] }}
                             transition={{ duration: 15.0, delay: 4.7, times: [0, 0.33, 0.36, 0.45, 0.55, 0.67, 1] }}
                           >
                             <TypingText 
@@ -317,7 +317,7 @@ function App() {
                           </motion.span>
                           <motion.span
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 1, 0.5, 0.5, 0.5, 0.5] }}
+                            animate={{ opacity: [0, 1, 1, 0.3, 0.3, 0.3, 0.3] }}
                             transition={{ duration: 10.0, delay: 9.7, times: [0, 0.2, 0.4, 0.45, 0.6, 0.8, 1] }}
                           >
                             {' '}
@@ -326,7 +326,7 @@ function App() {
                           </motion.span>
                           <motion.span
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 1, 0.5, 0.5, 0.5] }}
+                            animate={{ opacity: [0, 1, 1, 0.3, 0.3, 0.3] }}
                             transition={{ duration: 8.0, delay: 11.7, times: [0, 0.25, 0.5, 0.56, 0.75, 1] }}
                           >
                             Yet life itself is
@@ -334,7 +334,7 @@ function App() {
                           <motion.span
                             className="italic"
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 1, 0.5, 0.5] }}
+                            animate={{ opacity: [0, 1, 1, 0.3, 0.3] }}
                             transition={{ duration: 6.0, delay: 13.7, times: [0, 0.33, 0.67, 0.75, 1] }}
                           >
                             {' '}
@@ -342,14 +342,14 @@ function App() {
                           </motion.span>
                           <motion.span
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 1, 0.5] }}
+                            animate={{ opacity: [0, 1, 1, 0.3] }}
                             transition={{ duration: 2.5, delay: 15.7, times: [0, 0.6, 0.8, 1], ease: 'easeInOut' }}
                           >
                             —conscious,
                           </motion.span>
                           <motion.span
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 0.5] }}
+                            animate={{ opacity: [0, 1, 0.3] }}
                             transition={{ duration: 3.0, delay: 16.2, times: [0, 0.6, 1], ease: 'easeInOut' }}
                           >
                             {' '}intelligent,{' '}
@@ -364,6 +364,22 @@ function App() {
                             self-healing.
                           </motion.span>
                         </motion.p>
+
+                        {/* SYNTROPY headline appears after paragraph fades out */}
+                        <div className="absolute text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-kudryashev text-white drop-shadow-xl tracking-wide uppercase whitespace-nowrap">
+                          <motion.span
+                            className="inline-block"
+                            initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
+                            animate={{
+                              opacity: [0, 1, 1],
+                              clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0% 0 0)']
+                            }}
+                            transition={{ duration: 2.8, delay: 23.5, ease: 'easeInOut', times: [0, 0.25, 1] }}
+                            style={{ willChange: 'clip-path, opacity' }}
+                          >
+                            SYNTROPY
+                          </motion.span>
+                        </div>
                       </div>
                     </motion.div>
                   ) : (
