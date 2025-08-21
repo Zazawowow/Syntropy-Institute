@@ -358,8 +358,8 @@ function App() {
                           {/* first text uses letter-by-letter typing effect, starts after title fades out */}
                           <motion.span
                             initial={{ opacity: 1 }}
-                            animate={{ opacity: [1, 1, 1, 0.8, 0.6, 0.4, 0.2, 0] }}
-                            transition={{ duration: 15.0, delay: 4.7, times: [0, 0.45, 0.46, 0.6, 0.7, 0.8, 0.9, 1], ease: 'easeInOut' }}
+                            animate={{ opacity: [1, 1, 0.3, 0.3, 0.3, 0.3, 0.3] }}
+                            transition={{ duration: 15.0, delay: 4.7, times: [0, 0.45, 0.46, 0.6, 0.75, 0.87, 1] }}
                           >
                             <TypingText 
                               text="We've been taught that the universe and the body are destined for entropy:" 
@@ -369,8 +369,8 @@ function App() {
                           </motion.span>
                           <motion.span
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 1, 0.8, 0.6, 0.4, 0] }}
-                            transition={{ duration: 10.0, delay: 9.2, times: [0, 0.2, 0.4, 0.6, 0.75, 0.9, 1], ease: 'easeInOut' }}
+                            animate={{ opacity: [0, 1, 1, 0.3, 0.3, 0.3, 0.3] }}
+                            transition={{ duration: 10.0, delay: 9.2, times: [0, 0.2, 0.4, 0.45, 0.6, 0.8, 1] }}
                           >
                             {' '}
                             decay, disorder, decline.
@@ -378,30 +378,30 @@ function App() {
                           </motion.span>
                           <motion.span
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 1, 0.8, 0.5, 0] }}
-                            transition={{ duration: 8.0, delay: 11.2, times: [0, 0.25, 0.5, 0.7, 0.85, 1], ease: 'easeInOut' }}
+                            animate={{ opacity: [0, 1, 1, 0.3, 0.3, 0.3] }}
+                            transition={{ duration: 8.0, delay: 11.2, times: [0, 0.25, 0.5, 0.56, 0.75, 1] }}
                           >
                             Yet life itself is
                           </motion.span>
                           <motion.span
                             className="italic"
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 1, 0.6, 0] }}
-                            transition={{ duration: 6.0, delay: 13.2, times: [0, 0.33, 0.67, 0.8, 1], ease: 'easeInOut' }}
+                            animate={{ opacity: [0, 1, 1, 0.3, 0.3] }}
+                            transition={{ duration: 6.0, delay: 13.2, times: [0, 0.33, 0.67, 0.75, 1] }}
                           >
                             {' '}
                             inherently syntropic
                           </motion.span>
                           <motion.span
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 1, 0] }}
+                            animate={{ opacity: [0, 1, 1, 0.3] }}
                             transition={{ duration: 2.5, delay: 15.2, times: [0, 0.6, 0.8, 1], ease: 'easeInOut' }}
                           >
                             —conscious,
                           </motion.span>
                           <motion.span
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 0] }}
+                            animate={{ opacity: [0, 1, 0.3] }}
                             transition={{ duration: 3.0, delay: 15.7, times: [0, 0.6, 1], ease: 'easeInOut' }}
                           >
                             {' '}intelligent,{' '}
@@ -646,7 +646,7 @@ function App() {
           isMobile 
             ? 'w-14 h-14 rounded-full border-2' 
             : 'px-6 py-3 rounded-full border-2 min-w-[120px]'
-        } border-white bg-black text-white hover:bg-gray-800 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)] font-medium`}
+        } border-white bg-transparent text-white hover:bg-gray-800 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)] font-medium`}
         whileHover={{ boxShadow: "0 0 25px rgba(255,255,255,0.8)" }}
         whileTap={{ scale: 0.98 }}
         initial={{ opacity: 0 }}
@@ -685,7 +685,7 @@ function App() {
           isMobile 
             ? 'w-14 h-14 rounded-full border-2' 
             : 'px-6 py-3 rounded-full border-2 min-w-[120px]'
-        } border-white bg-black text-white hover:bg-gray-800 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)] font-medium`}
+        } border-white bg-transparent text-white hover:bg-gray-800 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)] font-medium`}
         whileHover={{ boxShadow: "0 0 25px rgba(255,255,255,0.8)" }}
         whileTap={{ scale: 0.98 }}
         initial={{ opacity: 0 }}
