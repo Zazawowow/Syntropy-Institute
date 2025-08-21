@@ -191,7 +191,7 @@ function App() {
 
   return (
         <div 
-      className="font-futuristic relative bg-cover bg-center bg-no-repeat transition-all duration-2000 ease-in-out"
+      className="font-futuristic relative bg-cover bg-center bg-no-repeat transition-opacity duration-2000 ease-in-out"
       style={{ 
         backgroundImage: currentSection === 'syntropy-1' 
           ? 'url(/syntropy.jpg)' 
