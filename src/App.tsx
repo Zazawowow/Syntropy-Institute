@@ -34,14 +34,45 @@ function App() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [lightboxText, setLightboxText] = useState<{title: string, content: string} | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [introUnlocked, setIntroUnlocked] = useState(false);
+  const [headerShownOnce, setHeaderShownOnce] = useState(false);
 
-  const navItems = ['Syntropy 1', 'Syntropy 2', 'Syntropy 3', 'Syntropy 4', 'Syntropy 5'];
-
-
-
-
+  const navItems = ['What?', 'Our Goal', 'Frequency', 'Syntropy 4', 'Syntropy 5'];
 
 
+
+
+
+
+
+  useEffect(() => {
+    // Unlock header/nav after the intro finishes on section 1, or immediately if the user scrolls away
+    const introTimer = setTimeout(() => setIntroUnlocked(true), 24000);
+    return () => clearTimeout(introTimer);
+  }, []);
+
+  useEffect(() => {
+    if (currentSection !== 'syntropy-1') {
+      setIntroUnlocked(true);
+    }
+  }, [currentSection]);
+
+  // If the user scrolls during the intro, snap the intro elements to their final state
+  useEffect(() => {
+    if (currentSection !== 'syntropy-1') {
+      // Force-complete any time-based reveals by enabling the unlocked state
+      setIntroUnlocked(true);
+    }
+  }, [currentSection]);
+
+  const navStaggerSeconds = 0.15;
+  const shouldShowHeaderNow = currentSection !== 'syntropy-1' || introUnlocked;
+  useEffect(() => {
+    if (shouldShowHeaderNow && !headerShownOnce) setHeaderShownOnce(true);
+  }, [shouldShowHeaderNow, headerShownOnce]);
+  // If unlocked due to time (end of intro), keep the original delays; if unlocked due to scroll, show instantly
+  const headerDelayBase = headerShownOnce ? 0 : (introUnlocked ? 24.0 : 0.0);
+  const navDelayBase = headerShownOnce ? 0 : (introUnlocked ? 24.1 : 0.0);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -82,9 +113,7 @@ function App() {
     }
   };
 
-  const shouldInvertNav = () => {
-    return true; // Always use inverted nav for Syntropy theme
-  };
+
 
   useEffect(() => {
     if ('serviceWorker' in navigator) {
@@ -169,22 +198,27 @@ function App() {
       <header className="sticky top-0 z-50 transition-all duration-1000 ease-in-out bg-transparent relative" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="relative flex h-16 items-center justify-between px-4 sm:h-24 sm:block sm:px-0">
                     <a href="#syntropy-1" onClick={(e) => handleLinkClick(e, 'syntropy-1')}>
-            <div className="text-2xl font-ivymode font-light sm:absolute sm:top-8 sm:left-8 transition-colors duration-300 text-white uppercase tracking-wide">
+            <motion.div
+              className="text-2xl font-ivymode font-light sm:absolute sm:top-8 sm:left-8 transition-colors duration-300 text-white uppercase tracking-wide"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: shouldShowHeaderNow ? 1 : 0, y: shouldShowHeaderNow ? 0 : -10 }}
+              transition={{ delay: headerDelayBase, duration: 0.6, ease: 'easeOut' }}
+            >
               Syntropy.Institute
-            </div>
+            </motion.div>
           </a>
 
-          <nav className="hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 text-white relative">
-              {navItems.map((item) => {
-                const targetId = item.toLowerCase().replace(/\s+/g, '-');
+          <nav className={`hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 text-white relative ${shouldShowHeaderNow ? '' : 'pointer-events-none'}`}>
+              {navItems.map((item, index) => {
+                const targetId = `syntropy-${index + 1}`;
                 return (
                   <motion.a
                     key={item}
                     href={`#${targetId}`}
                     onClick={(e) => handleLinkClick(e, targetId)}
                     initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
+                    animate={{ opacity: shouldShowHeaderNow ? 1 : 0, y: shouldShowHeaderNow ? 0 : -20 }}
+                    transition={{ duration: 0.6, delay: navDelayBase + index * navStaggerSeconds, ease: 'easeOut' }}
                 className="cursor-pointer transition-colors relative hover:text-gray-300"
                     id={`nav-${targetId}`}
                   >
@@ -197,7 +231,7 @@ function App() {
               className="absolute bottom-0 h-0.5 bg-white transition-colors duration-300"
                 initial={{ opacity: 0, width: 0 }}
                 animate={{
-                  opacity: 1,
+                  opacity: shouldShowHeaderNow ? 1 : 0,
                   x: navLinePosition.x,
                   width: navLinePosition.width
                 }}
@@ -234,7 +268,7 @@ function App() {
             exit={{ opacity: 0 }}
           >
             {navItems.map((item, itemIndex) => {
-              const targetId = item.toLowerCase().replace(/\s+/g, '-');
+              const targetId = `syntropy-${itemIndex + 1}`;
               return (
                 <motion.a
                   key={item}
@@ -268,7 +302,7 @@ function App() {
                       {/* Vertically centered container that shows title then paragraph in same place */}
                       <div className="relative min-h-[10rem] w-full flex items-center justify-center">
                         {/* Title with Medicine using clipPath and Reimagined using fade */}
-                        <div className="absolute text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-kudryashev text-white drop-shadow-xl tracking-wide uppercase whitespace-nowrap">
+                        <div className="absolute text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-kudryashev text-white drop-shadow-xl tracking-wide uppercase flex flex-col items-center gap-1 sm:block sm:whitespace-nowrap">
                           {/* Medicine with original clipPath animation, holds 1 second after full text */}
                           <motion.span
                             className="inline-block"
@@ -282,8 +316,8 @@ function App() {
                           >
                             Medicine
                           </motion.span>
-                          {/* Space between words */}
-                          <span> </span>
+                          {/* Space between words (desktop only) */}
+                          <span className="hidden sm:inline"> </span>
                           {/* Reimagined with fade animation, holds 1 second after fully visible */}
                           <motion.span
                             className="inline-block"
@@ -297,7 +331,7 @@ function App() {
 
                         {/* Paragraph sequence inline: start only after title fully exits, then fade out before SYNTROPY */}
                         <motion.p
-                          className="absolute text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl leading-relaxed text-white/95 drop-shadow-lg font-playfair font-normal text-center px-4 sm:px-6"
+                          className="absolute text-[24px] sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl leading-relaxed text-white/95 drop-shadow-lg font-playfair font-normal text-center px-8 sm:px-6"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: [0, 1, 1, 0] }}
                           transition={{ delay: 4.7, duration: 18.8, ease: 'easeInOut', times: [0, 0.02, 0.93, 1] }}
@@ -307,7 +341,7 @@ function App() {
                           <motion.span
                             initial={{ opacity: 1 }}
                             animate={{ opacity: [1, 1, 0.3, 0.3, 0.3, 0.3, 0.3] }}
-                            transition={{ duration: 15.0, delay: 4.7, times: [0, 0.33, 0.36, 0.45, 0.55, 0.67, 1] }}
+                            transition={{ duration: 15.0, delay: 4.7, times: [0, 0.45, 0.46, 0.6, 0.75, 0.87, 1] }}
                           >
                             <TypingText 
                               text="We've been taught that the universe and the body are destined for entropy:" 
@@ -318,7 +352,7 @@ function App() {
                           <motion.span
                             initial={{ opacity: 0 }}
                             animate={{ opacity: [0, 1, 1, 0.3, 0.3, 0.3, 0.3] }}
-                            transition={{ duration: 10.0, delay: 9.7, times: [0, 0.2, 0.4, 0.45, 0.6, 0.8, 1] }}
+                            transition={{ duration: 10.0, delay: 9.2, times: [0, 0.2, 0.4, 0.45, 0.6, 0.8, 1] }}
                           >
                             {' '}
                             decay, disorder, decline.
@@ -327,7 +361,7 @@ function App() {
                           <motion.span
                             initial={{ opacity: 0 }}
                             animate={{ opacity: [0, 1, 1, 0.3, 0.3, 0.3] }}
-                            transition={{ duration: 8.0, delay: 11.7, times: [0, 0.25, 0.5, 0.56, 0.75, 1] }}
+                            transition={{ duration: 8.0, delay: 11.2, times: [0, 0.25, 0.5, 0.56, 0.75, 1] }}
                           >
                             Yet life itself is
                           </motion.span>
@@ -335,7 +369,7 @@ function App() {
                             className="italic"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: [0, 1, 1, 0.3, 0.3] }}
-                            transition={{ duration: 6.0, delay: 13.7, times: [0, 0.33, 0.67, 0.75, 1] }}
+                            transition={{ duration: 6.0, delay: 13.2, times: [0, 0.33, 0.67, 0.75, 1] }}
                           >
                             {' '}
                             inherently syntropic
@@ -343,110 +377,153 @@ function App() {
                           <motion.span
                             initial={{ opacity: 0 }}
                             animate={{ opacity: [0, 1, 1, 0.3] }}
-                            transition={{ duration: 2.5, delay: 15.7, times: [0, 0.6, 0.8, 1], ease: 'easeInOut' }}
+                            transition={{ duration: 2.5, delay: 15.2, times: [0, 0.6, 0.8, 1], ease: 'easeInOut' }}
                           >
                             —conscious,
                           </motion.span>
                           <motion.span
                             initial={{ opacity: 0 }}
                             animate={{ opacity: [0, 1, 0.3] }}
-                            transition={{ duration: 3.0, delay: 16.2, times: [0, 0.6, 1], ease: 'easeInOut' }}
+                            transition={{ duration: 3.0, delay: 15.7, times: [0, 0.6, 1], ease: 'easeInOut' }}
                           >
                             {' '}intelligent,{' '}
                           </motion.span>
-                          <br />
                           <motion.span
                             className="font-semibold"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            transition={{ duration: 2.0, delay: 19.7, ease: 'easeInOut' }}
+                            transition={{ duration: 2.0, delay: 17.95, ease: 'easeInOut' }}
                           >
                             self-healing.
                           </motion.span>
                         </motion.p>
 
                         {/* SYNTROPY headline appears after paragraph fades out */}
-                        <div className="absolute text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-kudryashev text-white drop-shadow-xl tracking-wide uppercase whitespace-nowrap">
-                          <motion.span
-                            className="inline-block"
-                            initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
-                            animate={{
-                              opacity: [0, 1, 1],
-                              clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0% 0 0)']
-                            }}
-                            transition={{ duration: 2.8, delay: 23.5, ease: 'easeInOut', times: [0, 0.25, 1] }}
-                            style={{ willChange: 'clip-path, opacity' }}
+                        <div className="absolute flex flex-col items-center text-center">
+                          <div className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-kudryashev text-white drop-shadow-xl tracking-wide uppercase whitespace-nowrap">
+                            <motion.span
+                              className="inline-block"
+                              initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
+                              animate={{
+                                opacity: [0, 1, 1],
+                                clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0% 0 0)']
+                              }}
+                              transition={{ duration: 1.8, delay: 23.0, ease: 'easeInOut', times: [0, 0.3, 1] }}
+                              style={{ willChange: 'clip-path, opacity' }}
+                            >
+                              SYNTROPY
+                            </motion.span>
+                          </div>
+                          <motion.div
+                            className="mt-2 text-sm sm:text-base md:text-lg lg:text-xl tracking-widest text-white/90 uppercase font-ivymode"
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 24.2, duration: 0.6, ease: 'easeOut' }}
                           >
-                            SYNTROPY
-                          </motion.span>
+                            MEDICINE REIMAGINED
+                          </motion.div>
                         </div>
                       </div>
                     </motion.div>
                   ) : (
-                    <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-ivymode font-light text-white drop-shadow-xl relative z-20 tracking-wide uppercase whitespace-nowrap mx-auto text-center">
-                      Syntropy {sectionNumber}
-                    </h2>
+                    sectionNumber === 3 ? null : (
+                      sectionNumber === 2 ? (
+                        <motion.h2
+                          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-ivymode font-light text-white drop-shadow-xl relative z-20 tracking-wide uppercase whitespace-nowrap mx-auto text-center"
+                          initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
+                          animate={{
+                            opacity: [0, 1, 1],
+                            clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0% 0 0)']
+                          }}
+                          transition={{ duration: 3.0, delay: 0.3, ease: 'easeInOut', times: [0, 0.2, 1] }}
+                          style={{ willChange: 'clip-path, opacity' }}
+                        >
+                          Our Goal
+                        </motion.h2>
+                      ) : (
+                        <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-ivymode font-light text-white drop-shadow-xl relative z-20 tracking-wide uppercase whitespace-nowrap mx-auto text-center">
+                          {`Syntropy ${sectionNumber}`}
+                        </h2>
+                      )
+                    )
                   )} 
                   
                   {sectionNumber !== 1 && (
                   <motion.div 
                     className="relative z-20"
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+                    initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
+                    whileInView={{ opacity: 1, clipPath: 'inset(0 0% 0 0)' }}
+                    transition={{ duration: 1.5, delay: sectionNumber === 2 ? 4.3 : 0.3, ease: "easeOut" }}
                     viewport={{ once: true, amount: 0.3 }}
+                    style={{ willChange: 'clip-path, opacity' }}
                   >
-                    <p className="text-lg sm:text-xl md:text-2xl font-semibold text-white mt-2 mb-4 drop-shadow-lg font-rajdhani">
-                      Medicine Reimagined
-                    </p>
-                    <p className="mt-4 text-base sm:text-lg md:text-xl leading-relaxed text-white/90 drop-shadow-lg font-rajdhani px-4">
-                        We've been taught that the universe and the body inevitably slip toward entropy: decay, disorder, decline.
-                    Yet life itself is inherently syntropic—conscious, intelligent, self-healing..
-                    </p>
+                     <p className="mt-4 text-[24px] sm:text-2xl lg:text-4xl leading-relaxed text-white/95 drop-shadow-lg font-playfair font-normal text-center px-8">
+                       {sectionNumber === 2 ? (
+                         <>
+                           Is to guide you back to your natural energetic state
+                           <br />
+                           <motion.span 
+                             className="font-semibold"
+                             initial={{ opacity: 0 }}
+                             whileInView={{ opacity: 1 }}
+                             transition={{ duration: 1.5, delay: 6.3, ease: "easeOut" }}
+                             viewport={{ once: true, amount: 0.3 }}
+                           >
+                             Syntropy.
+                           </motion.span>
+                         </>
+                       ) : sectionNumber === 3 ? (
+                         'Syntropy is the merging of Ancient Wisdom with tomorrow’s Frequency Technology'
+                       ) : (
+                         "We've been taught that the universe and the body inevitably slip toward entropy: decay, disorder, decline. Yet life itself is inherently syntropic—conscious, intelligent, self-healing.."
+                       )}
+                     </p>
                     
-                    <motion.div 
-                      className="flex flex-wrap justify-center gap-3 mt-6"
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
-                      viewport={{ once: true, amount: 0.3 }}
-                    >
-                      <motion.button
-                        onClick={() => setLightboxText({
-                          title: 'Manual Kinetics', 
-                          content: 'Syntropy Manual Kinetics is the science of biological optimization, integrating advanced muscle testing, facial analysis, iridology, and manual field diagnostics to assess the body\'s structural and functional condition.'
-                        })}
-                        className="px-3 py-2 text-xs sm:text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                    {sectionNumber === 3 && (
+                      <motion.div 
+                        className="flex flex-wrap justify-center gap-3 mt-6"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
+                        viewport={{ once: true, amount: 0.3 }}
                       >
-                        Manual Kinetics
-                      </motion.button>
-                      
-                      <motion.button
-                        onClick={() => setLightboxText({
-                          title: 'Frequency Analysis-Therapy', 
-                          content: 'Syntropy Frequency Analysis-Therapy represents the leading edge of frequency-based healing in the United States, specializing in individualized frequency protocols and digital homeopathy. Using advanced Swiss-German technology, we identify and address the root causes of cellular energy loss, leveraging over 200 million trackable data points.'
-                        })}
-                        className="px-3 py-2 text-xs sm:text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        Frequency Analysis-Therapy
-                      </motion.button>
-                      
-                      <motion.button
-                        onClick={() => setLightboxText({
-                          title: 'Syntropy Concierge', 
-                          content: 'The individualized protocol developed through Kinetic assessment and frequency analysis will be seamlessly integrated into your daily lifestyle—including nutrition, supplementation, herbal support, and movement practices tailored to your unique needs and goals.'
-                        })}
-                        className="px-3 py-2 text-xs sm:text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        Syntropy Concierge
-                      </motion.button>
-                    </motion.div>
+                        <motion.button
+                          onClick={() => setLightboxText({
+                            title: 'Frequency Analysis-Therapy', 
+                            content: 'Syntropy Frequency Analysis-Therapy represents the leading edge of frequency-based healing in the United States, specializing in individualized frequency protocols and digital homeopathy. Using advanced Swiss-German technology, we identify and address the root causes of cellular energy loss, leveraging over 200 million trackable data points.'
+                          })}
+                          className="px-3 py-2 text-xs sm:text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Frequency Analysis-Therapy
+                        </motion.button>
+                        
+                        <motion.button
+                          onClick={() => setLightboxText({
+                            title: 'Manual Kinetics', 
+                            content: 'Syntropy Manual Kinetics is the science of biological optimization, integrating advanced muscle testing, facial analysis, iridology, and manual field diagnostics to assess the body\'s structural and functional condition.'
+                          })}
+                          className="px-3 py-2 text-xs sm:text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Manual Kinetics
+                        </motion.button>
+                        
+                        <motion.button
+                          onClick={() => setLightboxText({
+                            title: 'Syntropy Concierge', 
+                            content: 'The individualized protocol developed through Kinetic assessment and frequency analysis will be seamlessly integrated into your daily lifestyle—including nutrition, supplementation, herbal support, and movement practices tailored to your unique needs and goals.'
+                          })}
+                          className="px-3 py-2 text-xs sm:text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Syntropy Concierge
+                        </motion.button>
+                      </motion.div>
+                    )}
                   </motion.div>
                 )}
                                 </div>
@@ -523,7 +600,7 @@ function App() {
         whileTap={{ scale: 0.98 }}
         initial={{ opacity: 0, y: 100 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.2, duration: 0.5 }}
+        transition={{ delay: 24.5, duration: 0.6, ease: 'easeOut' }}
         title="Go to next section"
       >
         <span className="hidden sm:inline text-sm font-semibold">Next</span>
