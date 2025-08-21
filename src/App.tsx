@@ -145,6 +145,7 @@ function App() {
 
           if (scrollPosition >= elementTop && scrollPosition <= elementBottom) {
             setCurrentSection(sectionId);
+            console.log('Current section changed to:', sectionId);
             
             const metaThemeColor = document.getElementById('theme-color-meta') as HTMLMetaElement;
             if (metaThemeColor) {
@@ -190,10 +191,20 @@ function App() {
 
   return (
         <div 
-      className="font-futuristic relative bg-cover bg-center bg-no-repeat transition-opacity duration-3000 ease-in-out"
+      className="font-futuristic relative bg-cover bg-center bg-no-repeat transition-all duration-2000 ease-in-out"
       style={{ 
-        backgroundImage: currentSection === 'syntropy-4' 
-          ? 'url(/experience.jpeg)' 
+        backgroundImage: currentSection === 'syntropy-1' 
+          ? 'url(/syntropy.jpg)' 
+          : currentSection === 'syntropy-2'
+          ? 'url(/2.jpg)'
+          : currentSection === 'syntropy-3'
+          ? 'url(/3.jpg)'
+          : currentSection === 'syntropy-4'
+          ? 'url(/experience.jpeg)'
+          : currentSection === 'syntropy-5'
+          ? 'url(/5.jpg)'
+          : currentSection === 'syntropy-6'
+          ? 'url(/6.jpg)'
           : 'url(/syntropy.jpg)',
         backgroundSize: isMobile ? 'auto 100%' : '100% auto',
         backgroundPosition: 'center center',
@@ -206,7 +217,7 @@ function App() {
         <div className="relative flex h-16 items-center justify-between px-4 sm:h-24 sm:block sm:px-0">
                     <a href="#syntropy-1" onClick={(e) => handleLinkClick(e, 'syntropy-1')}>
             <motion.div
-              className="text-lg sm:text-2xl font-ivymode font-light sm:absolute sm:top-8 sm:left-8 transition-colors duration-300 text-white uppercase tracking-wide"
+              className="text-lg sm:text-xl font-ivymode font-light sm:absolute sm:top-8 sm:left-8 transition-colors duration-300 text-white uppercase tracking-wide"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: shouldShowHeaderNow ? 1 : 0, y: shouldShowHeaderNow ? 0 : -10 }}
               transition={{ delay: headerDelayBase, duration: 0.6, ease: 'easeOut' }}
@@ -406,7 +417,7 @@ function App() {
                         </motion.p>
 
                         {/* SYNTROPY headline appears after paragraph fades out */}
-                        <div className="absolute flex flex-col items-center text-center">
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                           <div className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-kudryashev text-white drop-shadow-xl tracking-wide uppercase whitespace-nowrap">
                             <motion.span
                               className="inline-block"
