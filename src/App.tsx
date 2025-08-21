@@ -190,30 +190,16 @@ function App() {
 
   return (
         <div 
-      className="font-futuristic relative bg-cover bg-center bg-no-repeat"
+      className="font-futuristic relative bg-cover bg-center bg-no-repeat transition-opacity duration-3000 ease-in-out"
       style={{ 
+        backgroundImage: currentSection === 'syntropy-4' 
+          ? 'url(/experience.jpeg)' 
+          : 'url(/syntropy.jpg)',
         backgroundSize: isMobile ? 'auto 100%' : '100% auto',
-        backgroundPosition: isMobile ? 'center center' : 'center center',
+        backgroundPosition: 'center center',
         backgroundAttachment: 'fixed'
       }}
     >
-      {/* Base background image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-3000 ease-in-out"
-        style={{ 
-          backgroundImage: 'url(/syntropy.jpg)',
-          opacity: currentSection === 'syntropy-4' ? 0 : 1
-        }}
-      />
-      
-      {/* Experience background image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-3000 ease-in-out"
-        style={{ 
-          backgroundImage: 'url(/experience.jpeg)',
-          opacity: currentSection === 'syntropy-4' ? 1 : 0
-        }}
-      />
       <div className="fixed inset-0 z-10 pointer-events-none bg-black/40"></div>
       
       <header className="sticky top-0 z-50 transition-all duration-1000 ease-in-out bg-transparent relative" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
@@ -361,8 +347,8 @@ function App() {
                           {/* first text uses letter-by-letter typing effect, starts after title fades out */}
                           <motion.span
                             initial={{ opacity: 1 }}
-                            animate={{ opacity: [1, 1, 0.3, 0.3, 0.3, 0.3, 0.3] }}
-                            transition={{ duration: 15.0, delay: 4.7, times: [0, 0.45, 0.46, 0.6, 0.75, 0.87, 1] }}
+                            animate={{ opacity: [1, 1, 1, 0.8, 0.6, 0.4, 0.2, 0] }}
+                            transition={{ duration: 15.0, delay: 4.7, times: [0, 0.45, 0.46, 0.6, 0.7, 0.8, 0.9, 1], ease: 'easeInOut' }}
                           >
                             <TypingText 
                               text="We've been taught that the universe and the body are destined for entropy:" 
@@ -372,8 +358,8 @@ function App() {
                           </motion.span>
                           <motion.span
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 1, 0.3, 0.3, 0.3, 0.3] }}
-                            transition={{ duration: 10.0, delay: 9.2, times: [0, 0.2, 0.4, 0.45, 0.6, 0.8, 1] }}
+                            animate={{ opacity: [0, 1, 1, 0.8, 0.6, 0.4, 0] }}
+                            transition={{ duration: 10.0, delay: 9.2, times: [0, 0.2, 0.4, 0.6, 0.75, 0.9, 1], ease: 'easeInOut' }}
                           >
                             {' '}
                             decay, disorder, decline.
@@ -381,30 +367,30 @@ function App() {
                           </motion.span>
                           <motion.span
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 1, 0.3, 0.3, 0.3] }}
-                            transition={{ duration: 8.0, delay: 11.2, times: [0, 0.25, 0.5, 0.56, 0.75, 1] }}
+                            animate={{ opacity: [0, 1, 1, 0.8, 0.5, 0] }}
+                            transition={{ duration: 8.0, delay: 11.2, times: [0, 0.25, 0.5, 0.7, 0.85, 1], ease: 'easeInOut' }}
                           >
                             Yet life itself is
                           </motion.span>
                           <motion.span
                             className="italic"
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 1, 0.3, 0.3] }}
-                            transition={{ duration: 6.0, delay: 13.2, times: [0, 0.33, 0.67, 0.75, 1] }}
+                            animate={{ opacity: [0, 1, 1, 0.6, 0] }}
+                            transition={{ duration: 6.0, delay: 13.2, times: [0, 0.33, 0.67, 0.8, 1], ease: 'easeInOut' }}
                           >
                             {' '}
                             inherently syntropic
                           </motion.span>
                           <motion.span
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 1, 0.3] }}
+                            animate={{ opacity: [0, 1, 1, 0] }}
                             transition={{ duration: 2.5, delay: 15.2, times: [0, 0.6, 0.8, 1], ease: 'easeInOut' }}
                           >
                             —conscious,
                           </motion.span>
                           <motion.span
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 0.3] }}
+                            animate={{ opacity: [0, 1, 0] }}
                             transition={{ duration: 3.0, delay: 15.7, times: [0, 0.6, 1], ease: 'easeInOut' }}
                           >
                             {' '}intelligent,{' '}
