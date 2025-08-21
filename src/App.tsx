@@ -37,7 +37,7 @@ function App() {
   const [introUnlocked, setIntroUnlocked] = useState(false);
   const [headerShownOnce, setHeaderShownOnce] = useState(false);
 
-  const navItems = ['What?', 'Our Goal', 'Frequency', 'Syntropy 4', 'Syntropy 5'];
+  const navItems = ['What?', 'Our Goal', 'Frequency', 'Together', 'Syntropy 5'];
 
 
 
@@ -426,25 +426,52 @@ function App() {
                       </div>
                     </motion.div>
                   ) : (
-                    sectionNumber === 3 ? null : (
-                      sectionNumber === 2 ? (
-                        <motion.h2
-                          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-ivymode font-light text-white drop-shadow-xl relative z-20 tracking-wide uppercase whitespace-nowrap mx-auto text-center"
-                          initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
-                          animate={{
-                            opacity: [0, 1, 1],
-                            clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0% 0 0)']
-                          }}
-                          transition={{ duration: 3.0, delay: 0.3, ease: 'easeInOut', times: [0, 0.2, 1] }}
-                          style={{ willChange: 'clip-path, opacity' }}
-                        >
-                          Our Goal
-                        </motion.h2>
-                      ) : (
-                        <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-ivymode font-light text-white drop-shadow-xl relative z-20 tracking-wide uppercase whitespace-nowrap mx-auto text-center">
-                          {`Syntropy ${sectionNumber}`}
-                        </h2>
-                      )
+                    sectionNumber === 3 ? (
+                      <motion.h2
+                        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-ivymode font-light text-white drop-shadow-xl relative z-20 tracking-wide uppercase whitespace-nowrap mx-auto text-center"
+                        initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
+                        animate={{
+                          opacity: [0, 1, 1],
+                          clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0% 0 0)']
+                        }}
+                        transition={{ duration: 3.0, delay: 0.3, ease: 'easeInOut', times: [0, 0.2, 1] }}
+                        style={{ willChange: 'clip-path, opacity' }}
+                      >
+                        Frequency
+                      </motion.h2>
+                    ) : sectionNumber === 4 ? (
+                      <motion.h2
+                        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-ivymode font-light text-white drop-shadow-xl relative z-20 tracking-wide uppercase whitespace-nowrap mx-auto text-center"
+                        initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
+                        animate={{
+                          opacity: [0, 1, 1],
+                          clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0% 0 0)']
+                        }}
+                        transition={{ duration: 3.0, delay: 0.3, ease: 'easeInOut', times: [0, 0.2, 1] }}
+                        style={{ willChange: 'clip-path, opacity' }}
+                      >
+                        <div className="flex flex-col items-center">
+                          <span>Together We Are</span>
+                          <span className="font-black">Syntropy</span>
+                        </div>
+                      </motion.h2>
+                    ) : sectionNumber === 2 ? (
+                      <motion.h2
+                        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-ivymode font-light text-white drop-shadow-xl relative z-20 tracking-wide uppercase whitespace-nowrap mx-auto text-center"
+                        initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
+                        animate={{
+                          opacity: [0, 1, 1],
+                          clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0% 0 0)']
+                        }}
+                        transition={{ duration: 3.0, delay: 0.3, ease: 'easeInOut', times: [0, 0.2, 1] }}
+                        style={{ willChange: 'clip-path, opacity' }}
+                      >
+                        Our Goal
+                      </motion.h2>
+                    ) : (
+                      <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-ivymode font-light text-white drop-shadow-xl relative z-20 tracking-wide uppercase whitespace-nowrap mx-auto text-center">
+                        {`Syntropy ${sectionNumber}`}
+                      </h2>
                     )
                   )} 
                   
@@ -452,12 +479,15 @@ function App() {
                   <motion.div 
                     className="relative z-20"
                     initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
-                    whileInView={{ opacity: 1, clipPath: 'inset(0 0% 0 0)' }}
+                    animate={{ opacity: 1, clipPath: 'inset(0 0% 0 0)' }}
                     transition={{ duration: 1.5, delay: sectionNumber === 2 ? 4.3 : 0.3, ease: "easeOut" }}
-                    viewport={{ once: true, amount: 0.3 }}
                     style={{ willChange: 'clip-path, opacity' }}
                   >
-                     <p className="mt-4 text-[24px] sm:text-2xl lg:text-4xl leading-relaxed text-white/95 drop-shadow-lg font-playfair font-normal text-center px-8">
+                     <p className={`mt-4 leading-relaxed text-white/95 drop-shadow-lg font-playfair font-normal text-center px-8 ${
+                       sectionNumber === 4 
+                         ? 'text-lg sm:text-xl lg:text-2xl' 
+                         : 'text-[24px] sm:text-2xl lg:text-4xl'
+                     }`}>
                        {sectionNumber === 2 ? (
                          <>
                            Is to guide you back to your natural energetic state
@@ -465,17 +495,18 @@ function App() {
                            <motion.span 
                              className="font-semibold"
                              initial={{ opacity: 0 }}
-                             whileInView={{ opacity: 1 }}
+                             animate={{ opacity: 1 }}
                              transition={{ duration: 1.5, delay: 6.3, ease: "easeOut" }}
-                             viewport={{ once: true, amount: 0.3 }}
                            >
                              Syntropy.
                            </motion.span>
                          </>
                        ) : sectionNumber === 3 ? (
-                         'Syntropy is the merging of Ancient Wisdom with tomorrow’s Frequency Technology'
+                         'Syntropy is the merging of Ancient Wisdom with tomorrow\'s Frequency Technology'
+                       ) : sectionNumber === 4 ? (
+                         'Our services are offered exclusively within the private domain of Yunasai Ministry. By engaging with any of our offerings, you automatically become a member under our sacred Private Membership Association. Learn more about our membership and terms.'
                        ) : (
-                         "We've been taught that the universe and the body inevitably slip toward entropy: decay, disorder, decline. Yet life itself is inherently syntropic—conscious, intelligent, self-healing.."
+                         'Individualized protocols integrating kinetic assessment, frequency analysis, nutrition, supplementation, and movement practices'
                        )}
                      </p>
                     
@@ -483,9 +514,8 @@ function App() {
                       <motion.div 
                         className="flex flex-wrap justify-center gap-3 mt-6"
                         initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
+                        animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
-                        viewport={{ once: true, amount: 0.3 }}
                       >
                         <motion.button
                           onClick={() => setLightboxText({
@@ -521,6 +551,60 @@ function App() {
                           whileTap={{ scale: 0.95 }}
                         >
                           Syntropy Concierge
+                        </motion.button>
+                      </motion.div>
+                    )}
+
+                    {sectionNumber === 4 && (
+                      <motion.div 
+                        className="flex flex-wrap justify-center gap-3 mt-6"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
+                      >
+                        <motion.button
+                          onClick={() => setLightboxText({
+                            title: 'Book a Session', 
+                            content: 'Contact us to schedule your personalized Syntropy session and begin your journey to optimal health and wellness.'
+                          })}
+                          className="px-6 py-3 text-base sm:text-lg font-medium border-2 border-amber-600 rounded-full transition-all duration-300 hover:bg-amber-600/20 text-amber-600 hover:text-amber-500 bg-transparent backdrop-blur-sm"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Book a Session
+                        </motion.button>
+                      </motion.div>
+                    )}
+
+                    {sectionNumber === 5 && (
+                      <motion.div 
+                        className="flex flex-wrap justify-center gap-3 mt-6"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
+                      >
+                        <motion.button
+                          onClick={() => setLightboxText({
+                            title: 'Personalized Care', 
+                            content: 'Every protocol is uniquely tailored to your individual needs, combining multiple modalities for comprehensive healing and optimization.'
+                          })}
+                          className="px-3 py-2 text-xs sm:text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Personalized Care
+                        </motion.button>
+                        
+                        <motion.button
+                          onClick={() => setLightboxText({
+                            title: 'Holistic Integration', 
+                            content: 'We integrate nutrition, movement, supplementation, and lifestyle practices into your daily routine for sustainable health transformation.'
+                          })}
+                          className="px-3 py-2 text-xs sm:text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Holistic Integration
                         </motion.button>
                       </motion.div>
                     )}
@@ -600,7 +684,7 @@ function App() {
         whileTap={{ scale: 0.98 }}
         initial={{ opacity: 0, y: 100 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 24.5, duration: 0.6, ease: 'easeOut' }}
+        transition={{ delay: 1.0, duration: 0.5 }}
         title="Go to next section"
       >
         <span className="hidden sm:inline text-sm font-semibold">Next</span>
