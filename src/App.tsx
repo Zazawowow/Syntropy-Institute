@@ -37,7 +37,7 @@ function App() {
   const [introUnlocked, setIntroUnlocked] = useState(false);
   const [headerShownOnce, setHeaderShownOnce] = useState(false);
 
-  const navItems = ['What?', 'Our Goal', 'Frequency', 'Together', 'Syntropy 5'];
+  const navItems = ['What?', 'Our Goal', 'Frequency', 'Together'];
 
 
 
@@ -133,7 +133,7 @@ function App() {
     const handleScroll = () => {
       if (isNavigating) return;
       
-      const sections = ['syntropy-1', 'syntropy-2', 'syntropy-3', 'syntropy-4', 'syntropy-5'];
+      const sections = ['syntropy-1', 'syntropy-2', 'syntropy-3', 'syntropy-4'];
       const scrollPosition = window.scrollY + window.innerHeight / 2;
 
       for (const sectionId of sections) {
@@ -199,7 +199,7 @@ function App() {
         <div className="relative flex h-16 items-center justify-between px-4 sm:h-24 sm:block sm:px-0">
                     <a href="#syntropy-1" onClick={(e) => handleLinkClick(e, 'syntropy-1')}>
             <motion.div
-              className="text-2xl font-ivymode font-light sm:absolute sm:top-8 sm:left-8 transition-colors duration-300 text-white uppercase tracking-wide"
+              className="text-lg sm:text-2xl font-ivymode font-light sm:absolute sm:top-8 sm:left-8 transition-colors duration-300 text-white uppercase tracking-wide"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: shouldShowHeaderNow ? 1 : 0, y: shouldShowHeaderNow ? 0 : -10 }}
               transition={{ delay: headerDelayBase, duration: 0.6, ease: 'easeOut' }}
@@ -208,7 +208,7 @@ function App() {
             </motion.div>
           </a>
 
-          <nav className={`hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 text-white relative ${shouldShowHeaderNow ? '' : 'pointer-events-none'}`}>
+          <nav className={`hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 text-white relative`}>
               {navItems.map((item, index) => {
                 const targetId = `syntropy-${index + 1}`;
                 return (
@@ -219,7 +219,7 @@ function App() {
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: shouldShowHeaderNow ? 1 : 0, y: shouldShowHeaderNow ? 0 : -20 }}
                     transition={{ duration: 0.6, delay: navDelayBase + index * navStaggerSeconds, ease: 'easeOut' }}
-                className="cursor-pointer transition-colors relative hover:text-gray-300"
+                    className="cursor-pointer transition-colors relative hover:text-gray-300"
                     id={`nav-${targetId}`}
                   >
                     {item}
@@ -228,7 +228,7 @@ function App() {
               })}
               
               <motion.div
-              className="absolute bottom-0 h-0.5 bg-white transition-colors duration-300"
+                className="absolute bottom-0 h-0.5 bg-white transition-colors duration-300"
                 initial={{ opacity: 0, width: 0 }}
                 animate={{
                   opacity: shouldShowHeaderNow ? 1 : 0,
@@ -289,14 +289,14 @@ function App() {
       </AnimatePresence>
 
       <main className="-mt-16 sm:-mt-24">
-        {[1, 2, 3, 4, 5].map((sectionNumber) => {
+        {[1, 2, 3, 4].map((sectionNumber) => {
           const targetId = `syntropy-${sectionNumber}`;
           
           return (
             <section key={targetId} id={targetId} className="snap-section flex flex-col snap-start min-h-screen bg-transparent relative">
 
               <div className="flex-1 flex items-center justify-center min-h-0 relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4">
-                                <div className="text-center max-w-xs sm:max-w-2xl md:max-w-3xl lg:max-w-4xl w-full mx-auto px-4">
+                                <div className="text-center max-w-xs sm:max-w-2xl md:max-w-3xl lg:max-w-4xl w-full mx-auto px-2 sm:px-4">
                   {sectionNumber === 1 ? (
                     <motion.div className="relative z-20 min-h-[16rem] flex items-center justify-center">
                       {/* Vertically centered container that shows title then paragraph in same place */}
@@ -426,67 +426,38 @@ function App() {
                       </div>
                     </motion.div>
                   ) : (
-                    sectionNumber === 3 ? (
-                      <motion.h2
-                        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-ivymode font-light text-white drop-shadow-xl relative z-20 tracking-wide uppercase whitespace-nowrap mx-auto text-center"
-                        initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
-                        animate={{
-                          opacity: [0, 1, 1],
-                          clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0% 0 0)']
-                        }}
-                        transition={{ duration: 3.0, delay: 0.3, ease: 'easeInOut', times: [0, 0.2, 1] }}
-                        style={{ willChange: 'clip-path, opacity' }}
-                      >
-                        Frequency
-                      </motion.h2>
-                    ) : sectionNumber === 4 ? (
-                      <motion.h2
-                        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-ivymode font-light text-white drop-shadow-xl relative z-20 tracking-wide uppercase whitespace-nowrap mx-auto text-center"
-                        initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
-                        animate={{
-                          opacity: [0, 1, 1],
-                          clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0% 0 0)']
-                        }}
-                        transition={{ duration: 3.0, delay: 0.3, ease: 'easeInOut', times: [0, 0.2, 1] }}
-                        style={{ willChange: 'clip-path, opacity' }}
-                      >
-                        <div className="flex flex-col items-center">
-                          <span>Together We Are</span>
-                          <span className="font-black">Syntropy</span>
+                    <motion.h2
+                      className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-kudryashev font-light text-white drop-shadow-xl relative z-20 tracking-wide uppercase mx-auto text-center"
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      transition={{ duration: 1.0, delay: 0.3, ease: "easeOut" }}
+                      viewport={{ once: true, amount: 0.3 }}
+                    >
+                      {sectionNumber === 2 && 'Our Goal'}
+                      {sectionNumber === 3 && 'Frequency'}
+                      {sectionNumber === 4 && (
+                        <div className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl">
+                          <span className="whitespace-nowrap">Together We Are</span>
+                          <br />
+                          <span className="font-black whitespace-nowrap">Syntropy</span>
                         </div>
-                      </motion.h2>
-                    ) : sectionNumber === 2 ? (
-                      <motion.h2
-                        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-ivymode font-light text-white drop-shadow-xl relative z-20 tracking-wide uppercase whitespace-nowrap mx-auto text-center"
-                        initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
-                        animate={{
-                          opacity: [0, 1, 1],
-                          clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0% 0 0)']
-                        }}
-                        transition={{ duration: 3.0, delay: 0.3, ease: 'easeInOut', times: [0, 0.2, 1] }}
-                        style={{ willChange: 'clip-path, opacity' }}
-                      >
-                        Our Goal
-                      </motion.h2>
-                    ) : (
-                      <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-ivymode font-light text-white drop-shadow-xl relative z-20 tracking-wide uppercase whitespace-nowrap mx-auto text-center">
-                        {`Syntropy ${sectionNumber}`}
-                      </h2>
-                    )
-                  )} 
+                      )}
+                    </motion.h2>
+                  )}
                   
                   {sectionNumber !== 1 && (
                   <motion.div 
                     className="relative z-20"
-                    initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
-                    animate={{ opacity: 1, clipPath: 'inset(0 0% 0 0)' }}
-                    transition={{ duration: 1.5, delay: sectionNumber === 2 ? 4.3 : 0.3, ease: "easeOut" }}
-                    style={{ willChange: 'clip-path, opacity' }}
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    transition={{ duration: 1.0, delay: 0.3, ease: "easeOut" }}
+                    viewport={{ once: true, amount: 0.3 }}
+                    style={{ willChange: 'opacity' }}
                   >
-                     <p className={`mt-4 leading-relaxed text-white/95 drop-shadow-lg font-playfair font-normal text-center px-8 ${
+                     <p className={`mt-4 leading-relaxed text-white/95 drop-shadow-lg font-playfair font-light text-center px-2 sm:px-8 ${
                        sectionNumber === 4 
-                         ? 'text-lg sm:text-xl lg:text-2xl' 
-                         : 'text-[24px] sm:text-2xl lg:text-4xl'
+                         ? 'text-[20px] sm:text-xl lg:text-2xl' 
+                         : 'text-[20px] sm:text-2xl lg:text-4xl'
                      }`}>
                        {sectionNumber === 2 ? (
                          <>
@@ -495,8 +466,9 @@ function App() {
                            <motion.span 
                              className="font-semibold"
                              initial={{ opacity: 0 }}
-                             animate={{ opacity: 1 }}
-                             transition={{ duration: 1.5, delay: 6.3, ease: "easeOut" }}
+                             whileInView={{ opacity: 1 }}
+                             transition={{ duration: 1.5, delay: 0.8, ease: "easeOut" }}
+                             viewport={{ once: true, amount: 0.3 }}
                            >
                              Syntropy.
                            </motion.span>
@@ -504,7 +476,7 @@ function App() {
                        ) : sectionNumber === 3 ? (
                          'Syntropy is the merging of Ancient Wisdom with tomorrow\'s Frequency Technology'
                        ) : sectionNumber === 4 ? (
-                         'Our services are offered exclusively within the private domain of Yunasai Ministry. By engaging with any of our offerings, you automatically become a member under our sacred Private Membership Association. Learn more about our membership and terms.'
+                         'Our services are exclusively available through the Yunasai Ministry. By engaging with us, you automatically join our Private Membership Association. Learn more about membership and terms.'
                        ) : (
                          'Individualized protocols integrating kinetic assessment, frequency analysis, nutrition, supplementation, and movement practices'
                        )}
@@ -514,8 +486,9 @@ function App() {
                       <motion.div 
                         className="flex flex-wrap justify-center gap-3 mt-6"
                         initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
+                        viewport={{ once: true, amount: 0.3 }}
                       >
                         <motion.button
                           onClick={() => setLightboxText({
@@ -559,52 +532,21 @@ function App() {
                       <motion.div 
                         className="flex flex-wrap justify-center gap-3 mt-6"
                         initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
+                        viewport={{ once: true, amount: 0.3 }}
                       >
                         <motion.button
                           onClick={() => setLightboxText({
                             title: 'Book a Session', 
                             content: 'Contact us to schedule your personalized Syntropy session and begin your journey to optimal health and wellness.'
                           })}
-                          className="px-6 py-3 text-base sm:text-lg font-medium border-2 border-amber-600 rounded-full transition-all duration-300 hover:bg-amber-600/20 text-amber-600 hover:text-amber-500 bg-transparent backdrop-blur-sm"
+                          className="px-6 py-3 text-base sm:text-lg font-medium border-2 rounded-full transition-all duration-300 hover:bg-[#B9A590]/20 text-[#B9A590] hover:text-[#B9A590]/80 bg-transparent backdrop-blur-sm"
+                          style={{ borderColor: '#B9A590' }}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >
                           Book a Session
-                        </motion.button>
-                      </motion.div>
-                    )}
-
-                    {sectionNumber === 5 && (
-                      <motion.div 
-                        className="flex flex-wrap justify-center gap-3 mt-6"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
-                      >
-                        <motion.button
-                          onClick={() => setLightboxText({
-                            title: 'Personalized Care', 
-                            content: 'Every protocol is uniquely tailored to your individual needs, combining multiple modalities for comprehensive healing and optimization.'
-                          })}
-                          className="px-3 py-2 text-xs sm:text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          Personalized Care
-                        </motion.button>
-                        
-                        <motion.button
-                          onClick={() => setLightboxText({
-                            title: 'Holistic Integration', 
-                            content: 'We integrate nutrition, movement, supplementation, and lifestyle practices into your daily routine for sustainable health transformation.'
-                          })}
-                          className="px-3 py-2 text-xs sm:text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          Holistic Integration
                         </motion.button>
                       </motion.div>
                     )}
@@ -621,7 +563,7 @@ function App() {
       {currentSection !== 'syntropy-1' && (
       <motion.button
         onClick={(e) => {
-          const sections = ['syntropy-1', 'syntropy-2', 'syntropy-3', 'syntropy-4', 'syntropy-5'];
+          const sections = ['syntropy-1', 'syntropy-2', 'syntropy-3', 'syntropy-4'];
           const currentIndex = sections.indexOf(currentSection);
           const prevIndex = currentIndex - 1;
           
@@ -637,9 +579,9 @@ function App() {
         } bg-white border-white text-black hover:bg-gray-100 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)] font-medium`}
         whileHover={{ boxShadow: "0 0 25px rgba(255,255,255,0.8)" }}
         whileTap={{ scale: 0.98 }}
-        initial={{ opacity: 0, y: 100 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.0, duration: 0.5 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2, duration: 0.3 }}
         title="Go to previous section"
       >
           <svg 
@@ -663,10 +605,10 @@ function App() {
       )}
 
       {/* Floating Next Button */}
-      {currentSection !== 'syntropy-5' && (
+      {currentSection !== 'syntropy-4' && (
       <motion.button
         onClick={(e) => {
-          const sections = ['syntropy-1', 'syntropy-2', 'syntropy-3', 'syntropy-4', 'syntropy-5'];
+          const sections = ['syntropy-1', 'syntropy-2', 'syntropy-3', 'syntropy-4'];
           const currentIndex = sections.indexOf(currentSection);
           const nextIndex = currentIndex + 1;
           
@@ -682,9 +624,9 @@ function App() {
         } border-white bg-black text-white hover:bg-gray-800 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)] font-medium`}
         whileHover={{ boxShadow: "0 0 25px rgba(255,255,255,0.8)" }}
         whileTap={{ scale: 0.98 }}
-        initial={{ opacity: 0, y: 100 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.0, duration: 0.5 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2, duration: 0.3 }}
         title="Go to next section"
       >
         <span className="hidden sm:inline text-sm font-semibold">Next</span>
@@ -698,6 +640,45 @@ function App() {
           >
             <path 
               d="M5 12h14M12 5l7 7-7 7" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            />
+          </svg>
+      </motion.button>
+      )}
+
+      {/* Floating End Button for Last Section */}
+      {currentSection === 'syntropy-4' && (
+      <motion.button
+        onClick={() => {
+          // Scroll to top or show end message
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        className={`fixed bottom-8 right-8 z-50 flex items-center justify-center shadow-lg transition-all duration-300 ${
+          isMobile 
+            ? 'w-14 h-14 rounded-full border-2' 
+            : 'px-6 py-3 rounded-full border-2 min-w-[120px]'
+        } border-white bg-black text-white hover:bg-gray-800 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)] font-medium`}
+        whileHover={{ boxShadow: "0 0 25px rgba(255,255,255,0.8)" }}
+        whileTap={{ scale: 0.98 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2, duration: 0.3 }}
+        title="Return to beginning"
+      >
+        <span className="hidden sm:inline text-sm font-semibold">End</span>
+          <svg 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg"
+            className="sm:ml-2"
+          >
+            <path 
+              d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" 
               stroke="currentColor" 
               strokeWidth="2" 
               strokeLinecap="round" 
