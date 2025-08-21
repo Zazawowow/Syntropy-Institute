@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './App.css';
 
@@ -37,7 +37,7 @@ function App() {
   const [introUnlocked, setIntroUnlocked] = useState(false);
   const [headerShownOnce, setHeaderShownOnce] = useState(false);
 
-  const navItems = ['What?', 'Our Goal', 'Frequency', 'Together'];
+  const navItems = useMemo(() => ['What?', 'Our Goal', 'Frequency', 'Experience', 'Together', 'Why?'], []);
 
 
 
@@ -84,7 +84,7 @@ function App() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, targetId: string) => {
+  const handleLinkClick = (e: React.MouseEvent<HTMLElement, MouseEvent>, targetId: string) => {
     e.preventDefault();
     
     const scrollToTarget = () => {
@@ -133,7 +133,7 @@ function App() {
     const handleScroll = () => {
       if (isNavigating) return;
       
-      const sections = ['syntropy-1', 'syntropy-2', 'syntropy-3', 'syntropy-4'];
+      const sections = ['syntropy-1', 'syntropy-2', 'syntropy-3', 'syntropy-4', 'syntropy-5', 'syntropy-6'];
       const scrollPosition = window.scrollY + window.innerHeight / 2;
 
       for (const sectionId of sections) {
@@ -189,11 +189,18 @@ function App() {
   }, [currentSection]);
 
   return (
-    <div 
-      className="font-futuristic relative transition-all duration-1000 ease-in-out bg-transition bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: 'url(/syntropy.jpg)' }}
+        <div 
+      className="font-futuristic relative bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ease-in-out"
+      style={{ 
+        backgroundImage: currentSection === 'syntropy-4' 
+          ? 'url(/experience.jpeg)' 
+          : 'url(/syntropy.jpg)',
+        backgroundSize: isMobile ? 'auto 100%' : '100% auto',
+        backgroundPosition: isMobile ? 'center center' : 'center center',
+        backgroundAttachment: 'fixed'
+      }}
     >
-      <div className="fixed inset-0 z-10 pointer-events-none transition-all duration-1000 ease-in-out bg-black/40"></div>
+      <div className="fixed inset-0 z-10 pointer-events-none bg-black/40"></div>
       
       <header className="sticky top-0 z-50 transition-all duration-1000 ease-in-out bg-transparent relative" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="relative flex h-16 items-center justify-between px-4 sm:h-24 sm:block sm:px-0">
@@ -289,7 +296,7 @@ function App() {
       </AnimatePresence>
 
       <main className="-mt-16 sm:-mt-24">
-        {[1, 2, 3, 4].map((sectionNumber) => {
+        {[1, 2, 3, 4, 5, 6].map((sectionNumber) => {
           const targetId = `syntropy-${sectionNumber}`;
           
           return (
@@ -435,13 +442,15 @@ function App() {
                     >
                       {sectionNumber === 2 && 'Our Goal'}
                       {sectionNumber === 3 && 'Frequency'}
-                      {sectionNumber === 4 && (
+                      {sectionNumber === 4 && 'Experience'}
+                      {sectionNumber === 5 && (
                         <div className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl">
                           <span className="whitespace-nowrap">Together We Are</span>
                           <br />
                           <span className="font-black whitespace-nowrap">Syntropy</span>
                         </div>
                       )}
+                      {sectionNumber === 6 && 'Why?'}
                     </motion.h2>
                   )}
                   
@@ -455,7 +464,7 @@ function App() {
                     style={{ willChange: 'opacity' }}
                   >
                      <p className={`mt-4 leading-relaxed text-white/95 drop-shadow-lg font-playfair font-light text-center px-2 sm:px-8 ${
-                       sectionNumber === 4 
+                       sectionNumber === 4 || sectionNumber === 5 || sectionNumber === 6
                          ? 'text-[20px] sm:text-xl lg:text-2xl' 
                          : 'text-[20px] sm:text-2xl lg:text-4xl'
                      }`}>
@@ -476,7 +485,11 @@ function App() {
                        ) : sectionNumber === 3 ? (
                          'Syntropy is the merging of Ancient Wisdom with tomorrow\'s Frequency Technology'
                        ) : sectionNumber === 4 ? (
+                         'AuraKinetics + Syntropy Frequency'
+                       ) : sectionNumber === 5 ? (
                          'Our services are exclusively available through the Yunasai Ministry. By engaging with us, you automatically join our Private Membership Association. Learn more about membership and terms.'
+                       ) : sectionNumber === 6 ? (
+                         'Behind the firewall of ecclesiastical law, Syntropy delivers the kind of data the system buries—raw, testable, sacred intel that doesn\'t ask permission to heal. No pharma sponsors. No academic gaslighting. Just measurable truth for your biological revolution.'
                        ) : (
                          'Individualized protocols integrating kinetic assessment, frequency analysis, nutrition, supplementation, and movement practices'
                        )}
@@ -528,7 +541,7 @@ function App() {
                       </motion.div>
                     )}
 
-                    {sectionNumber === 4 && (
+                    {sectionNumber === 6 && (
                       <motion.div 
                         className="flex flex-wrap justify-center gap-3 mt-6"
                         initial={{ opacity: 0, y: 20 }}
@@ -550,6 +563,7 @@ function App() {
                         </motion.button>
                       </motion.div>
                     )}
+
                   </motion.div>
                 )}
                                 </div>
@@ -563,13 +577,13 @@ function App() {
       {currentSection !== 'syntropy-1' && (
       <motion.button
         onClick={(e) => {
-          const sections = ['syntropy-1', 'syntropy-2', 'syntropy-3', 'syntropy-4'];
+          const sections = ['syntropy-1', 'syntropy-2', 'syntropy-3', 'syntropy-4', 'syntropy-5', 'syntropy-6'];
           const currentIndex = sections.indexOf(currentSection);
           const prevIndex = currentIndex - 1;
           
           if (prevIndex >= 0) {
             const prevSection = sections[prevIndex];
-            handleLinkClick(e as any, prevSection);
+            handleLinkClick(e as React.MouseEvent<HTMLButtonElement, MouseEvent>, prevSection);
           }
         }}
         className={`fixed bottom-8 z-50 flex items-center justify-center shadow-lg transition-all duration-300 ${
@@ -605,16 +619,16 @@ function App() {
       )}
 
       {/* Floating Next Button */}
-      {currentSection !== 'syntropy-4' && (
+      {currentSection !== 'syntropy-6' && (
       <motion.button
         onClick={(e) => {
-          const sections = ['syntropy-1', 'syntropy-2', 'syntropy-3', 'syntropy-4'];
+          const sections = ['syntropy-1', 'syntropy-2', 'syntropy-3', 'syntropy-4', 'syntropy-5', 'syntropy-6'];
           const currentIndex = sections.indexOf(currentSection);
           const nextIndex = currentIndex + 1;
           
           if (nextIndex < sections.length) {
             const nextSection = sections[nextIndex];
-            handleLinkClick(e as any, nextSection);
+            handleLinkClick(e as React.MouseEvent<HTMLElement, MouseEvent>, nextSection);
           }
         }}
         className={`fixed bottom-8 right-8 z-50 flex items-center justify-center shadow-lg transition-all duration-300 ${
@@ -650,7 +664,7 @@ function App() {
       )}
 
       {/* Floating End Button for Last Section */}
-      {currentSection === 'syntropy-4' && (
+      {currentSection === 'syntropy-6' && (
       <motion.button
         onClick={() => {
           // Scroll to top or show end message
