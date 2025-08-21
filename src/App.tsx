@@ -190,16 +190,30 @@ function App() {
 
   return (
         <div 
-      className="font-futuristic relative bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ease-in-out"
+      className="font-futuristic relative bg-cover bg-center bg-no-repeat"
       style={{ 
-        backgroundImage: currentSection === 'syntropy-4' 
-          ? 'url(/experience.jpeg)' 
-          : 'url(/syntropy.jpg)',
         backgroundSize: isMobile ? 'auto 100%' : '100% auto',
         backgroundPosition: isMobile ? 'center center' : 'center center',
         backgroundAttachment: 'fixed'
       }}
     >
+      {/* Base background image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-3000 ease-in-out"
+        style={{ 
+          backgroundImage: 'url(/syntropy.jpg)',
+          opacity: currentSection === 'syntropy-4' ? 0 : 1
+        }}
+      />
+      
+      {/* Experience background image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-3000 ease-in-out"
+        style={{ 
+          backgroundImage: 'url(/experience.jpeg)',
+          opacity: currentSection === 'syntropy-4' ? 1 : 0
+        }}
+      />
       <div className="fixed inset-0 z-10 pointer-events-none bg-black/40"></div>
       
       <header className="sticky top-0 z-50 transition-all duration-1000 ease-in-out bg-transparent relative" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
@@ -437,7 +451,7 @@ function App() {
                       className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-kudryashev font-light text-white drop-shadow-xl relative z-20 tracking-wide uppercase mx-auto text-center"
                       initial={{ opacity: 0 }}
                       whileInView={{ opacity: 1 }}
-                      transition={{ duration: 1.0, delay: 0.3, ease: "easeOut" }}
+                      transition={{ duration: 1.0, delay: sectionNumber === 4 ? 2.5 : 0.3, ease: "easeOut" }}
                       viewport={{ once: true, amount: 0.3 }}
                     >
                       {sectionNumber === 2 && 'Our Goal'}
@@ -459,7 +473,7 @@ function App() {
                     className="relative z-20"
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
-                    transition={{ duration: 1.0, delay: 0.3, ease: "easeOut" }}
+                    transition={{ duration: 1.0, delay: sectionNumber === 4 ? 2.8 : 0.3, ease: "easeOut" }}
                     viewport={{ once: true, amount: 0.3 }}
                     style={{ willChange: 'opacity' }}
                   >
