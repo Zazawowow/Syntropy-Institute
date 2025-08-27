@@ -37,6 +37,9 @@ function App() {
   const [introUnlocked, setIntroUnlocked] = useState(false);
   const [headerShownOnce, setHeaderShownOnce] = useState(false);
   const [backgroundOpacity, setBackgroundOpacity] = useState(1);
+  const [backgroundSection, setBackgroundSection] = useState('syntropy-1');
+  const [nextBackgroundSection, setNextBackgroundSection] = useState<string | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const navItems = useMemo(() => ['What?', 'Our Goal', 'Frequency', 'Experience', 'Together', 'Why?'], []);
 
@@ -93,12 +96,21 @@ function App() {
       if (element) {
         setIsNavigating(true);
         
-        // Fade out current background for navigation
-        setBackgroundOpacity(0);
-        setTimeout(() => {
-          setCurrentSection(targetId);
-          setTimeout(() => setBackgroundOpacity(1), 0);
-        }, 1500);
+        // Update nav immediately for instant underline response
+        setCurrentSection(targetId);
+        
+        // Handle background transition separately
+        if (!isTransitioning) {
+          setIsTransitioning(true);
+          setNextBackgroundSection(targetId);
+          setBackgroundOpacity(0);
+          setTimeout(() => {
+            setBackgroundSection(targetId);
+            setNextBackgroundSection(null);
+            setIsTransitioning(false);
+            setBackgroundOpacity(1);
+          }, 1500);
+        }
         
         element.scrollIntoView({ 
           behavior: 'smooth',
@@ -152,12 +164,21 @@ function App() {
 
           if (scrollPosition >= elementTop && scrollPosition <= elementBottom) {
             if (currentSection !== sectionId) {
-              // Fade out current background, then change section and fade in
-              setBackgroundOpacity(0);
-              setTimeout(() => {
-                setCurrentSection(sectionId);
-                setTimeout(() => setBackgroundOpacity(1), 0);
-              }, 1500); // Exact match with CSS transition duration
+              // Update nav immediately for instant underline response
+              setCurrentSection(sectionId);
+              
+              // Handle background transition separately
+              if (backgroundSection !== sectionId && !isTransitioning) {
+                setIsTransitioning(true);
+                setNextBackgroundSection(sectionId);
+                setBackgroundOpacity(0);
+                setTimeout(() => {
+                  setBackgroundSection(sectionId);
+                  setNextBackgroundSection(null);
+                  setIsTransitioning(false);
+                  setBackgroundOpacity(1);
+                }, 1500); // Exact match with CSS transition duration
+              }
             }
             console.log('Current section changed to:', sectionId);
             
@@ -204,7 +225,7 @@ function App() {
   }, [currentSection]);
 
   useEffect(() => {
-    const urls = ['/syntropy.jpg', '/2.jpg', '/3.jpg', '/experience.jpeg', '/5.jpg', '/6.jpg'];
+    const urls = ['/1.jpg', '/2.jpg', '/3.jpg', '/4.jpg', '/5.jpg', '/6.jpg'];
     urls.forEach((src) => {
       const img = new Image();
       img.src = src;
@@ -215,38 +236,54 @@ function App() {
     });
   }, []);
 
+  const getBackgroundImage = (section: string) => {
+    switch (section) {
+      case 'syntropy-1': return 'url(/1.jpg)';  // What?
+      case 'syntropy-2': return 'url(/2.jpg)';  // Our Goal
+      case 'syntropy-3': return 'url(/3.jpg)';  // Frequency
+      case 'syntropy-4': return 'url(/4.jpg)';  // Experience
+      case 'syntropy-5': return 'url(/5.jpg)';  // Together
+      case 'syntropy-6': return 'url(/6.jpg)';  // Why?
+      default: return 'url(/1.jpg)';
+    }
+  };
+
   return (
         <div className="font-futuristic relative">
-      {/* Separate background layer with opacity control */}
+      {/* Current background layer */}
       <div 
         className="fixed inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-[1500ms] ease-linear"
         style={{ 
-          backgroundImage: currentSection === 'syntropy-1' 
-            ? 'url(/syntropy.jpg)' 
-            : currentSection === 'syntropy-2'
-            ? 'url(/2.jpg)'
-            : currentSection === 'syntropy-3'
-            ? 'url(/3.jpg)'
-            : currentSection === 'syntropy-4'
-            ? 'url(/experience.jpeg)'
-            : currentSection === 'syntropy-5'
-            ? 'url(/5.jpg)'
-            : currentSection === 'syntropy-6'
-            ? 'url(/6.jpg)'
-            : 'url(/syntropy.jpg)',
+          backgroundImage: getBackgroundImage(backgroundSection),
           backgroundSize: isMobile ? 'auto 100%' : '100% auto',
           backgroundPosition: 'center center',
           backgroundAttachment: isMobile ? 'scroll' : 'fixed',
-          willChange: 'background-image',
-          opacity: backgroundOpacity,
+          willChange: 'opacity',
+          opacity: nextBackgroundSection ? backgroundOpacity : 1,
           zIndex: 1
         }}
       />
-      <div className="fixed inset-0 z-5 pointer-events-none bg-black/40"></div>
+      
+      {/* Next background layer for smooth transitions */}
+      {nextBackgroundSection && (
+        <div 
+          className="fixed inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-[1500ms] ease-linear"
+          style={{ 
+            backgroundImage: getBackgroundImage(nextBackgroundSection),
+            backgroundSize: isMobile ? 'auto 100%' : '100% auto',
+            backgroundPosition: 'center center',
+            backgroundAttachment: isMobile ? 'scroll' : 'fixed',
+            willChange: 'opacity',
+            opacity: 1 - backgroundOpacity,
+            zIndex: 2
+          }}
+        />
+      )}
+      <div className="fixed inset-0 z-10 pointer-events-none bg-black/40"></div>
       
       {/* Additional overlay for last section */}
       {currentSection === 'syntropy-6' && (
-        <div className="fixed inset-0 z-6 pointer-events-none bg-black/50"></div>
+        <div className="fixed inset-0 z-15 pointer-events-none bg-black/50"></div>
       )}
       
       <header className="sticky top-0 z-50 transition-all duration-1000 ease-in-out bg-transparent relative" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
