@@ -239,7 +239,10 @@ function App() {
   }, [currentSection]);
 
   useEffect(() => {
-    const urls = ['/1.jpg', '/2.jpg', '/3.jpg', '/4.jpg', '/5.jpg', '/6.jpg'];
+    const urls = [
+      '/1.jpg', '/2.jpg', '/3.jpg', '/4.jpg', '/5.jpg', '/6.jpg',
+      '/mobile-1.jpg', '/mobile-2.jpg', '/mobile-3.jpg', '/mobile-4.jpg', '/mobile-5.jpg', '/mobile-6.jpg'
+    ];
     urls.forEach((src) => {
       const img = new Image();
       img.src = src;
@@ -251,15 +254,15 @@ function App() {
   }, []);
 
   const getBackgroundImage = (section: string) => {
-    switch (section) {
-      case 'syntropy-1': return 'url(/1.jpg)';  // What?
-      case 'syntropy-2': return 'url(/2.jpg)';  // Our Goal
-      case 'syntropy-3': return 'url(/3.jpg)';  // Frequency
-      case 'syntropy-4': return 'url(/4.jpg)';  // Experience
-      case 'syntropy-5': return 'url(/5.jpg)';  // Together
-      case 'syntropy-6': return 'url(/6.jpg)';  // Why?
-      default: return 'url(/1.jpg)';
-    }
+    const imageMap = {
+      'syntropy-1': isMobile ? 'url(/mobile-1.jpg)' : 'url(/1.jpg)',  // What?
+      'syntropy-2': isMobile ? 'url(/mobile-2.jpg)' : 'url(/2.jpg)',  // Our Goal
+      'syntropy-3': isMobile ? 'url(/mobile-3.jpg)' : 'url(/3.jpg)',  // Frequency
+      'syntropy-4': isMobile ? 'url(/mobile-4.jpg)' : 'url(/4.jpg)',  // Experience
+      'syntropy-5': isMobile ? 'url(/mobile-5.jpg)' : 'url(/5.jpg)',  // Together
+      'syntropy-6': isMobile ? 'url(/mobile-6.jpg)' : 'url(/6.jpg)',  // Why?
+    };
+    return imageMap[section as keyof typeof imageMap] || (isMobile ? 'url(/mobile-1.jpg)' : 'url(/1.jpg)');
   };
 
   return (
@@ -267,7 +270,7 @@ function App() {
       className="font-futuristic relative bg-cover bg-center bg-no-repeat"
       style={{ 
         backgroundImage: getBackgroundImage(currentSection),
-        backgroundSize: isMobile ? 'auto 100%' : '100% auto',
+        backgroundSize: isMobile ? 'cover' : '100% auto',
         backgroundPosition: 'center center',
         backgroundAttachment: isMobile ? 'scroll' : 'fixed'
       }}
