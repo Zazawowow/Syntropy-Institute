@@ -36,10 +36,7 @@ function App() {
   const [isNavigating, setIsNavigating] = useState(false);
   const [introUnlocked, setIntroUnlocked] = useState(false);
   const [headerShownOnce, setHeaderShownOnce] = useState(false);
-  const [backgroundOpacity, setBackgroundOpacity] = useState(1);
-  const [backgroundSection, setBackgroundSection] = useState('syntropy-1');
-  const [nextBackgroundSection, setNextBackgroundSection] = useState<string | null>(null);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+
 
   const navItems = useMemo(() => ['What?', 'Our Goal', 'Frequency', 'Experience', 'Together', 'Why?'], []);
 
@@ -96,21 +93,7 @@ function App() {
       if (element) {
         setIsNavigating(true);
         
-        // Update nav immediately for instant underline response
         setCurrentSection(targetId);
-        
-        // Handle background transition separately
-        if (!isTransitioning) {
-          setIsTransitioning(true);
-          setNextBackgroundSection(targetId);
-          setBackgroundOpacity(0);
-          setTimeout(() => {
-            setBackgroundSection(targetId);
-            setNextBackgroundSection(null);
-            setIsTransitioning(false);
-            setBackgroundOpacity(1);
-          }, 1500);
-        }
         
         element.scrollIntoView({ 
           behavior: 'smooth',
@@ -153,42 +136,73 @@ function App() {
       if (isNavigating) return;
       
       const sections = ['syntropy-1', 'syntropy-2', 'syntropy-3', 'syntropy-4', 'syntropy-5', 'syntropy-6'];
-      const scrollPosition = window.scrollY + window.innerHeight / 2;
-
+      let newCurrentSection = currentSection;
+      let maxVisibleArea = 0;
+      const threshold = 100; // Minimum visible pixels to consider
+      
+      // Debug info
+      const debugInfo: { id: string; visible: number; rect: DOMRect }[] = [];
+      
       for (const sectionId of sections) {
         const element = document.getElementById(sectionId);
         if (element) {
           const rect = element.getBoundingClientRect();
-          const elementTop = rect.top + window.scrollY;
-          const elementBottom = elementTop + rect.height;
-
-          if (scrollPosition >= elementTop && scrollPosition <= elementBottom) {
-            if (currentSection !== sectionId) {
-              // Update nav immediately for instant underline response
-              setCurrentSection(sectionId);
-              
-              // Handle background transition separately
-              if (backgroundSection !== sectionId && !isTransitioning) {
-                setIsTransitioning(true);
-                setNextBackgroundSection(sectionId);
-                setBackgroundOpacity(0);
-                setTimeout(() => {
-                  setBackgroundSection(sectionId);
-                  setNextBackgroundSection(null);
-                  setIsTransitioning(false);
-                  setBackgroundOpacity(1);
-                }, 1500); // Exact match with CSS transition duration
-              }
-            }
-            console.log('Current section changed to:', sectionId);
-            
-            const metaThemeColor = document.getElementById('theme-color-meta') as HTMLMetaElement;
-            if (metaThemeColor) {
-                metaThemeColor.setAttribute('content', '#000000');
-            }
-            
-            break;
+          const viewportHeight = window.innerHeight;
+          
+          // Calculate visible area of this section
+          const visibleTop = Math.max(0, rect.top);
+          const visibleBottom = Math.min(viewportHeight, rect.bottom);
+          const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+          
+          debugInfo.push({ id: sectionId, visible: visibleHeight, rect });
+          
+          // Only consider sections with meaningful visibility
+          if (visibleHeight > threshold && visibleHeight > maxVisibleArea) {
+            maxVisibleArea = visibleHeight;
+            newCurrentSection = sectionId;
           }
+        }
+      }
+      
+      // Fallback: if no section has enough visibility, use position-based detection
+      if (maxVisibleArea < threshold) {
+        const scrollY = window.scrollY;
+        const viewportCenter = scrollY + window.innerHeight / 2;
+        
+        for (const sectionId of sections) {
+          const element = document.getElementById(sectionId);
+          if (element) {
+            const rect = element.getBoundingClientRect();
+            const elementTop = rect.top + scrollY;
+            const elementBottom = elementTop + rect.height;
+            
+            if (viewportCenter >= elementTop && viewportCenter <= elementBottom) {
+              newCurrentSection = sectionId;
+              break;
+            }
+          }
+        }
+      }
+      
+      // Log debug info occasionally
+      if (Math.random() < 0.1) {
+        console.log('Scroll debug:', {
+          current: currentSection,
+          new: newCurrentSection,
+          maxVisible: maxVisibleArea,
+          scrollY: window.scrollY,
+          sections: debugInfo.map(s => ({ id: s.id, visible: Math.round(s.visible), top: Math.round(s.rect.top) }))
+        });
+      }
+      
+      // Update current section if it changed
+      if (newCurrentSection !== currentSection) {
+        setCurrentSection(newCurrentSection);
+        console.log('Section changed:', currentSection, '->', newCurrentSection);
+        
+        const metaThemeColor = document.getElementById('theme-color-meta') as HTMLMetaElement;
+        if (metaThemeColor) {
+          metaThemeColor.setAttribute('content', '#000000');
         }
       }
     };
@@ -249,36 +263,15 @@ function App() {
   };
 
   return (
-        <div className="font-futuristic relative">
-      {/* Current background layer */}
-      <div 
-        className="fixed inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-[1500ms] ease-linear"
-        style={{ 
-          backgroundImage: getBackgroundImage(backgroundSection),
-          backgroundSize: isMobile ? 'auto 100%' : '100% auto',
-          backgroundPosition: 'center center',
-          backgroundAttachment: isMobile ? 'scroll' : 'fixed',
-          willChange: 'opacity',
-          opacity: nextBackgroundSection ? backgroundOpacity : 1,
-          zIndex: 1
-        }}
-      />
-      
-      {/* Next background layer for smooth transitions */}
-      {nextBackgroundSection && (
         <div 
-          className="fixed inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-[1500ms] ease-linear"
-          style={{ 
-            backgroundImage: getBackgroundImage(nextBackgroundSection),
-            backgroundSize: isMobile ? 'auto 100%' : '100% auto',
-            backgroundPosition: 'center center',
-            backgroundAttachment: isMobile ? 'scroll' : 'fixed',
-            willChange: 'opacity',
-            opacity: 1 - backgroundOpacity,
-            zIndex: 2
-          }}
-        />
-      )}
+      className="font-futuristic relative bg-cover bg-center bg-no-repeat"
+      style={{ 
+        backgroundImage: getBackgroundImage(currentSection),
+        backgroundSize: isMobile ? 'auto 100%' : '100% auto',
+        backgroundPosition: 'center center',
+        backgroundAttachment: isMobile ? 'scroll' : 'fixed'
+      }}
+    >
       <div className="fixed inset-0 z-10 pointer-events-none bg-black/40"></div>
       
       {/* Additional overlay for last section */}
@@ -521,7 +514,7 @@ function App() {
                       className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-kudryashev font-light text-white drop-shadow-xl relative z-20 tracking-wide uppercase mx-auto text-center"
                       initial={{ opacity: 0 }}
                       whileInView={{ opacity: 1 }}
-                      transition={{ duration: 1.0, delay: sectionNumber === 4 ? 2.5 : 0.3, ease: "easeOut" }}
+                      transition={{ duration: 1.0, delay: 0.3, ease: "easeOut" }}
                       viewport={{ once: true, amount: 0.3 }}
                     >
                       {sectionNumber === 2 && 'Our Goal'}
@@ -543,7 +536,7 @@ function App() {
                     className="relative z-20"
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
-                    transition={{ duration: 1.0, delay: sectionNumber === 4 ? 2.8 : 0.3, ease: "easeOut" }}
+                    transition={{ duration: 1.0, delay: 0.3, ease: "easeOut" }}
                     viewport={{ once: true, amount: 0.3 }}
                     style={{ willChange: 'opacity' }}
                   >
