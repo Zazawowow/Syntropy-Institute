@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png', '*.png', '*.jpg', '*.svg'],
       manifest: {
-        name: 'L484 - Innovation Platform',
-        short_name: 'L484',
+        name: 'Syntropy',
+        short_name: 'Syntropy',
         description: 'Exploring the future through innovation in money, identity, networks, health, vehicles, and work',
         theme_color: '#FAFAFA',
         background_color: '#FAFAFA',
