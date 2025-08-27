@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './App.css';
 
 // Letter-by-letter typing animation component
-const TypingText = ({ text, delay = 0, duration = 5 }: { text: string; delay?: number; duration?: number }) => {
+const TypingText = ({ text, delay = 0, duration = 5, useNbsp = true }: { text: string; delay?: number; duration?: number; useNbsp?: boolean }) => {
   const letters = text.split('');
   const letterDelay = duration / letters.length;
 
@@ -20,7 +20,7 @@ const TypingText = ({ text, delay = 0, duration = 5 }: { text: string; delay?: n
             ease: 'easeInOut'
           }}
         >
-          {letter === ' ' ? '\u00A0' : letter}
+          {letter === ' ' ? (useNbsp ? '\u00A0' : ' ') : letter}
         </motion.span>
       ))}
     </>
@@ -437,11 +437,20 @@ function App() {
 
                         {/* Paragraph sequence inline: start only after title fully exits, then fade out before SYNTROPY */}
                         <motion.p
-                          className="absolute text-[24px] sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl leading-relaxed text-white/95 drop-shadow-lg font-playfair font-normal text-center px-8 sm:px-6"
+                          className="absolute text-[24px] sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl leading-relaxed text-white/95 drop-shadow-lg font-playfair font-normal text-center px-3 sm:px-6"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: [0, 1, 1, 0] }}
                           transition={{ delay: 4.7, duration: 18.8, ease: 'easeInOut', times: [0, 0.02, 0.93, 1] }}
-                          style={{ maxWidth: '95vw', lineHeight: '1.5', wordWrap: 'break-word' }}
+                          style={{
+                            maxWidth: isPhone ? '92vw' : '95vw',
+                            lineHeight: '1.5',
+                            fontSize: isPhone ? 20 : undefined,
+                            overflowWrap: isPhone ? 'normal' : 'break-word',
+                            wordBreak: isPhone ? 'keep-all' : undefined,
+                            hyphens: isPhone ? 'manual' : undefined,
+                            textAlign: 'center',
+                            textWrap: isPhone ? 'balance' as any : undefined
+                          }}
                         >
                           {/* first text uses letter-by-letter typing effect, starts after title fades out */}
                           <motion.span
@@ -453,6 +462,7 @@ function App() {
                               text="We've been taught that the universe and the body are destined for entropy:" 
                               delay={4.7} 
                               duration={4.0} 
+                              useNbsp={!isPhone}
                             />
                           </motion.span>
                           <motion.span
