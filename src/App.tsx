@@ -585,7 +585,7 @@ function App() {
                              className="font-semibold"
                              initial={{ opacity: 0 }}
                              whileInView={{ opacity: 1 }}
-                             transition={{ duration: 1.5, delay: 0.8, ease: "easeOut" }}
+                             transition={{ duration: 3.0, delay: 0.8, ease: "easeOut" }}
                              viewport={{ once: true, amount: 0.3 }}
                            >
                              Syntropy.
@@ -617,7 +617,7 @@ function App() {
                             title: 'Frequency Analysis-Therapy', 
                             content: 'Syntropy Frequency Analysis-Therapy represents the leading edge of frequency-based healing in the United States, specializing in individualized frequency protocols and digital homeopathy. Using advanced Swiss-German technology, we identify and address the root causes of cellular energy loss, leveraging over 200 million trackable data points.'
                           })}
-                          className="px-3 py-2 text-xs sm:text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
+                          className="px-3 py-2 text-xs sm:text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm w-full sm:w-auto sm:min-w-[260px] flex items-center justify-center text-center whitespace-nowrap"
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >
@@ -629,7 +629,7 @@ function App() {
                             title: 'Manual Kinetics', 
                             content: 'Syntropy Manual Kinetics is the science of biological optimization, integrating advanced muscle testing, facial analysis, iridology, and manual field diagnostics to assess the body\'s structural and functional condition.'
                           })}
-                          className="px-3 py-2 text-xs sm:text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
+                          className="px-3 py-2 text-xs sm:text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm w-full sm:w-auto sm:min-w-[260px] flex items-center justify-center text-center whitespace-nowrap"
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >
@@ -641,7 +641,7 @@ function App() {
                             title: 'Syntropy Concierge', 
                             content: 'The individualized protocol developed through Kinetic assessment and frequency analysis will be seamlessly integrated into your daily lifestyle—including nutrition, supplementation, herbal support, and movement practices tailored to your unique needs and goals.'
                           })}
-                          className="px-3 py-2 text-xs sm:text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
+                          className="px-3 py-2 text-xs sm:text-sm font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 hover:border-white text-white/90 hover:text-white bg-transparent backdrop-blur-sm w-full sm:w-auto sm:min-w-[260px] flex items-center justify-center text-center whitespace-nowrap"
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >
