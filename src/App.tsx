@@ -261,17 +261,39 @@ function App() {
     return imageMap[section as keyof typeof imageMap] || (isMobile ? 'url(/mobile-1.jpg)' : 'url(/1.jpg)');
   };
 
+  const getMobileImageSrc = (section: string) => {
+    const srcMap: Record<string, string> = {
+      'syntropy-1': '/mobile-1.jpg',
+      'syntropy-2': '/mobile-2.jpg',
+      'syntropy-3': '/mobile-3.jpg',
+      'syntropy-4': '/mobile-4.jpg',
+      'syntropy-5': '/mobile-5.jpg',
+      'syntropy-6': '/mobile-6.jpg',
+    };
+    return srcMap[section] ?? '/mobile-1.jpg';
+  };
+
   return (
         <div 
       className="font-futuristic relative bg-cover bg-center bg-no-repeat"
       style={{ 
-        backgroundImage: getBackgroundImage(currentSection),
-        // Phone-only fix: fit height exactly to viewport, keep aspect ratio; tablet/desktop unchanged
-        backgroundSize: isPhone ? 'auto 100%' : (isMobile ? 'cover' : '100% auto'),
+        backgroundImage: isPhone ? 'none' : getBackgroundImage(currentSection),
+        // Tablet/desktop unchanged; phone uses dedicated <img>
+        backgroundSize: isPhone ? undefined : (isMobile ? 'cover' : '100% auto'),
         backgroundPosition: 'center center',
+        backgroundRepeat: 'no-repeat',
         backgroundAttachment: isMobile ? 'scroll' : 'fixed'
       }}
     >
+      {isPhone && (
+        <img
+          src={getMobileImageSrc(currentSection)}
+          alt=""
+          className="fixed inset-0 z-0 w-full h-[100vh] object-cover object-center pointer-events-none select-none"
+          decoding="async"
+          loading="eager"
+        />
+      )}
       <div className="fixed inset-0 z-10 pointer-events-none bg-black/40"></div>
       
       {/* Additional overlay for last section */}
