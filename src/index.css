@@ -5,7 +5,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Audiowide&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap');
@@ -114,6 +114,7 @@ html {
   /* Fix for iPhone Safari dynamic viewport */
   height: 100%;
   height: -webkit-fill-available;
+  background-color: #000; /* Ensure no white flash */
 }
 
 body {
@@ -127,6 +128,7 @@ body {
   height: -webkit-fill-available;
   /* Apply futuristic font globally */
   font-family: 'Exo 2', 'Rajdhani', 'Orbitron', sans-serif;
+  background-color: #000; /* Ensure no white flash behind backgrounds */
 }
 
 /* Allow horizontal pan for carousel interactions on mobile */

@@ -36,6 +36,7 @@ function App() {
   const [isNavigating, setIsNavigating] = useState(false);
   const [introUnlocked, setIntroUnlocked] = useState(false);
   const [headerShownOnce, setHeaderShownOnce] = useState(false);
+  const [backgroundOpacity, setBackgroundOpacity] = useState(1);
 
   const navItems = useMemo(() => ['What?', 'Our Goal', 'Frequency', 'Experience', 'Together', 'Why?'], []);
 
@@ -91,7 +92,13 @@ function App() {
       const element = document.getElementById(targetId);
       if (element) {
         setIsNavigating(true);
-        setCurrentSection(targetId);
+        
+        // Fade out current background for navigation
+        setBackgroundOpacity(0);
+        setTimeout(() => {
+          setCurrentSection(targetId);
+          setTimeout(() => setBackgroundOpacity(1), 0);
+        }, 1500);
         
         element.scrollIntoView({ 
           behavior: 'smooth',
@@ -144,7 +151,14 @@ function App() {
           const elementBottom = elementTop + rect.height;
 
           if (scrollPosition >= elementTop && scrollPosition <= elementBottom) {
-            setCurrentSection(sectionId);
+            if (currentSection !== sectionId) {
+              // Fade out current background, then change section and fade in
+              setBackgroundOpacity(0);
+              setTimeout(() => {
+                setCurrentSection(sectionId);
+                setTimeout(() => setBackgroundOpacity(1), 0);
+              }, 1500); // Exact match with CSS transition duration
+            }
             console.log('Current section changed to:', sectionId);
             
             const metaThemeColor = document.getElementById('theme-color-meta') as HTMLMetaElement;
@@ -189,29 +203,51 @@ function App() {
     };
   }, [currentSection]);
 
+  useEffect(() => {
+    const urls = ['/syntropy.jpg', '/2.jpg', '/3.jpg', '/experience.jpeg', '/5.jpg', '/6.jpg'];
+    urls.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+      // Try decode for smoother ready-state without blocking
+      if ((img as any).decode) {
+        (img as any).decode().catch(() => void 0);
+      }
+    });
+  }, []);
+
   return (
-        <div 
-      className="font-futuristic relative bg-cover bg-center bg-no-repeat transition-opacity duration-2000 ease-in-out"
-      style={{ 
-        backgroundImage: currentSection === 'syntropy-1' 
-          ? 'url(/syntropy.jpg)' 
-          : currentSection === 'syntropy-2'
-          ? 'url(/2.jpg)'
-          : currentSection === 'syntropy-3'
-          ? 'url(/3.jpg)'
-          : currentSection === 'syntropy-4'
-          ? 'url(/experience.jpeg)'
-          : currentSection === 'syntropy-5'
-          ? 'url(/5.jpg)'
-          : currentSection === 'syntropy-6'
-          ? 'url(/6.jpg)'
-          : 'url(/syntropy.jpg)',
-        backgroundSize: isMobile ? 'auto 100%' : '100% auto',
-        backgroundPosition: 'center center',
-        backgroundAttachment: 'fixed'
-      }}
-    >
-      <div className="fixed inset-0 z-10 pointer-events-none bg-black/40"></div>
+        <div className="font-futuristic relative">
+      {/* Separate background layer with opacity control */}
+      <div 
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-[1500ms] ease-linear"
+        style={{ 
+          backgroundImage: currentSection === 'syntropy-1' 
+            ? 'url(/syntropy.jpg)' 
+            : currentSection === 'syntropy-2'
+            ? 'url(/2.jpg)'
+            : currentSection === 'syntropy-3'
+            ? 'url(/3.jpg)'
+            : currentSection === 'syntropy-4'
+            ? 'url(/experience.jpeg)'
+            : currentSection === 'syntropy-5'
+            ? 'url(/5.jpg)'
+            : currentSection === 'syntropy-6'
+            ? 'url(/6.jpg)'
+            : 'url(/syntropy.jpg)',
+          backgroundSize: isMobile ? 'auto 100%' : '100% auto',
+          backgroundPosition: 'center center',
+          backgroundAttachment: isMobile ? 'scroll' : 'fixed',
+          willChange: 'background-image',
+          opacity: backgroundOpacity,
+          zIndex: 1
+        }}
+      />
+      <div className="fixed inset-0 z-5 pointer-events-none bg-black/40"></div>
+      
+      {/* Additional overlay for last section */}
+      {currentSection === 'syntropy-6' && (
+        <div className="fixed inset-0 z-6 pointer-events-none bg-black/50"></div>
+      )}
       
       <header className="sticky top-0 z-50 transition-all duration-1000 ease-in-out bg-transparent relative" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="relative flex h-16 items-center justify-between px-4 sm:h-24 sm:block sm:px-0">
