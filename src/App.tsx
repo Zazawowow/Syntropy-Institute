@@ -32,10 +32,12 @@ function App() {
   const [currentSection, setCurrentSection] = useState('syntropy-1');
   const [navLinePosition, setNavLinePosition] = useState({ x: 0, width: 0 });
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isPhone, setIsPhone] = useState(window.innerWidth < 640);
   const [lightboxText, setLightboxText] = useState<{title: string, content: string} | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
   const [introUnlocked, setIntroUnlocked] = useState(false);
-  const [headerShownOnce, setHeaderShownOnce] = useState(false);
+  const [hasVisitedFirstSection, setHasVisitedFirstSection] = useState(false);
+
 
 
   const navItems = useMemo(() => ['What?', 'Our Goal', 'Frequency', 'Experience', 'Together', 'Why?'], []);
@@ -49,12 +51,21 @@ function App() {
   useEffect(() => {
     // Unlock header/nav after the intro finishes on section 1, or immediately if the user scrolls away
     const introTimer = setTimeout(() => setIntroUnlocked(true), 24000);
+    
+    // Also unlock if user has been away and comes back
+    if (hasVisitedFirstSection && currentSection === 'syntropy-1') {
+      setIntroUnlocked(true);
+    }
+    
     return () => clearTimeout(introTimer);
-  }, []);
+  }, [hasVisitedFirstSection, currentSection]);
 
   useEffect(() => {
     if (currentSection !== 'syntropy-1') {
       setIntroUnlocked(true);
+    } else {
+      // Track when someone visits the first section
+      setHasVisitedFirstSection(true);
     }
   }, [currentSection]);
 
@@ -67,22 +78,20 @@ function App() {
   }, [currentSection]);
 
   const navStaggerSeconds = 0.15;
-  const shouldShowHeaderNow = currentSection !== 'syntropy-1' || introUnlocked;
-  useEffect(() => {
-    if (shouldShowHeaderNow && !headerShownOnce) setHeaderShownOnce(true);
-  }, [shouldShowHeaderNow, headerShownOnce]);
-  // If unlocked due to time (end of intro), keep the original delays; if unlocked due to scroll, show instantly
-  const headerDelayBase = headerShownOnce ? 0 : (introUnlocked ? 24.0 : 0.0);
-  const navDelayBase = headerShownOnce ? 0 : (introUnlocked ? 24.1 : 0.0);
+
+  // Delays for intro animations
+  const headerDelayBase = introUnlocked ? 24.0 : 0.0;
+  const navDelayBase = introUnlocked ? 24.1 : 0.0;
 
   useEffect(() => {
-    const checkMobile = () => {
+    const checkResponsive = () => {
       setIsMobile(window.innerWidth < 768);
+      setIsPhone(window.innerWidth < 640);
     };
     
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    checkResponsive();
+    window.addEventListener('resize', checkResponsive);
+    return () => window.removeEventListener('resize', checkResponsive);
   }, []);
 
   const handleLinkClick = (e: React.MouseEvent<HTMLElement, MouseEvent>, targetId: string) => {
@@ -132,91 +141,78 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const handleScroll = () => {
+    // Instant, robust detection: pick sentinel whose center is nearest the viewport center on every scroll
+    const sectionIds = ['syntropy-1', 'syntropy-2', 'syntropy-3', 'syntropy-4', 'syntropy-5', 'syntropy-6'];
+    const sentinelIds = sectionIds.map((id) => `${id}-sentinel`);
+
+    const computeActive = () => {
       if (isNavigating) return;
-      
-      const sections = ['syntropy-1', 'syntropy-2', 'syntropy-3', 'syntropy-4', 'syntropy-5', 'syntropy-6'];
-      let newCurrentSection = currentSection;
-      let maxVisibleArea = 0;
-      const threshold = 100; // Minimum visible pixels to consider
-      
-      // Debug info
-      const debugInfo: { id: string; visible: number; rect: DOMRect }[] = [];
-      
-      for (const sectionId of sections) {
-        const element = document.getElementById(sectionId);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          const viewportHeight = window.innerHeight;
-          
-          // Calculate visible area of this section
-          const visibleTop = Math.max(0, rect.top);
-          const visibleBottom = Math.min(viewportHeight, rect.bottom);
-          const visibleHeight = Math.max(0, visibleBottom - visibleTop);
-          
-          debugInfo.push({ id: sectionId, visible: visibleHeight, rect });
-          
-          // Only consider sections with meaningful visibility
-          if (visibleHeight > threshold && visibleHeight > maxVisibleArea) {
-            maxVisibleArea = visibleHeight;
-            newCurrentSection = sectionId;
-          }
+      const viewportCenter = window.innerHeight / 2;
+      let bestId = currentSection;
+      let bestDistance = Number.POSITIVE_INFINITY;
+
+      // Hard override: if we're near the very top, force first section
+      if (window.scrollY < 80) {
+        if (currentSection !== 'syntropy-1') setCurrentSection('syntropy-1');
+        return;
+      }
+
+      for (const id of sentinelIds) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        const rect = el.getBoundingClientRect();
+        const center = rect.top + rect.height / 2;
+        const distance = Math.abs(center - viewportCenter);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          bestId = id.replace('-sentinel', '');
         }
       }
-      
-      // Fallback: if no section has enough visibility, use position-based detection
-      if (maxVisibleArea < threshold) {
-        const scrollY = window.scrollY;
-        const viewportCenter = scrollY + window.innerHeight / 2;
-        
-        for (const sectionId of sections) {
-          const element = document.getElementById(sectionId);
-          if (element) {
-            const rect = element.getBoundingClientRect();
-            const elementTop = rect.top + scrollY;
-            const elementBottom = elementTop + rect.height;
-            
-            if (viewportCenter >= elementTop && viewportCenter <= elementBottom) {
-              newCurrentSection = sectionId;
-              break;
-            }
-          }
-        }
-      }
-      
-      // Log debug info occasionally
-      if (Math.random() < 0.1) {
-        console.log('Scroll debug:', {
-          current: currentSection,
-          new: newCurrentSection,
-          maxVisible: maxVisibleArea,
-          scrollY: window.scrollY,
-          sections: debugInfo.map(s => ({ id: s.id, visible: Math.round(s.visible), top: Math.round(s.rect.top) }))
-        });
-      }
-      
-      // Update current section if it changed
-      if (newCurrentSection !== currentSection) {
-        setCurrentSection(newCurrentSection);
-        console.log('Section changed:', currentSection, '->', newCurrentSection);
-        
-        const metaThemeColor = document.getElementById('theme-color-meta') as HTMLMetaElement;
-        if (metaThemeColor) {
-          metaThemeColor.setAttribute('content', '#000000');
-        }
+
+      if (bestId && bestId !== currentSection) {
+        setCurrentSection(bestId);
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    handleScroll();
+    window.addEventListener('scroll', computeActive, { passive: true });
+    window.addEventListener('resize', computeActive);
+    computeActive();
 
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [mobileMenuOpen, navItems, isNavigating]);
+    return () => {
+      window.removeEventListener('scroll', computeActive);
+      window.removeEventListener('resize', computeActive);
+    };
+  }, [isNavigating, currentSection]);
+
+  // Ensure theme color remains black on section changes
+  useEffect(() => {
+    const metaThemeColor = document.getElementById('theme-color-meta') as HTMLMetaElement | null;
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute('content', '#000000');
+    }
+  }, [currentSection]);
 
   useEffect(() => {
     const updateNavLinePosition = () => {
-      const activeNavItem = document.getElementById(`nav-${currentSection}`);
-      const navContainer = activeNavItem?.parentElement;
+      // Map sections to nav indices for reliable positioning
+      const sectionToIndex = {
+        'syntropy-1': 0, // What?
+        'syntropy-2': 1, // Our Goal
+        'syntropy-3': 2, // Frequency
+        'syntropy-4': 3, // Experience
+        'syntropy-5': 4, // Together
+        'syntropy-6': 5  // Why?
+      };
+      
+      const activeIndex = sectionToIndex[currentSection as keyof typeof sectionToIndex];
+      if (activeIndex === undefined) return;
+      
+      // Find the nav container and get all nav items
+      const navContainer = document.querySelector('nav');
+      if (!navContainer) return;
+      
+      const navItems = navContainer.querySelectorAll('a');
+      const activeNavItem = navItems[activeIndex];
       
       if (activeNavItem && navContainer) {
         const navRect = navContainer.getBoundingClientRect();
@@ -229,11 +225,11 @@ function App() {
       }
     };
 
-    const timer = setTimeout(updateNavLinePosition, 50);
+    // Update immediately and on resize
+    updateNavLinePosition();
     window.addEventListener('resize', updateNavLinePosition);
     
     return () => {
-      clearTimeout(timer);
       window.removeEventListener('resize', updateNavLinePosition);
     };
   }, [currentSection]);
@@ -270,7 +266,8 @@ function App() {
       className="font-futuristic relative bg-cover bg-center bg-no-repeat"
       style={{ 
         backgroundImage: getBackgroundImage(currentSection),
-        backgroundSize: isMobile ? 'cover' : '100% auto',
+        // Phone-only fix: fit height exactly to viewport, keep aspect ratio; tablet/desktop unchanged
+        backgroundSize: isPhone ? 'auto 100%' : (isMobile ? 'cover' : '100% auto'),
         backgroundPosition: 'center center',
         backgroundAttachment: isMobile ? 'scroll' : 'fixed'
       }}
@@ -288,14 +285,14 @@ function App() {
             <motion.div
               className="text-lg sm:text-xl font-ivymode font-light sm:absolute sm:top-8 sm:left-8 transition-colors duration-300 text-white uppercase tracking-wide"
               initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: shouldShowHeaderNow ? 1 : 0, y: shouldShowHeaderNow ? 0 : -10 }}
-              transition={{ delay: headerDelayBase, duration: 0.6, ease: 'easeOut' }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 24, duration: 0.6, ease: 'easeOut' }}
             >
               Syntropy.Institute
             </motion.div>
           </a>
 
-          <nav className={`hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 text-white relative`}>
+          <nav className="hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 text-white relative">
               {navItems.map((item, index) => {
                 const targetId = `syntropy-${index + 1}`;
                 return (
@@ -304,8 +301,8 @@ function App() {
                     href={`#${targetId}`}
                     onClick={(e) => handleLinkClick(e, targetId)}
                     initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: shouldShowHeaderNow ? 1 : 0, y: shouldShowHeaderNow ? 0 : -20 }}
-                    transition={{ duration: 0.6, delay: navDelayBase + index * navStaggerSeconds, ease: 'easeOut' }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.1 + (index * 0.05), ease: 'easeOut' }}
                     className="cursor-pointer transition-colors relative hover:text-gray-300"
                     id={`nav-${targetId}`}
                   >
@@ -316,19 +313,13 @@ function App() {
               
               <motion.div
                 className="absolute bottom-0 h-0.5 bg-white transition-colors duration-300"
-                initial={{ opacity: 0, width: 0 }}
+                initial={false}
                 animate={{
-                  opacity: shouldShowHeaderNow ? 1 : 0,
                   x: navLinePosition.x,
                   width: navLinePosition.width
                 }}
-                transition={{ 
-                  type: "spring", 
-                  stiffness: 300, 
-                  damping: 30,
-                  opacity: { duration: 0.3 }
-                }}
-                style={{ bottom: '-8px' }}
+                transition={{ type: 'tween', duration: 0.15, ease: 'easeOut' }}
+                style={{ bottom: '-8px', willChange: 'transform, width' }}
               />
             </nav>
 
@@ -337,7 +328,7 @@ function App() {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.3, delay: 0.5 }}
             >
             <motion.span className="mb-1 h-0.5 w-6 transition-colors duration-300 bg-white" animate={{ rotate: mobileMenuOpen ? 45 : 0, y: mobileMenuOpen ? 6 : 0 }} />
             <motion.span className="mb-1 h-0.5 w-6 transition-colors duration-300 bg-white" animate={{ opacity: mobileMenuOpen ? 0 : 1 }} />
@@ -381,6 +372,12 @@ function App() {
           
           return (
             <section key={targetId} id={targetId} className="snap-section flex flex-col snap-start min-h-screen bg-transparent relative">
+              {/* Center sentinel for robust IntersectionObserver section detection */}
+              <div
+                id={`${targetId}-sentinel`}
+                aria-hidden="true"
+                className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-px h-px opacity-0"
+              />
 
               <div className="flex-1 flex items-center justify-center min-h-0 relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4">
                                 <div className="text-center max-w-xs sm:max-w-2xl md:max-w-3xl lg:max-w-4xl w-full mx-auto px-2 sm:px-4">
@@ -663,6 +660,12 @@ function App() {
           
           if (prevIndex >= 0) {
             const prevSection = sections[prevIndex];
+            
+            // If going back to first section, unlock intro immediately so they see the end state
+            if (prevSection === 'syntropy-1') {
+              setIntroUnlocked(true);
+            }
+            
             handleLinkClick(e as React.MouseEvent<HTMLButtonElement, MouseEvent>, prevSection);
           }
         }}
