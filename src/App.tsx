@@ -304,14 +304,11 @@ function App() {
       <header className="sticky top-0 z-50 transition-all duration-1000 ease-in-out bg-transparent relative" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="relative flex h-16 items-center justify-between px-4 sm:h-24 sm:block sm:px-0">
                     <a href="#syntropy-1" onClick={(e) => handleLinkClick(e, 'syntropy-1')}>
-            <motion.div
+            <div
               className="text-lg sm:text-xl font-ivymode font-light sm:absolute sm:top-8 sm:left-8 transition-colors duration-300 text-white uppercase tracking-wide"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 24, duration: 0.6, ease: 'easeOut' }}
             >
               Syntropy.Institute
-            </motion.div>
+            </div>
           </a>
 
           <nav className="hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 text-white relative">
