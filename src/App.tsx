@@ -35,54 +35,16 @@ function App() {
   const [isPhone, setIsPhone] = useState(window.innerWidth < 640);
   const [lightboxText, setLightboxText] = useState<{title: string, content: string} | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
-  const [introUnlocked, setIntroUnlocked] = useState(false);
-  const [hasVisitedFirstSection, setHasVisitedFirstSection] = useState(false);
-
-
-
+  
+ 
+ 
   const navItems = useMemo(() => ['What?', 'Our Goal', 'Frequency', 'Experience', 'Together', 'Why?'], []);
-
-
-
-
-
-
-
-  useEffect(() => {
-    // Unlock header/nav after the intro finishes on section 1, or immediately if the user scrolls away
-    const introTimer = setTimeout(() => setIntroUnlocked(true), 24000);
-    
-    // Also unlock if user has been away and comes back
-    if (hasVisitedFirstSection && currentSection === 'syntropy-1') {
-      setIntroUnlocked(true);
-    }
-    
-    return () => clearTimeout(introTimer);
-  }, [hasVisitedFirstSection, currentSection]);
-
-  useEffect(() => {
-    if (currentSection !== 'syntropy-1') {
-      setIntroUnlocked(true);
-    } else {
-      // Track when someone visits the first section
-      setHasVisitedFirstSection(true);
-    }
-  }, [currentSection]);
-
-  // If the user scrolls during the intro, snap the intro elements to their final state
-  useEffect(() => {
-    if (currentSection !== 'syntropy-1') {
-      // Force-complete any time-based reveals by enabling the unlocked state
-      setIntroUnlocked(true);
-    }
-  }, [currentSection]);
-
-  const navStaggerSeconds = 0.15;
-
-  // Delays for intro animations
-  const headerDelayBase = introUnlocked ? 24.0 : 0.0;
-  const navDelayBase = introUnlocked ? 24.1 : 0.0;
-
+ 
+ 
+ 
+ 
+ 
+ 
   useEffect(() => {
     const checkResponsive = () => {
       setIsMobile(window.innerWidth < 768);
@@ -535,6 +497,19 @@ function App() {
                           >
                             MEDICINE REIMAGINED
                           </motion.div>
+                          <motion.button
+                            onClick={() => setLightboxText({
+                              title: 'Book a Session',
+                              content: 'Contact us to schedule your personalized Syntropy session and begin your journey to optimal health and wellness.'
+                            })}
+                            className="mt-4 px-6 py-3 text-base sm:text-lg font-medium border-2 rounded-full transition-all duration-300 hover:bg-[#B9A590]/20 text-[#B9A590] hover:text-[#B9A590]/80 bg-transparent backdrop-blur-sm"
+                            style={{ borderColor: '#B9A590' }}
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 25.0, duration: 0.6, ease: 'easeOut' }}
+                          >
+                            Book a Session
+                          </motion.button>
                         </div>
                       </div>
                     </motion.div>
@@ -582,7 +557,7 @@ function App() {
                              className="font-semibold"
                              initial={{ opacity: 0 }}
                              whileInView={{ opacity: 1 }}
-                             transition={{ duration: 3.0, delay: 0.8, ease: "easeOut" }}
+                             transition={{ duration: 3.0, delay: 4.0, ease: "easeOut" }}
                              viewport={{ once: true, amount: 0.3 }}
                            >
                              Syntropy.
@@ -690,10 +665,6 @@ function App() {
           if (prevIndex >= 0) {
             const prevSection = sections[prevIndex];
             
-            // If going back to first section, unlock intro immediately so they see the end state
-            if (prevSection === 'syntropy-1') {
-              setIntroUnlocked(true);
-            }
             
             handleLinkClick(e as React.MouseEvent<HTMLButtonElement, MouseEvent>, prevSection);
           }
