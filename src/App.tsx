@@ -576,6 +576,25 @@ function App() {
                        )}
                      </p>
                     
+                    {sectionNumber === 4 && (
+                      <motion.div 
+                        className="flex flex-wrap justify-center gap-3 mt-6"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
+                        viewport={{ once: true, amount: 0.3 }}
+                      >
+                        <motion.a
+                          href="/aurakinetics"
+                          className="px-6 py-3 text-base sm:text-lg font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Learn More
+                        </motion.a>
+                      </motion.div>
+                    )}
+
                     {sectionNumber === 3 && (
                       <motion.div 
                         className="flex flex-wrap justify-center gap-3 mt-6"
