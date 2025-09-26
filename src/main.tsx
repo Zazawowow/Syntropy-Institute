@@ -3,11 +3,23 @@ import { createRoot } from 'react-dom/client'
 import { motion, AnimatePresence } from 'framer-motion'
 import './index.css'
 import App from './App.tsx'
+import ServicesApp from './ServicesApp.tsx'
 
 function AkApp() {
-  const isMobile = window.innerWidth < 768
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+  const [isPhone, setIsPhone] = useState(window.innerWidth < 640)
   const [akLightbox, setAkLightbox] = useState<{ title: string, content: string } | null>(null)
   const [akSection, setAkSection] = useState<'ak-aurikinetics' | 'ak-what' | 'ak-how' | 'ak-root' | 'ak-method'>('ak-aurikinetics')
+
+  useEffect(() => {
+    const checkResponsive = () => {
+      setIsMobile(window.innerWidth < 768)
+      setIsPhone(window.innerWidth < 640)
+    }
+    checkResponsive()
+    window.addEventListener('resize', checkResponsive)
+    return () => window.removeEventListener('resize', checkResponsive)
+  }, [])
 
   const handleAnchor = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault()
@@ -15,36 +27,44 @@ function AkApp() {
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' })
   }
 
+  // Robust section detection: IntersectionObserver with sentinels and top-of-page override
   useEffect(() => {
-    const ids = ['ak-aurikinetics', 'ak-what', 'ak-how', 'ak-root', 'ak-method']
-    const sentinelIds = ids.map(id => `${id}-sentinel`)
-
-    const computeActive = () => {
-      const viewportCenter = window.innerHeight / 2
-      let bestId = akSection
-      let bestDistance = Number.POSITIVE_INFINITY
-
-      for (const id of sentinelIds) {
-        const el = document.getElementById(id)
-        if (!el) continue
-        const rect = el.getBoundingClientRect()
-        const center = rect.top + rect.height / 2
-        const distance = Math.abs(center - viewportCenter)
-        if (distance < bestDistance) {
-          bestDistance = distance
-          bestId = id.replace('-sentinel', '') as typeof akSection
+    const ids = ['ak-aurikinetics', 'ak-what', 'ak-how', 'ak-root', 'ak-method'] as const
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Pick the entry with the greatest intersection ratio
+        let best: { id: typeof ids[number], ratio: number } | null = null
+        for (const entry of entries) {
+          const id = (entry.target as HTMLElement).id.replace('-sentinel', '') as typeof ids[number]
+          if (!best || entry.intersectionRatio > best.ratio) {
+            best = { id, ratio: entry.intersectionRatio }
+          }
         }
+        if (best && best.ratio > 0.45 && best.id !== akSection) {
+          setAkSection(best.id)
+        }
+      },
+      {
+        // Focus the middle band of the viewport to avoid header influence
+        root: null,
+        rootMargin: '-30% 0px -30% 0px',
+        threshold: [0, 0.25, 0.5, 0.75, 1]
       }
+    )
 
-      if (bestId && bestId !== akSection) setAkSection(bestId)
+    for (const id of ids) {
+      const el = document.getElementById(`${id}-sentinel`)
+      if (el) observer.observe(el)
     }
 
-    window.addEventListener('scroll', computeActive, { passive: true })
-    window.addEventListener('resize', computeActive)
-    computeActive()
+    const topOverride = () => {
+      if (window.scrollY < 80 && akSection !== 'ak-aurikinetics') setAkSection('ak-aurikinetics')
+    }
+    window.addEventListener('scroll', topOverride, { passive: true })
+
     return () => {
-      window.removeEventListener('scroll', computeActive)
-      window.removeEventListener('resize', computeActive)
+      observer.disconnect()
+      window.removeEventListener('scroll', topOverride)
     }
   }, [akSection])
 
@@ -54,25 +74,48 @@ function AkApp() {
       'ak-what': "url(/muscle+testing.jpg)",
       'ak-how': "url(/DSC09936.jpeg)",
       'ak-root': "url(/supliful-supplements-on-demand-UTPZnnEVW4E-unsplash.jpg)",
-      'ak-method': "url(/ak-1.jpg)"
+      'ak-method': "url(/herbs.jpeg)"
+    }
+    return map[section]
+  }
+
+  const getAkMobileSrc = (section: typeof akSection) => {
+    const map: Record<typeof akSection, string> = {
+      'ak-aurikinetics': "/ak-1.jpg",
+      'ak-what': "/muscle+testing.jpg",
+      'ak-how': "/DSC09936.jpeg",
+      'ak-root': "/supliful-supplements-on-demand-UTPZnnEVW4E-unsplash.jpg",
+      'ak-method': "/herbs.jpeg"
     }
     return map[section]
   }
 
   return (
     <div className="ak-root font-futuristic relative bg-cover bg-center bg-no-repeat">
-      {/* Fixed background that updates with active section */}
-      <div
-        className="fixed inset-0 z-0"
-        style={{
-          backgroundImage: getAkBackground(akSection),
-          backgroundSize: isMobile ? 'cover' : '100% auto',
-          backgroundPosition: 'center center',
-          backgroundRepeat: 'no-repeat'
-        }}
-      />
+      {/* Background layer - desktop/tablet uses CSS background; phones use dedicated <img> */}
+      {!isPhone ? (
+        <div
+          key={akSection}
+          className="fixed inset-0 z-0"
+          style={{
+            backgroundImage: getAkBackground(akSection),
+            backgroundSize: isPhone ? undefined : (isMobile ? 'cover' : '100% auto'),
+            backgroundPosition: 'center center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        />
+      ) : (
+        <img
+          key={akSection}
+          src={getAkMobileSrc(akSection)}
+          alt=""
+          className="fixed inset-0 z-0 w-full h-[100vh] object-cover object-center pointer-events-none select-none"
+          decoding="async"
+          loading="eager"
+        />
+      )}
 
-      <div className="fixed inset-0 z-10 pointer-events-none bg-black/40"></div>
+      <div className="fixed inset-0 z-10 pointer-events-none bg-black/50"></div>
 
       <header className="sticky top-0 z-50 transition-all duration-1000 ease-in-out bg-transparent relative" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="relative flex h-16 items-center justify-between px-4 sm:h-24 sm:block sm:px-0">
@@ -107,13 +150,13 @@ function AkApp() {
           <div id="ak-aurikinetics-sentinel" aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-px h-px opacity-0" />
           <div className="flex-1 flex items-center justify-center relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4">
             <div className="text-center max-w-xs sm:max-w-2xl md:max-w-3xl lg:max-w-4xl w-full mx-auto px-2 sm:px-4">
-              <div className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-kudryashev text-white drop-shadow-xl tracking-wide uppercase whitespace-nowrap mb-4">
+              <div className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-kudryashev text-white drop-shadow-xl tracking-wide uppercase whitespace-nowrap mb-4">
                 AuraKinetics
               </div>
-              <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl tracking-widest text-white/90 uppercase font-ivymode mb-2">
+              <div className="text-base sm:text-xl md:text-2xl lg:text-3xl tracking-widest text-white/90 uppercase font-ivymode mb-2">
                 A Revolutionary Approach to Body Assessment
               </div>
-              <div className="text-base sm:text-lg md:text-xl text-white/90 font-ivymode">
+              <div className="text-sm sm:text-lg md:text-xl text-white/90 font-ivymode">
                 Offered through Yunasai Ministries
               </div>
             </div>
@@ -124,7 +167,7 @@ function AkApp() {
           <div id="ak-what-sentinel" aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-px h-px opacity-0" />
           <div className="flex-1 flex items-center justify-center relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4">
             <div className="text-center max-w-xs sm:max-w-2xl md:max-w-3xl lg:max-w-4xl w-full mx-auto px-2 sm:px-4">
-              <p className="mt-4 leading-relaxed text-white/95 drop-shadow-lg font-playfair font-light text-center px-2 sm:px-8 text-[20px] sm:text-2xl lg:text-4xl">
+              <p className="mt-4 leading-relaxed text-white/95 drop-shadow-lg font-playfair font-light text-center px-2 sm:px-8 text-[18px] sm:text-2xl lg:text-4xl">
                 Aurakinetics is a non-invasive, integrative art that combines facial analysis, iridology, and advanced muscle testing to identify the best healing path for your body.
               </p>
             </div>
@@ -135,7 +178,7 @@ function AkApp() {
           <div id="ak-how-sentinel" aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-px h-px opacity-0" />
           <div className="flex-1 flex items-center justify-center relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4">
             <div className="text-center max-w-xs sm:max-w-2xl md:max-w-3xl lg:max-w-4xl w-full mx-auto px-2 sm:px-4">
-              <p className="mt-4 leading-relaxed text-white/95 drop-shadow-lg font-playfair font-light text-center px-2 sm:px-8 text-[20px] sm:text-2xl lg:text-4xl">
+              <p className="mt-4 leading-relaxed text-white/95 drop-shadow-lg font-playfair font-light text-center px-2 sm:px-8 text-[18px] sm:text-2xl lg:text-4xl">
                 We assess the body’s electrical circuitry in real time–  No guesswork, just pure bio-intelligence.
               </p>
             </div>
@@ -143,10 +186,10 @@ function AkApp() {
         </section>
 
         <section id="ak-root" className="snap-section flex flex-col snap-start min-h-screen bg-transparent relative">
-          <div id="ak-root-sentinel" aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-px h-px opacity-0" />
+          <div id="ak-root-sentinel" aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-px opacity-0" />
           <div className="flex-1 flex items-center justify-center relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4">
             <div className="text-center max-w-xs sm:max-w-2xl md:max-w-3xl lg:max-w-4xl w-full mx-auto px-2 sm:px-4">
-              <p className="mt-4 leading-relaxed text-white/95 drop-shadow-lg font-playfair font-light text-center px-2 sm:px-8 text-[20px] sm:text-2xl lg:text-4xl">
+              <p className="mt-4 leading-relaxed text-white/95 drop-shadow-lg font-playfair font-light text-center px-2 sm:px-8 text-[18px] sm:text-2xl lg:text-4xl">
                 We go beyond “fixing” symptoms to get to the root of what is ailing you.
               </p>
             </div>
@@ -157,10 +200,10 @@ function AkApp() {
           <div id="ak-method-sentinel" aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-px h-px opacity-0" />
           <div className="flex-1 flex items-center justify-center relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4">
             <div className="text-center max-w-xs sm:max-w-2xl md:max-w-3xl lg:max-w-4xl w-full mx-auto px-2 sm:px-4">
-              <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-kudryashev font-light text-white drop-shadow-xl tracking-wide uppercase mx-auto text-center">
+              <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-kudryashev font-light text-white drop-shadow-xl tracking-wide uppercase mx-auto text-center">
                 The AuraKinetics® Method
               </h2>
-              <p className="mt-4 leading-relaxed text-white/95 drop-shadow-lg font-playfair font-light text-center px-2 sm:px-8 text-[20px] sm:text-2xl lg:text-3xl">
+              <p className="mt-4 leading-relaxed text-white/95 drop-shadow-lg font-playfair font-light text-center px-2 sm:px-8 text-[18px] sm:text-2xl lg:text-3xl">
                 "Discover the root causes of imbalances in your body and the exact steps to bring it back into alignment."
               </p>
 
@@ -179,7 +222,7 @@ function AkApp() {
                   content: 'After your session, you’ll receive a full protocol with your recommended herbs and supplements, as well as a daily regimen of other practices and suggestions.'
                 }].map((item) => (
                   <div key={item.title} className="flex flex-col items-center text-center">
-                    <img src={item.icon} alt="" className="w-20 h-20 object-contain mb-3 select-none pointer-events-none" />
+                    <img src={item.icon} alt="" className="w-16 h-16 sm:w-20 sm:h-20 object-contain mb-3 select-none pointer-events-none" />
                     <motion.button
                       onClick={() => setAkLightbox({ title: item.title, content: item.content })}
                       className="px-4 py-2 text-base sm:text-lg font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 text-white/90 hover:text-white bg-transparent backdrop-blur-sm w-full sm:w-auto"
@@ -248,10 +291,11 @@ function AkApp() {
 }
 
 const isAk = window.location.pathname === '/aurakinetics'
+const isServices = window.location.pathname === '/services'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {isAk ? <AkApp /> : <App />}
+    {isAk ? <AkApp /> : isServices ? <ServicesApp /> : <App />}
   </StrictMode>,
 )
 

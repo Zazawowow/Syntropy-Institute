@@ -592,6 +592,14 @@ function App() {
                         >
                           Learn More
                         </motion.a>
+                        <motion.a
+                          href="/services"
+                          className="px-6 py-3 text-base sm:text-lg font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Services
+                        </motion.a>
                       </motion.div>
                     )}
 
