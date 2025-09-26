@@ -479,11 +479,12 @@ function App() {
                             <motion.span
                               className="inline-block"
                               initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
-                              animate={{
+                              whileInView={{
                                 opacity: [0, 1, 1],
                                 clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0% 0 0)']
                               }}
-                              transition={{ duration: 1.8, delay: 23.0, ease: 'easeInOut', times: [0, 0.3, 1] }}
+                              transition={{ duration: 1.8, delay: 1.5, ease: 'easeInOut', times: [0, 0.3, 1] }}
+                              viewport={{ once: true, amount: 0.3 }}
                               style={{ willChange: 'clip-path, opacity' }}
                             >
                               SYNTROPY
@@ -513,6 +514,38 @@ function App() {
                         </div>
                       </div>
                     </motion.div>
+                  ) : sectionNumber === 2 ? (
+                    <div className="relative z-20">
+                      {/* Our Goal Title */}
+                      <motion.h2
+                        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-kudryashev font-light text-white drop-shadow-xl tracking-wide uppercase mx-auto text-center"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 1.0, delay: 0.5, ease: "easeOut" }}
+                      >
+                        Our Goal
+                      </motion.h2>
+                      
+                      {/* Sentence */}
+                      <motion.p 
+                        className="mt-4 leading-relaxed text-white/95 drop-shadow-lg font-playfair font-light text-center px-2 sm:px-8 text-[20px] sm:text-2xl lg:text-4xl"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 1.0, delay: 2.0, ease: "easeOut" }}
+                      >
+                        Is to guide you back to your natural energetic state
+                        <br />
+                        {/* Syntropy word */}
+                        <motion.span 
+                          className="font-semibold"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 1.0, delay: 3.5, ease: "easeOut" }}
+                        >
+                          Syntropy.
+                        </motion.span>
+                      </motion.p>
+                    </div>
                   ) : (
                     <motion.h2
                       className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-kudryashev font-light text-white drop-shadow-xl relative z-20 tracking-wide uppercase mx-auto text-center"
@@ -521,7 +554,6 @@ function App() {
                       transition={{ duration: 1.0, delay: 0.3, ease: "easeOut" }}
                       viewport={{ once: true, amount: 0.3 }}
                     >
-                      {sectionNumber === 2 && 'Our Goal'}
                       {sectionNumber === 3 && 'Frequency'}
                       {sectionNumber === 4 && 'Experience'}
                       {sectionNumber === 5 && (
@@ -535,7 +567,7 @@ function App() {
                     </motion.h2>
                   )}
                   
-                  {sectionNumber !== 1 && (
+                  {sectionNumber !== 1 && sectionNumber !== 2 && (
                   <motion.div 
                     className="relative z-20"
                     initial={{ opacity: 0 }}
@@ -549,21 +581,7 @@ function App() {
                          ? 'text-[20px] sm:text-xl lg:text-2xl' 
                          : 'text-[20px] sm:text-2xl lg:text-4xl'
                      }`}>
-                       {sectionNumber === 2 ? (
-                         <>
-                           Is to guide you back to your natural energetic state
-                           <br />
-                           <motion.span 
-                             className="font-semibold"
-                             initial={{ opacity: 0 }}
-                             whileInView={{ opacity: 1 }}
-                             transition={{ duration: 3.0, delay: 4.0, ease: "easeOut" }}
-                             viewport={{ once: true, amount: 0.3 }}
-                           >
-                             Syntropy.
-                           </motion.span>
-                         </>
-                       ) : sectionNumber === 3 ? (
+                       {sectionNumber === 3 ? (
                          'Syntropy is the merging of Ancient Wisdom with tomorrow\'s Frequency Technology'
                        ) : sectionNumber === 4 ? (
                          'AuraKinetics + Syntropy Frequency'
