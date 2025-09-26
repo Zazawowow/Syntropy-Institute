@@ -1,4 +1,4 @@
-import { StrictMode, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import './index.css'
 
@@ -7,6 +7,9 @@ function ServicesApp() {
   const [isPhone, setIsPhone] = useState(window.innerWidth < 640)
   const [servicesLightbox, setServicesLightbox] = useState<{ title: string, content: string } | null>(null)
   const [servicesSection, setServicesSection] = useState<'services-overview' | 'services-frequency' | 'services-kinetics' | 'services-concierge' | 'services-membership'>('services-overview')
+  const [isLongTermModalOpen, setIsLongTermModalOpen] = useState(false)
+  const [isIntroModalOpen, setIsIntroModalOpen] = useState(false)
+  const [isPrecisionModalOpen, setIsPrecisionModalOpen] = useState(false)
 
   useEffect(() => {
     const checkResponsive = () => {
@@ -69,7 +72,7 @@ function ServicesApp() {
     const map: Record<typeof servicesSection, string> = {
       'services-overview': "url(/4.jpg)",
       'services-frequency': "url(/services-2.jpg)",
-      'services-kinetics': "url(/3.jpg)",
+      'services-kinetics': "url(/vitalfield-1.jpg)",
       'services-concierge': "url(/5.jpg)",
       'services-membership': "url(/6.jpg)"
     }
@@ -80,7 +83,7 @@ function ServicesApp() {
     const map: Record<typeof servicesSection, string> = {
       'services-overview': "/mobile-4.jpg",
       'services-frequency': "/services-2.jpg",
-      'services-kinetics': "/mobile-3.jpg",
+      'services-kinetics': "/vitalfield-1.jpg",
       'services-concierge': "/mobile-5.jpg",
       'services-membership': "/mobile-6.jpg"
     }
@@ -91,18 +94,16 @@ function ServicesApp() {
     <div className="services-root font-futuristic relative bg-cover bg-center bg-no-repeat">
       {/* Background layer - desktop/tablet uses CSS background; phones use dedicated <img> */}
       {!isPhone ? (
-        servicesSection !== 'services-frequency' && (
-          <div
-            key={servicesSection}
-            className="fixed inset-0 z-0"
-            style={{
-              backgroundImage: getServicesBackground(servicesSection),
-              backgroundSize: isMobile ? 'cover' : '100% auto',
-              backgroundPosition: 'center center',
-              backgroundRepeat: 'no-repeat'
-            }}
-          />
-        )
+        <div
+          key={servicesSection}
+          className="fixed inset-0 z-0"
+          style={{
+            backgroundImage: getServicesBackground(servicesSection),
+            backgroundSize: isMobile ? 'cover' : '100% auto',
+            backgroundPosition: 'center center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        />
       ) : (
         <img
           key={servicesSection}
@@ -114,7 +115,7 @@ function ServicesApp() {
         />
       )}
 
-      <div className={`fixed inset-0 z-10 pointer-events-none ${servicesSection === 'services-frequency' ? 'bg-transparent' : 'bg-black/50'}`}></div>
+      <div className={`fixed inset-0 z-10 pointer-events-none ${servicesSection === 'services-frequency' || servicesSection === 'services-kinetics' ? 'bg-black/80' : 'bg-black/50'}`}></div>
 
       <header className="sticky top-0 z-50 transition-all duration-1000 ease-in-out bg-transparent relative" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="relative flex h-16 items-center justify-between px-4 sm:h-24 sm:block sm:px-0">
@@ -123,14 +124,14 @@ function ServicesApp() {
               Syntropy.Institute
             </div>
           </a>
-          <nav className="hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 text-white relative">
-            {[
-              { id: 'services-overview', label: 'Overview' },
-              { id: 'services-frequency', label: 'Frequency' },
-              { id: 'services-kinetics', label: 'Kinetics' },
-              { id: 'services-concierge', label: 'Concierge' },
-              { id: 'services-membership', label: 'Membership' },
-            ].map((item) => (
+        <nav className="hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 text-white relative">
+          {[
+            { id: 'services-overview', label: 'Overview' },
+            { id: 'services-frequency', label: 'What it is' },
+            { id: 'services-kinetics', label: 'Plans' },
+            { id: 'services-concierge', label: 'Concierge' },
+            { id: 'services-membership', label: 'Membership' },
+          ].map((item) => (
               <a
                 key={item.id}
                 href={`#${item.id}`}
@@ -182,12 +183,40 @@ function ServicesApp() {
           <div id="services-kinetics-sentinel" aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-px h-px opacity-0" />
           <div className="flex-1 flex items-center justify-center relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4">
             <div className="text-center max-w-xs sm:max-w-2xl md:max-w-3xl lg:max-w-4xl w-full mx-auto px-2 sm:px-4">
-              <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-kudryashev font-light text-white drop-shadow-xl tracking-wide uppercase mx-auto text-center mb-6">
-                Manual Kinetics
-              </h2>
-              <p className="mt-4 leading-relaxed text-white/95 drop-shadow-lg font-playfair font-light text-center px-2 sm:px-8 text-[18px] sm:text-2xl lg:text-3xl">
-                "Syntropy Manual Kinetics is the science of biological optimization, integrating advanced muscle testing, facial analysis, iridology, and manual field diagnostics to assess the body's structural and functional condition."
+              
+              {/* Introductory Precision Scan */}
+              <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-kudryashev font-light text-white drop-shadow-xl tracking-wide uppercase mb-6">
+                Introductory Precision Scan
+              </h3>
+              <p className="text-xl sm:text-2xl text-white/90 font-playfair font-light mb-6">
+                Your introduction into Syntropy
               </p>
+              <div className="text-4xl sm:text-5xl font-kudryashev text-white mb-6">$500</div>
+              <div className="text-white/95 font-playfair font-light text-lg sm:text-xl leading-relaxed mb-8">
+                <p className="mb-3">A comprehensive AuraKinetics® Assessment</p>
+                <p className="mb-3">• One personalized Syntropy Frequency Analysis-Therapy</p>
+                <p className="text-base text-white/80 italic">Note: Herbal formulas are not included</p>
+              </div>
+
+              {/* Buttons to open modals */}
+              <div className="flex justify-center gap-3 sm:gap-4">
+                <motion.button
+                  onClick={() => setIsIntroModalOpen(true)}
+                  className="px-4 sm:px-8 py-3 sm:py-4 text-base sm:text-lg lg:text-xl font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 text-white/90 hover:text-white bg-transparent backdrop-blur-sm flex-1 sm:flex-none max-w-[140px] sm:max-w-none"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Introductory
+                </motion.button>
+                <motion.button
+                  onClick={() => setIsLongTermModalOpen(true)}
+                  className="px-4 sm:px-8 py-3 sm:py-4 text-base sm:text-lg lg:text-xl font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 text-white/90 hover:text-white bg-transparent backdrop-blur-sm flex-1 sm:flex-none max-w-[140px] sm:max-w-none"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Long Term
+                </motion.button>
+              </div>
             </div>
           </div>
         </section>
@@ -197,11 +226,25 @@ function ServicesApp() {
           <div className="flex-1 flex items-center justify-center relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4">
             <div className="text-center max-w-xs sm:max-w-2xl md:max-w-3xl lg:max-w-4xl w-full mx-auto px-2 sm:px-4">
               <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-kudryashev font-light text-white drop-shadow-xl tracking-wide uppercase mx-auto text-center mb-6">
-                Syntropy Concierge
+                Ready to Go All In
               </h2>
-              <p className="mt-4 leading-relaxed text-white/95 drop-shadow-lg font-playfair font-light text-center px-2 sm:px-8 text-[18px] sm:text-2xl lg:text-3xl">
-                "The individualized protocol developed through Kinetic assessment and frequency analysis will be seamlessly integrated into your daily lifestyle—including nutrition, supplementation, herbal support, and movement practices tailored to your unique needs and goals."
-              </p>
+              <div className="mt-4 leading-relaxed text-white/95 drop-shadow-lg font-playfair font-light text-center px-2 sm:px-8 text-[16px] sm:text-lg lg:text-xl space-y-4">
+                <p>You've had a taste of what's possible. Now it's time to go deeper.</p>
+                <p>If your intro session brought relief, insight, or clarity—this is your path forward. The Precision Healing Packages are fully customized 3–12 month journeys built around your unique YOU, combining physical, mental, emotional and spiritual healing—the four pillars of health. This includes guided emotional integration, subconscious work, and herbal support addressing every layer of your being.</p>
+                <p>This is where true healing happens—complete recalibration across all levels.</p>
+              </div>
+
+              {/* Button to open precision modal */}
+              <div className="mt-8">
+                <motion.button
+                  onClick={() => setIsPrecisionModalOpen(true)}
+                  className="px-8 py-4 text-lg sm:text-xl font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Precision Plan
+                </motion.button>
+              </div>
             </div>
           </div>
         </section>
@@ -292,6 +335,286 @@ function ServicesApp() {
                   {servicesLightbox.content}
                 </motion.p>
               </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Long-Term Plans Modal */}
+      <AnimatePresence>
+        {isLongTermModalOpen && (
+          <motion.div
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsLongTermModalOpen(false)}
+            />
+            
+            <motion.div
+              className="relative bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl max-w-4xl w-full max-h-[80vh] overflow-y-auto"
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+            >
+              {/* Close button */}
+              <button
+                onClick={() => setIsLongTermModalOpen(false)}
+                className="absolute top-4 right-4 z-10 text-white/70 hover:text-white transition-colors"
+              >
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6">
+                    <path d="M6 6l12 12M6 18L18 6"/>
+                  </svg>
+                </div>
+              </button>
+
+              <div className="p-8 sm:p-12">
+                <h3 className="text-3xl sm:text-4xl md:text-5xl font-kudryashev font-light text-white drop-shadow-xl tracking-wide uppercase mb-6 text-center">
+                  Long-Term Healing Plans
+                </h3>
+                <p className="text-xl sm:text-2xl text-white/90 font-playfair font-light mb-8 text-center">
+                  Individualized 3–12 Month Healing Protocols
+                </p>
+                
+                <div className="space-y-6 text-white/95 font-playfair font-light text-base sm:text-lg leading-relaxed">
+                  <div className="p-6 bg-white/5 rounded-xl border border-white/10">
+                    <h4 className="text-xl font-semibold text-white mb-3">3-Month Foundations</h4>
+                    <p>Includes 8 Precision Frequency Scans + Personalized Herbal Protocols.</p>
+                  </div>
+                  
+                  <div className="p-6 bg-white/5 rounded-xl border border-white/10">
+                    <h4 className="text-xl font-semibold text-white mb-3">3-Month with Coaching</h4>
+                    <p>Everything in the Foundations plan, plus Kaleb's personal guidance using Parts Work, Body Talk Therapy, and metaphysical root-cause healing.</p>
+                  </div>
+                  
+                  <div className="p-6 bg-white/5 rounded-xl border border-white/10">
+                    <h4 className="text-xl font-semibold text-white mb-3">6-Month Deep Healing</h4>
+                    <p>An extended version of the coaching-inclusive package for sustained recalibration, expanded support, and deeper transformation.</p>
+                  </div>
+                  
+                  <div className="p-6 bg-white/5 rounded-xl border border-white/10">
+                    <h4 className="text-xl font-semibold text-white mb-3">12-Month Mastery</h4>
+                    <p>A full year of the coaching-inclusive package—the most complete and immersive option for total realignment across physical, mental, emotional, and spiritual levels.</p>
+                  </div>
+                  
+                  <div className="mt-8 p-6 bg-white/10 rounded-xl border border-white/20">
+                    <p className="text-sm sm:text-base text-white/90 italic text-center">
+                      Note: Pricing is fully customized to your needs and level of support. Your introductory scan serves as the gateway to determine the most aligned path forward.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Introductory Plan Modal */}
+      <AnimatePresence>
+        {isIntroModalOpen && (
+          <motion.div
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsIntroModalOpen(false)}
+            />
+            
+            <motion.div
+              className="relative bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl max-w-4xl w-full max-h-[80vh] overflow-y-auto"
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+            >
+              {/* Close button */}
+              <button
+                onClick={() => setIsIntroModalOpen(false)}
+                className="absolute top-4 right-4 z-10 text-white/70 hover:text-white transition-colors"
+              >
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6">
+                    <path d="M6 6l12 12M6 18L18 6"/>
+                  </svg>
+                </div>
+              </button>
+
+              <div className="p-8 sm:p-12">
+                <div className="text-center mb-8">
+                  <h3 className="text-3xl sm:text-4xl md:text-5xl font-kudryashev font-light text-white drop-shadow-xl tracking-wide uppercase mb-4">
+                    $500 Introductory Precision Scan
+                  </h3>
+                </div>
+                
+                <div className="space-y-6 text-white/95 font-playfair font-light text-base sm:text-lg leading-relaxed">
+                  <div>
+                    <h4 className="text-xl font-semibold text-white mb-4">Includes:</h4>
+                    
+                    <div className="space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+                        <div className="flex-1">
+                          <p className="font-semibold text-white">• AuraKinetics® Assessment</p>
+                          <p className="text-white/80 text-sm sm:text-base mt-1">
+                            A full-body diagnostic using iridology, facial mapping, and refined muscle testing to identify root imbalances and assess your body's energetic circuitry.
+                          </p>
+                        </div>
+                        <div className="text-white/70 text-sm font-medium whitespace-nowrap">
+                          (Value: $250)
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+                        <div className="flex-1">
+                          <p className="font-semibold text-white">• Syntropy Frequency Analysis-Therapy</p>
+                          <p className="text-white/80 text-sm sm:text-base mt-1">
+                            A personalized frequency scan to detect blockages and deliver a digital remedy tailored to your biofield in real-time.
+                          </p>
+                        </div>
+                        <div className="text-white/70 text-sm font-medium whitespace-nowrap">
+                          (Value: $250)
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                    <p className="text-sm text-white/90 italic">
+                      Note: Herbal formulas are not included in this intro package, but may be recommended based on findings.
+                    </p>
+                  </div>
+
+                  <div className="mt-8">
+                    <h4 className="text-xl font-semibold text-white mb-3">Why Start Here?</h4>
+                    <p className="text-white/90">
+                      This $500 entry point gives you a real experience of the precision and impact of our work—with zero guesswork. It's ideal if you're curious, committed, or need proof before investing deeper.
+                    </p>
+                  </div>
+
+                  <div className="mt-8 p-6 bg-white/10 rounded-xl border border-white/20">
+                    <h4 className="text-xl font-semibold text-white mb-3">Love the Results? Upgrade to Full Healing Plan</h4>
+                    <p className="text-white/90">
+                      Your $500 intro rolls directly into your chosen long-term package—just pay the difference.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Precision Plan Modal */}
+      <AnimatePresence>
+        {isPrecisionModalOpen && (
+          <motion.div
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsPrecisionModalOpen(false)}
+            />
+            
+            <motion.div
+              className="relative bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl max-w-5xl w-full max-h-[80vh] overflow-y-auto"
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+            >
+              {/* Close button */}
+              <button
+                onClick={() => setIsPrecisionModalOpen(false)}
+                className="absolute top-4 right-4 z-10 text-white/70 hover:text-white transition-colors"
+              >
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6">
+                    <path d="M6 6l12 12M6 18L18 6"/>
+                  </svg>
+                </div>
+              </button>
+
+              <div className="p-8 sm:p-12">
+                <h3 className="text-3xl sm:text-4xl md:text-5xl font-kudryashev font-light text-white drop-shadow-xl tracking-wide uppercase mb-6 text-center">
+                  The Precision Healing Packages
+                </h3>
+                <div className="space-y-6 text-white/95 font-playfair font-light text-base sm:text-lg leading-relaxed">
+                  <p>
+                    Healing is not one-size-fits-all. After your Introductory Precision Scan, we'll design a personalized plan tailored to your unique needs and goals.
+                  </p>
+                  <p>
+                    Every package is built around the four pillars of health—physical, emotional, mental, and spiritual—so healing happens on every level.
+                  </p>
+                  
+                  <div className="mt-8">
+                    <h4 className="text-2xl font-semibold text-white mb-6 text-center">What's Included in Every Healing Journey:</h4>
+                    
+                    <div className="space-y-4">
+                      <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                        <h5 className="text-lg font-semibold text-white mb-2">Precision Care</h5>
+                        <p>Structured sessions designed around your unique YOU.</p>
+                      </div>
+                      
+                      <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                        <h5 className="text-lg font-semibold text-white mb-2">Individualized Syntropy Frequency Sessions</h5>
+                        <p>Regular recalibration to support sustained healing—typically 8 sessions every 3 months.</p>
+                      </div>
+                      
+                      <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                        <h5 className="text-lg font-semibold text-white mb-2">Herbal Formulas</h5>
+                        <p>Time-tested for over 40 years and precision-formulated to address the underlying root causes of imbalance.</p>
+                      </div>
+                      
+                      <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                        <h5 className="text-lg font-semibold text-white mb-2">VitalField Frequencell™ Wearable Patch</h5>
+                        <p>Customized to your frequency profile for ongoing support.</p>
+                      </div>
+                      
+                      <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                        <h5 className="text-lg font-semibold text-white mb-2">Ongoing Assessment & Adjustments</h5>
+                        <p>Real-time refinements as your body evolves.</p>
+                      </div>
+                      
+                      <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                        <h5 className="text-lg font-semibold text-white mb-2">Concierge Hotline</h5>
+                        <p>Direct access for questions and guidance between sessions.</p>
+                      </div>
+                      
+                      <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                        <h5 className="text-lg font-semibold text-white mb-2">Progress Tracking & Data Insights</h5>
+                        <p>Shareable logs, practitioner notes, and scan data for ongoing clarity.</p>
+                      </div>
+                      
+                      <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                        <h5 className="text-lg font-semibold text-white mb-2">Full Support from Our Healing Team</h5>
+                        <p>A dedicated team walking with you every step of the way.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </motion.div>
           </motion.div>
         )}
