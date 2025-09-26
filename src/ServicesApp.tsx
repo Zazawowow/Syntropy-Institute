@@ -6,10 +6,11 @@ function ServicesApp() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
   const [isPhone, setIsPhone] = useState(window.innerWidth < 640)
   const [servicesLightbox, setServicesLightbox] = useState<{ title: string, content: string } | null>(null)
-  const [servicesSection, setServicesSection] = useState<'services-overview' | 'services-frequency' | 'services-kinetics' | 'services-concierge' | 'services-membership'>('services-overview')
+  const [servicesSection, setServicesSection] = useState<'services-overview' | 'services-frequency' | 'services-kinetics' | 'services-concierge' | 'services-membership' | 'services-timeframes' | 'services-disclaimer'>('services-overview')
   const [isLongTermModalOpen, setIsLongTermModalOpen] = useState(false)
   const [isIntroModalOpen, setIsIntroModalOpen] = useState(false)
   const [isPrecisionModalOpen, setIsPrecisionModalOpen] = useState(false)
+  const [isCoachingModalOpen, setIsCoachingModalOpen] = useState(false)
 
   useEffect(() => {
     const checkResponsive = () => {
@@ -29,7 +30,7 @@ function ServicesApp() {
 
   // Robust section detection: IntersectionObserver with sentinels and top-of-page override
   useEffect(() => {
-    const ids = ['services-overview', 'services-frequency', 'services-kinetics', 'services-concierge', 'services-membership'] as const
+    const ids = ['services-overview', 'services-frequency', 'services-kinetics', 'services-concierge', 'services-membership', 'services-timeframes', 'services-disclaimer'] as const
     const observer = new IntersectionObserver(
       (entries) => {
         // Pick the entry with the greatest intersection ratio
@@ -74,7 +75,9 @@ function ServicesApp() {
       'services-frequency': "url(/services-2.jpg)",
       'services-kinetics': "url(/vitalfield-1.jpg)",
       'services-concierge': "url(/5.jpg)",
-      'services-membership': "url(/6.jpg)"
+      'services-membership': "url(/6.jpg)",
+      'services-timeframes': "url(/1.jpg)",
+      'services-disclaimer': "url(/2.jpg)"
     }
     return map[section]
   }
@@ -85,7 +88,9 @@ function ServicesApp() {
       'services-frequency': "/services-2.jpg",
       'services-kinetics': "/vitalfield-1.jpg",
       'services-concierge': "/mobile-5.jpg",
-      'services-membership': "/mobile-6.jpg"
+      'services-membership': "/mobile-6.jpg",
+      'services-timeframes': "/mobile-1.jpg",
+      'services-disclaimer': "/mobile-2.jpg"
     }
     return map[section]
   }
@@ -129,8 +134,10 @@ function ServicesApp() {
             { id: 'services-overview', label: 'Overview' },
             { id: 'services-frequency', label: 'What it is' },
             { id: 'services-kinetics', label: 'Plans' },
-            { id: 'services-concierge', label: 'Concierge' },
-            { id: 'services-membership', label: 'Membership' },
+            { id: 'services-concierge', label: 'Go All In' },
+            { id: 'services-membership', label: 'Coaching' },
+            { id: 'services-timeframes', label: 'Timeframes' },
+            { id: 'services-disclaimer', label: 'Hours' },
           ].map((item) => (
               <a
                 key={item.id}
@@ -226,11 +233,11 @@ function ServicesApp() {
           <div className="flex-1 flex items-center justify-center relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4">
             <div className="text-center max-w-xs sm:max-w-2xl md:max-w-3xl lg:max-w-4xl w-full mx-auto px-2 sm:px-4">
               <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-kudryashev font-light text-white drop-shadow-xl tracking-wide uppercase mx-auto text-center mb-6">
-                Ready to Go All In
+                Go All In?
               </h2>
               <div className="mt-4 leading-relaxed text-white/95 drop-shadow-lg font-playfair font-light text-center px-2 sm:px-8 text-[16px] sm:text-lg lg:text-xl space-y-4">
                 <p>You've had a taste of what's possible. Now it's time to go deeper.</p>
-                <p>If your intro session brought relief, insight, or clarity—this is your path forward. The Precision Healing Packages are fully customized 3–12 month journeys built around your unique YOU, combining physical, mental, emotional and spiritual healing—the four pillars of health. This includes guided emotional integration, subconscious work, and herbal support addressing every layer of your being.</p>
+                <p>If your intro session brought relief, insight, or clarity—this is your path forward. The Precision Healing Packages are customized 3–12 month journeys combining physical, mental, emotional and spiritual healing through guided integration, subconscious work, and herbal support.</p>
                 <p>This is where true healing happens—complete recalibration across all levels.</p>
               </div>
 
@@ -254,38 +261,96 @@ function ServicesApp() {
           <div className="flex-1 flex items-center justify-center relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4">
             <div className="text-center max-w-xs sm:max-w-2xl md:max-w-3xl lg:max-w-4xl w-full mx-auto px-2 sm:px-4">
               <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-kudryashev font-light text-white drop-shadow-xl tracking-wide uppercase mx-auto text-center mb-6">
-                Membership & Terms
+                Coaching-Inclusive Packages
               </h2>
-              <p className="mt-4 leading-relaxed text-white/95 drop-shadow-lg font-playfair font-light text-center px-2 sm:px-8 text-[18px] sm:text-2xl lg:text-3xl">
-                "Our services are exclusively available through the Yunasai Ministry. By engaging with us, you automatically join our Private Membership Association. Learn more about membership and terms."
-              </p>
+              <div className="mt-4 leading-relaxed text-white/95 drop-shadow-lg font-playfair font-light text-center px-2 sm:px-8 text-[16px] sm:text-lg lg:text-xl space-y-4">
+                <p>For those ready to go deeper, select plans also include Kaleb's coaching and therapeutic guidance.</p>
+              </div>
 
-              <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
-                {[{
-                  icon: '/ak-icon-1.webp',
-                  title: 'Private Membership',
-                  content: 'All services are provided through our Private Membership Association under ecclesiastical law, ensuring your privacy and protection while accessing cutting-edge healing modalities.'
-                }, {
-                  icon: '/ak-icon-2.webp',
-                  title: 'Individualized Protocols',
-                  content: 'Each client receives a completely personalized protocol based on their unique biological assessment, ensuring optimal results for their specific needs.'
-                }, {
-                  icon: '/ak-icon-3.webp',
-                  title: 'Ongoing Support',
-                  content: 'Continuous monitoring and adjustment of your protocol as your body responds and heals, with full support throughout your wellness journey.'
-                }].map((item) => (
-                  <div key={item.title} className="flex flex-col items-center text-center">
-                    <img src={item.icon} alt="" className="w-16 h-16 sm:w-20 sm:h-20 object-contain mb-3 select-none pointer-events-none" />
-                    <motion.button
-                      onClick={() => setServicesLightbox({ title: item.title, content: item.content })}
-                      className="px-4 py-2 text-base sm:text-lg font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 text-white/90 hover:text-white bg-transparent backdrop-blur-sm w-full sm:w-auto"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      {item.title}
-                    </motion.button>
+              {/* Button to open coaching modal */}
+              <div className="mt-8">
+                <motion.button
+                  onClick={() => setIsCoachingModalOpen(true)}
+                  className="px-8 py-4 text-lg sm:text-xl font-medium border-2 border-white/80 rounded-full transition-all duration-300 hover:bg-white/20 text-white/90 hover:text-white bg-transparent backdrop-blur-sm"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  See Details
+                </motion.button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="services-timeframes" className="snap-section flex flex-col snap-start min-h-screen bg-transparent relative">
+          <div id="services-timeframes-sentinel" aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-px h-px opacity-0" />
+          <div className="flex-1 flex items-center justify-center relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4">
+            <div className="text-center max-w-xs sm:max-w-2xl md:max-w-3xl lg:max-w-4xl w-full mx-auto px-2 sm:px-4">
+              <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-kudryashev font-light text-white drop-shadow-xl tracking-wide uppercase mx-auto text-center mb-6">
+                Flexible Timeframes
+              </h2>
+              <div className="mt-4 leading-relaxed text-white/95 drop-shadow-lg font-playfair font-light text-center px-2 sm:px-8 text-[16px] sm:text-lg lg:text-xl space-y-4">
+                <p>Whether you prefer a 3-month foundation, a 6-month deep healing journey, or a 12-month mastery experience, your plan is fully customized. Instead of preset pricing, each package is individually tailored based on your needs, your goals, and the depth of coaching desired.</p>
+                <p>This leaves room for flexibility—ensuring that your healing journey is not only effective, but aligned with your personal path and investment comfort.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="services-disclaimer" className="snap-section flex flex-col snap-start min-h-screen bg-transparent relative">
+          <div id="services-disclaimer-sentinel" aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-px h-px opacity-0" />
+          <div className="flex-1 flex items-center justify-center relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4">
+            <div className="max-w-xs sm:max-w-4xl md:max-w-5xl lg:max-w-6xl w-full mx-auto px-2 sm:px-4">
+              
+              {/* Two column layout for desktop, stacked for mobile */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+                
+                {/* Disclaimer - Takes up 2 columns on desktop */}
+                <div className="lg:col-span-2">
+                  <h3 className="text-2xl sm:text-3xl md:text-4xl font-kudryashev font-light text-white drop-shadow-xl tracking-wide uppercase mb-6">
+                    Disclaimer
+                  </h3>
+                  <div className="text-white/90 font-playfair font-light text-sm sm:text-base leading-relaxed">
+                    <p>
+                      Yunasai Ministry is a Private Ministerial Association operating within the private domain under Ecclesiastical Law. The information and services provided by Yunasai Ministry are for spiritual and educational purposes only. All content, services, and communications provided are intended exclusively for members of the Ministry and are not subject to public jurisdiction or regulatory oversight.
+                    </p>
+                    <p className="mt-4">
+                      We do not diagnose, treat, or prevent disease. Nothing presented by the Ministry or its trustees is intended to be a substitute for medical advice, diagnosis, or treatment from a licensed healthcare provider.
+                    </p>
                   </div>
-                ))}
+                </div>
+
+                {/* Location & Hours - Takes up 1 column on desktop */}
+                <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:space-y-8 lg:grid-cols-1">
+                  {/* Location */}
+                  <div>
+                    <h3 className="text-lg sm:text-2xl lg:text-3xl xl:text-4xl font-kudryashev font-light text-white drop-shadow-xl tracking-wide uppercase mb-3 lg:mb-4">
+                      Location
+                    </h3>
+                    <div className="text-white/90 font-playfair font-light text-xs sm:text-sm lg:text-base leading-relaxed">
+                      <p>7904 FM-969</p>
+                      <p>Austin, TX 78724</p>
+                    </div>
+                  </div>
+
+                  {/* Hours */}
+                  <div>
+                    <h3 className="text-lg sm:text-2xl lg:text-3xl xl:text-4xl font-kudryashev font-light text-white drop-shadow-xl tracking-wide uppercase mb-3 lg:mb-4">
+                      Hours
+                    </h3>
+                    <div className="text-white/90 font-playfair font-light text-xs sm:text-sm lg:text-base leading-relaxed space-y-1 lg:space-y-2">
+                      <div className="flex flex-col sm:flex-row sm:justify-between">
+                        <span>Monday — Saturday</span>
+                        <span>11am — 6pm</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:justify-between">
+                        <span>Sunday</span>
+                        <span>Closed</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
               </div>
             </div>
           </div>
@@ -611,6 +676,86 @@ function ServicesApp() {
                         <h5 className="text-lg font-semibold text-white mb-2">Full Support from Our Healing Team</h5>
                         <p>A dedicated team walking with you every step of the way.</p>
                       </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Coaching Details Modal */}
+      <AnimatePresence>
+        {isCoachingModalOpen && (
+          <motion.div
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsCoachingModalOpen(false)}
+            />
+            
+            <motion.div
+              className="relative bg-black/90 backdrop-blur-xl border border-white/20 rounded-2xl max-w-4xl w-full max-h-[80vh] overflow-y-auto"
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+            >
+              {/* Close button */}
+              <button
+                onClick={() => setIsCoachingModalOpen(false)}
+                className="absolute top-4 right-4 z-10 text-white/70 hover:text-white transition-colors"
+              >
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6">
+                    <path d="M6 6l12 12M6 18L18 6"/>
+                  </svg>
+                </div>
+              </button>
+
+              <div className="p-8 sm:p-12">
+                <h3 className="text-3xl sm:text-4xl md:text-5xl font-kudryashev font-light text-white drop-shadow-xl tracking-wide uppercase mb-6 text-center">
+                  Coaching & Therapeutic Guidance
+                </h3>
+                
+                <div className="space-y-6 text-white/95 font-playfair font-light text-base sm:text-lg leading-relaxed">
+                  <p className="text-center mb-8">
+                    For those ready to go deeper, select plans also include Kaleb's coaching and therapeutic guidance, such as:
+                  </p>
+                  
+                  <div className="space-y-4">
+                    <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                      <h5 className="text-lg font-semibold text-white mb-2">Parts Work</h5>
+                      <p>Integrating the inner self for wholeness</p>
+                    </div>
+                    
+                    <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                      <h5 className="text-lg font-semibold text-white mb-2">Body Talk Therapy</h5>
+                      <p>Connecting body, mind, and energy systems</p>
+                    </div>
+                    
+                    <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                      <h5 className="text-lg font-semibold text-white mb-2">Dialoguing with Your Dis-ease</h5>
+                      <p>Uncovering the messages behind symptoms</p>
+                    </div>
+                    
+                    <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                      <h5 className="text-lg font-semibold text-white mb-2">Metaphysical Exploration of Root Causes</h5>
+                      <p>Grief, anger, trauma, past experiences, and more</p>
+                    </div>
+                    
+                    <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                      <h5 className="text-lg font-semibold text-white mb-2">Emotional Release Work</h5>
+                      <p>Transforming unresolved trauma into healing</p>
                     </div>
                   </div>
                 </div>
