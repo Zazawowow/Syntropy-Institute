@@ -114,7 +114,7 @@ function ServicesApp() {
         />
       )}
 
-      <div className={`fixed inset-0 z-10 pointer-events-none ${servicesSection === 'services-frequency' && !isPhone ? 'bg-transparent' : 'bg-black/50'}`}></div>
+      <div className={`fixed inset-0 z-10 pointer-events-none ${servicesSection === 'services-frequency' ? 'bg-transparent' : 'bg-black/50'}`}></div>
 
       <header className="sticky top-0 z-50 transition-all duration-1000 ease-in-out bg-transparent relative" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="relative flex h-16 items-center justify-between px-4 sm:h-24 sm:block sm:px-0">
@@ -159,57 +159,26 @@ function ServicesApp() {
           </div>
         </section>
 
-        <section id="services-frequency" className="snap-section flex flex-col snap-start min-h-screen bg-transparent relative overflow-hidden">
+        <section id="services-frequency" className="snap-section flex flex-col snap-start min-h-screen bg-transparent relative">
           <div id="services-frequency-sentinel" aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-px h-px opacity-0" />
-          <div className="flex-1 flex items-center justify-center relative z-20" style={{ marginTop: '0px' }}>
-            {isPhone ? (
-              <div className="text-center max-w-xs sm:max-w-2xl md:max-w-3xl lg:max-w-4xl w-full mx-auto px-2 sm:px-4 text-white">
-                <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-kudryashev font-light drop-shadow-xl tracking-wide uppercase mx-auto text-center mb-6 text-white">
-                  What it is
-                </h2>
-                <div className="mt-4 leading-relaxed drop-shadow-lg font-playfair font-light text-center px-2 sm:px-8 text-[18px] sm:text-2xl lg:text-3xl text-white/95">
-                  <p className="mb-4">
-                    This advanced integrative service combines AuraKinetics® and Frequency Analysis-Therapy to provide deep insights into the root causes of imbalance and chronic dysfunction—bridging manual diagnostics with frequency-based healing.
-                  </p>
-                  <p>
-                    Using cutting-edge, non-invasive techniques, we analyze the human biofield to identify core blockages and inefficiencies. Then, through precise energetic frequencies, we guide the body toward optimal function, self-regulation, and accelerated healing.
-                  </p>
-                </div>
+          <div className="flex-1 flex items-center justify-center relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4">
+            <div className="text-center max-w-xs sm:max-w-2xl md:max-w-3xl lg:max-w-4xl w-full mx-auto px-2 sm:px-4">
+              <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-kudryashev font-light text-white drop-shadow-xl tracking-wide uppercase mx-auto text-center mb-6">
+                What it is
+              </h2>
+              <div className="mt-4 leading-relaxed text-white/95 drop-shadow-lg font-playfair font-light text-center px-2 sm:px-8 text-[16px] sm:text-lg lg:text-xl">
+                <p className="mb-4">
+                  This advanced integrative service combines AuraKinetics® and Frequency Analysis-Therapy to provide deep insights into the root causes of imbalance and chronic dysfunction—bridging manual diagnostics with frequency-based healing.
+                </p>
+                <p>
+                  Using cutting-edge, non-invasive techniques, we analyze the human biofield to identify core blockages and inefficiencies. Then, through precise energetic frequencies, we guide the body toward optimal function, self-regulation, and accelerated healing.
+                </p>
               </div>
-            ) : (
-              <div className="w-full flex" style={{ height: 'calc(100vh - 6rem)' }}>
-                {/* Left half - Image */}
-                <div 
-                  className="w-1/2 bg-cover bg-center bg-no-repeat relative"
-                  style={{
-                    backgroundImage: "url(/services-2.jpg)",
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center center',
-                    height: '100%'
-                  }}
-                />
-                {/* Right half - Text */}
-                <div className="w-1/2 bg-white flex items-center justify-center p-8 relative">
-                  <div className="max-w-lg">
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-kudryashev font-light tracking-wide uppercase mb-6 text-black">
-                      What it is
-                    </h2>
-                    <div className="leading-relaxed font-playfair font-light text-lg md:text-xl lg:text-2xl text-black">
-                      <p className="mb-4">
-                        This advanced integrative service combines AuraKinetics® and Frequency Analysis-Therapy to provide deep insights into the root causes of imbalance and chronic dysfunction—bridging manual diagnostics with frequency-based healing.
-                      </p>
-                      <p>
-                        Using cutting-edge, non-invasive techniques, we analyze the human biofield to identify core blockages and inefficiencies. Then, through precise energetic frequencies, we guide the body toward optimal function, self-regulation, and accelerated healing.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+            </div>
           </div>
         </section>
 
-        <section id="services-kinetics" className="snap-section flex flex-col snap-start min-h-screen bg-transparent relative">
+        <section id="services-kinetics" className="snap-section flex flex-col snap-start min-h-screen bg-transparent relative overflow-hidden">
           <div id="services-kinetics-sentinel" aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-px h-px opacity-0" />
           <div className="flex-1 flex items-center justify-center relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4">
             <div className="text-center max-w-xs sm:max-w-2xl md:max-w-3xl lg:max-w-4xl w-full mx-auto px-2 sm:px-4">
