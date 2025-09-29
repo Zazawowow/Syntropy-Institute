@@ -29,6 +29,7 @@ const TypingText = ({ text, delay = 0, duration = 5, useNbsp = true }: { text: s
 
 function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
   const [currentSection, setCurrentSection] = useState('syntropy-1');
   const [navLinePosition, setNavLinePosition] = useState({ x: 0, width: 0 });
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -273,7 +274,7 @@ function App() {
             </div>
           </a>
 
-          <nav className="hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 text-white relative">
+            <nav className="hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 text-white relative">
               {navItems.map((item, index) => {
                 const targetId = `syntropy-${index + 1}`;
                 return (
@@ -291,6 +292,19 @@ function App() {
                   </motion.a>
                 );
               })}
+              
+              {/* Desktop menu button */}
+              <motion.button
+                className="z-50 flex h-8 w-8 flex-col items-center justify-center ml-4"
+                onClick={() => setDesktopMenuOpen(!desktopMenuOpen)}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 + (navItems.length * 0.05), ease: 'easeOut' }}
+              >
+                <motion.span className="mb-1 h-0.5 w-6 transition-colors duration-300 bg-white" animate={{ rotate: desktopMenuOpen ? 45 : 0, y: desktopMenuOpen ? 6 : 0 }} />
+                <motion.span className="mb-1 h-0.5 w-6 transition-colors duration-300 bg-white" animate={{ opacity: desktopMenuOpen ? 0 : 1 }} />
+                <motion.span className="h-0.5 w-6 transition-colors duration-300 bg-white" animate={{ rotate: desktopMenuOpen ? -45 : 0, y: desktopMenuOpen ? -6 : 0 }} />
+              </motion.button>
               
               <motion.div
                 className="absolute bottom-0 h-0.5 bg-white transition-colors duration-300"
@@ -318,6 +332,62 @@ function App() {
         </div>
               </header>
         
+      {/* Desktop Menu Overlay */}
+      <AnimatePresence>
+        {desktopMenuOpen && (
+          <motion.div
+            className="hidden sm:flex fixed inset-0 z-40 flex-col items-center justify-center bg-black/90 backdrop-blur-lg"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {[
+              { label: 'Syntropy', href: '/' },
+              { label: 'AuraKinetics', href: '/aurakinetics' },
+              { label: 'About Our Services', href: '/services' },
+              { label: 'Book a Session', href: '#', onClick: () => setLightboxText({
+                title: 'Book a Session',
+                content: 'Contact us to schedule your personalized Syntropy session and begin your journey to optimal health and wellness.'
+              }) },
+              { label: 'About Yunasai Ministry', href: '#', onClick: () => setLightboxText({
+                title: 'About Yunasai Ministry',
+                content: 'Yunasai Ministry is a Private Ministerial Association operating within the private domain under Ecclesiastical Law. Our services are for spiritual and educational purposes only.'
+              }) },
+              { label: 'Member Disclosure & Agreement', href: '#', onClick: () => setLightboxText({
+                title: 'Member Disclosure & Agreement',
+                content: 'By engaging with our services, you automatically join our Private Membership Association. Please review our terms and membership agreement.'
+              }) }
+            ].map((item, itemIndex) => (
+              <motion.a
+                key={item.label}
+                href={item.href}
+                onClick={(e) => {
+                  if (item.onClick) {
+                    e.preventDefault();
+                    setDesktopMenuOpen(false);
+                    item.onClick();
+                  } else if (item.href === '/') {
+                    e.preventDefault();
+                    setDesktopMenuOpen(false);
+                    handleLinkClick(e, 'syntropy-1');
+                  } else {
+                    setDesktopMenuOpen(false);
+                  }
+                }}
+                className="text-2xl font-medium mb-8 cursor-pointer transition-colors text-white hover:text-gray-300"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ delay: itemIndex * 0.1 }}
+              >
+                {item.label}
+              </motion.a>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -326,23 +396,48 @@ function App() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            {navItems.map((item, itemIndex) => {
-              const targetId = `syntropy-${itemIndex + 1}`;
-              return (
-                <motion.a
-                  key={item}
-                  href={`#${targetId}`}
-                  onClick={(e) => handleLinkClick(e, targetId)}
-                  className="text-2xl font-medium mb-8 cursor-pointer transition-colors text-white hover:text-gray-300"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  transition={{ delay: itemIndex * 0.1 }}
-                >
-                  {item}
-                </motion.a>
-              );
-            })}
+            {[
+              { label: 'Syntropy', href: '/' },
+              { label: 'AuraKinetics', href: '/aurakinetics' },
+              { label: 'About Our Services', href: '/services' },
+              { label: 'Book a Session', href: '#', onClick: () => setLightboxText({
+                title: 'Book a Session',
+                content: 'Contact us to schedule your personalized Syntropy session and begin your journey to optimal health and wellness.'
+              }) },
+              { label: 'About Yunasai Ministry', href: '#', onClick: () => setLightboxText({
+                title: 'About Yunasai Ministry',
+                content: 'Yunasai Ministry is a Private Ministerial Association operating within the private domain under Ecclesiastical Law. Our services are for spiritual and educational purposes only.'
+              }) },
+              { label: 'Member Disclosure & Agreement', href: '#', onClick: () => setLightboxText({
+                title: 'Member Disclosure & Agreement',
+                content: 'By engaging with our services, you automatically join our Private Membership Association. Please review our terms and membership agreement.'
+              }) }
+            ].map((item, itemIndex) => (
+              <motion.a
+                key={item.label}
+                href={item.href}
+                onClick={(e) => {
+                  if (item.onClick) {
+                    e.preventDefault();
+                    setMobileMenuOpen(false);
+                    item.onClick();
+                  } else if (item.href === '/') {
+                    e.preventDefault();
+                    setMobileMenuOpen(false);
+                    handleLinkClick(e, 'syntropy-1');
+                  } else {
+                    setMobileMenuOpen(false);
+                  }
+                }}
+                className="text-2xl font-medium mb-8 cursor-pointer transition-colors text-white hover:text-gray-300"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ delay: itemIndex * 0.1 }}
+              >
+                {item.label}
+              </motion.a>
+            ))}
           </motion.div>
         )}
       </AnimatePresence>
@@ -479,12 +574,11 @@ function App() {
                             <motion.span
                               className="inline-block"
                               initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
-                              whileInView={{
+                              animate={{
                                 opacity: [0, 1, 1],
                                 clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0% 0 0)']
                               }}
-                              transition={{ duration: 1.8, delay: 1.5, ease: 'easeInOut', times: [0, 0.3, 1] }}
-                              viewport={{ once: true, amount: 0.3 }}
+                              transition={{ duration: 1.8, delay: 23.5, ease: 'easeInOut', times: [0, 0.3, 1] }}
                               style={{ willChange: 'clip-path, opacity' }}
                             >
                               SYNTROPY
@@ -494,7 +588,7 @@ function App() {
                             className="mt-2 text-sm sm:text-base md:text-lg lg:text-xl tracking-widest text-white/90 uppercase font-ivymode"
                             initial={{ opacity: 0, y: 6 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 24.2, duration: 0.6, ease: 'easeOut' }}
+                            transition={{ delay: 25.3, duration: 0.6, ease: 'easeOut' }}
                           >
                             MEDICINE REIMAGINED
                           </motion.div>
@@ -507,7 +601,7 @@ function App() {
                             style={{ borderColor: '#B9A590' }}
                             initial={{ opacity: 0, y: 6 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 25.0, duration: 0.6, ease: 'easeOut' }}
+                            transition={{ delay: 26.5, duration: 0.6, ease: 'easeOut' }}
                           >
                             Book a Session
                           </motion.button>

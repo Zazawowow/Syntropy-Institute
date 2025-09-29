@@ -11,6 +11,8 @@ function ServicesApp() {
   const [isIntroModalOpen, setIsIntroModalOpen] = useState(false)
   const [isPrecisionModalOpen, setIsPrecisionModalOpen] = useState(false)
   const [isCoachingModalOpen, setIsCoachingModalOpen] = useState(false)
+  const [desktopMenuOpen, setDesktopMenuOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     const checkResponsive = () => {
@@ -148,9 +150,130 @@ function ServicesApp() {
                 {item.label}
               </a>
             ))}
+            
+            {/* Desktop menu button */}
+            <motion.button
+              className="z-50 flex h-8 w-8 flex-col items-center justify-center ml-4"
+              onClick={() => setDesktopMenuOpen(!desktopMenuOpen)}
+            >
+              <motion.span className="mb-1 h-0.5 w-6 transition-colors duration-300 bg-white" animate={{ rotate: desktopMenuOpen ? 45 : 0, y: desktopMenuOpen ? 6 : 0 }} />
+              <motion.span className="mb-1 h-0.5 w-6 transition-colors duration-300 bg-white" animate={{ opacity: desktopMenuOpen ? 0 : 1 }} />
+              <motion.span className="h-0.5 w-6 transition-colors duration-300 bg-white" animate={{ rotate: desktopMenuOpen ? -45 : 0, y: desktopMenuOpen ? -6 : 0 }} />
+            </motion.button>
           </nav>
+
+          <motion.button
+            className="z-50 flex h-8 w-8 flex-col items-center justify-center sm:hidden"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            <motion.span className="mb-1 h-0.5 w-6 transition-colors duration-300 bg-white" animate={{ rotate: mobileMenuOpen ? 45 : 0, y: mobileMenuOpen ? 6 : 0 }} />
+            <motion.span className="mb-1 h-0.5 w-6 transition-colors duration-300 bg-white" animate={{ opacity: mobileMenuOpen ? 0 : 1 }} />
+            <motion.span className="h-0.5 w-6 transition-colors duration-300 bg-white" animate={{ rotate: mobileMenuOpen ? -45 : 0, y: mobileMenuOpen ? -6 : 0 }} />
+          </motion.button>
         </div>
       </header>
+
+      {/* Desktop Menu Overlay */}
+      <AnimatePresence>
+        {desktopMenuOpen && (
+          <motion.div
+            className="hidden sm:flex fixed inset-0 z-40 flex-col items-center justify-center bg-black/90 backdrop-blur-lg"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {[
+              { label: 'Syntropy', href: '/' },
+              { label: 'AuraKinetics', href: '/aurakinetics' },
+              { label: 'About Our Services', href: '/services' },
+              { label: 'Book a Session', href: '#', onClick: () => setServicesLightbox({
+                title: 'Book a Session',
+                content: 'Contact us to schedule your personalized Syntropy session and begin your journey to optimal health and wellness.'
+              }) },
+              { label: 'About Yunasai Ministry', href: '#', onClick: () => setServicesLightbox({
+                title: 'About Yunasai Ministry',
+                content: 'Yunasai Ministry is a Private Ministerial Association operating within the private domain under Ecclesiastical Law. Our services are for spiritual and educational purposes only.'
+              }) },
+              { label: 'Member Disclosure & Agreement', href: '#', onClick: () => setServicesLightbox({
+                title: 'Member Disclosure & Agreement',
+                content: 'By engaging with our services, you automatically join our Private Membership Association. Please review our terms and membership agreement.'
+              }) }
+            ].map((item, itemIndex) => (
+              <motion.a
+                key={item.label}
+                href={item.href}
+                onClick={(e) => {
+                  if (item.onClick) {
+                    e.preventDefault();
+                    setDesktopMenuOpen(false);
+                    item.onClick();
+                  } else {
+                    setDesktopMenuOpen(false);
+                  }
+                }}
+                className="text-2xl font-medium mb-8 cursor-pointer transition-colors text-white hover:text-gray-300"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ delay: itemIndex * 0.1 }}
+              >
+                {item.label}
+              </motion.a>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            className="sm:hidden fixed inset-0 z-40 flex flex-col items-center justify-center bg-black/90 backdrop-blur-lg"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {[
+              { label: 'Syntropy', href: '/' },
+              { label: 'AuraKinetics', href: '/aurakinetics' },
+              { label: 'About Our Services', href: '/services' },
+              { label: 'Book a Session', href: '#', onClick: () => setServicesLightbox({
+                title: 'Book a Session',
+                content: 'Contact us to schedule your personalized Syntropy session and begin your journey to optimal health and wellness.'
+              }) },
+              { label: 'About Yunasai Ministry', href: '#', onClick: () => setServicesLightbox({
+                title: 'About Yunasai Ministry',
+                content: 'Yunasai Ministry is a Private Ministerial Association operating within the private domain under Ecclesiastical Law. Our services are for spiritual and educational purposes only.'
+              }) },
+              { label: 'Member Disclosure & Agreement', href: '#', onClick: () => setServicesLightbox({
+                title: 'Member Disclosure & Agreement',
+                content: 'By engaging with our services, you automatically join our Private Membership Association. Please review our terms and membership agreement.'
+              }) }
+            ].map((item, itemIndex) => (
+              <motion.a
+                key={item.label}
+                href={item.href}
+                onClick={(e) => {
+                  if (item.onClick) {
+                    e.preventDefault();
+                    setMobileMenuOpen(false);
+                    item.onClick();
+                  } else {
+                    setMobileMenuOpen(false);
+                  }
+                }}
+                className="text-2xl font-medium mb-8 cursor-pointer transition-colors text-white hover:text-gray-300"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ delay: itemIndex * 0.1 }}
+              >
+                {item.label}
+              </motion.a>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <main className="-mt-16 sm:-mt-24 relative">
         <section id="services-overview" className="snap-section flex flex-col snap-start min-h-screen bg-transparent relative">
