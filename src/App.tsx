@@ -274,7 +274,7 @@ function App() {
             </div>
           </a>
 
-            <nav className="hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 text-white relative">
+            <nav className="hidden sm:flex sm:absolute sm:top-8 sm:right-0 items-center space-x-8 text-lg font-medium transition-colors duration-300 text-white relative">
               {navItems.map((item, index) => {
                 const targetId = `syntropy-${index + 1}`;
                 return (

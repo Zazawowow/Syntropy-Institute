@@ -131,7 +131,7 @@ function ServicesApp() {
               Syntropy.Institute
             </div>
           </a>
-        <nav className="hidden sm:flex sm:absolute sm:top-8 sm:right-8 items-center space-x-8 text-lg font-medium transition-colors duration-300 text-white relative">
+        <nav className="hidden sm:flex sm:absolute sm:top-8 sm:right-4 items-center space-x-8 text-lg font-medium transition-colors duration-300 text-white relative">
           {[
             { id: 'services-overview', label: 'Overview' },
             { id: 'services-frequency', label: 'What it is' },
