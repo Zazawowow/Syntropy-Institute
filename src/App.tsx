@@ -36,6 +36,14 @@ function App() {
   const [isPhone, setIsPhone] = useState(window.innerWidth < 640);
   const [lightboxText, setLightboxText] = useState<{title: string, content: string} | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [hasPlayedIntro, setHasPlayedIntro] = useState(() => {
+    // Check localStorage on initial load
+    try {
+      return localStorage.getItem('syntropy-intro-played') === 'true';
+    } catch {
+      return false;
+    }
+  });
   
  
  
@@ -154,6 +162,22 @@ function App() {
       metaThemeColor.setAttribute('content', '#000000');
     }
   }, [currentSection]);
+
+  // Mark intro as played after animation completes
+  useEffect(() => {
+    if (!hasPlayedIntro) {
+      const timer = setTimeout(() => {
+        setHasPlayedIntro(true);
+        try {
+          localStorage.setItem('syntropy-intro-played', 'true');
+        } catch {
+          // Ignore localStorage errors
+        }
+      }, 27000); // 27 seconds - after all animations complete
+
+      return () => clearTimeout(timer);
+    }
+  }, [hasPlayedIntro]);
 
   useEffect(() => {
     const updateNavLinePosition = () => {
@@ -458,156 +482,193 @@ function App() {
               <div className="flex-1 flex items-center justify-center min-h-0 relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4">
                                 <div className="text-center max-w-xs sm:max-w-2xl md:max-w-3xl lg:max-w-4xl w-full mx-auto px-2 sm:px-4">
                   {sectionNumber === 1 ? (
-                    <motion.div className="relative z-20 min-h-[16rem] flex items-center justify-center">
-                      {/* Vertically centered container that shows title then paragraph in same place */}
-                      <div className="relative min-h-[10rem] w-full flex items-center justify-center">
-                        {/* Title with Medicine using clipPath and Reimagined using fade */}
-                        <div className="absolute text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-kudryashev text-white drop-shadow-xl tracking-wide uppercase flex flex-col items-center gap-1 sm:block sm:whitespace-nowrap">
-                          {/* Medicine with original clipPath animation, holds 1 second after full text */}
-                          <motion.span
-                            className="inline-block"
-                            initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
-                            animate={{
-                              opacity: [0, 1, 1, 0],
-                              clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0 0 100%)']
-                            }}
-                            transition={{ duration: 4.2, delay: 0.5, ease: 'easeInOut', times: [0, 0.17, 0.81, 1] }}
-                            style={{ willChange: 'clip-path, opacity' }}
-                          >
-                            Medicine
-                          </motion.span>
-                          {/* Space between words (desktop only) */}
-                          <span className="hidden sm:inline"> </span>
-                          {/* Reimagined with fade animation, holds 1 second after fully visible */}
-                          <motion.span
-                            className="inline-block"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 1, 0] }}
-                            transition={{ duration: 3.5, delay: 1.2, ease: 'easeInOut', times: [0, 0.57, 0.86, 1] }}
-                          >
-                            Reimagined
-                          </motion.span>
+                    hasPlayedIntro ? (
+                      // Skip animation - show final state immediately
+                      <motion.div className="relative z-20 min-h-[16rem] flex items-center justify-center">
+                        <div className="relative min-h-[10rem] w-full flex items-center justify-center">
+                          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                            <div className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-kudryashev text-white drop-shadow-xl tracking-wide uppercase whitespace-nowrap">
+                              <motion.span
+                                className="inline-block"
+                                initial={{ opacity: 1, clipPath: 'inset(0 0% 0 0)' }}
+                                style={{ willChange: 'clip-path, opacity' }}
+                              >
+                                SYNTROPY
+                              </motion.span>
+                            </div>
+                            <motion.div
+                              className="mt-2 text-sm sm:text-base md:text-lg lg:text-xl tracking-widest text-white/90 uppercase font-ivymode"
+                              initial={{ opacity: 1, y: 0 }}
+                            >
+                              MEDICINE REIMAGINED
+                            </motion.div>
+                            <motion.button
+                              onClick={() => setLightboxText({
+                                title: 'Book a Session',
+                                content: 'Contact us to schedule your personalized Syntropy session and begin your journey to optimal health and wellness.'
+                              })}
+                              className="mt-4 px-6 py-3 text-base sm:text-lg font-medium border-2 rounded-full transition-all duration-300 hover:bg-[#B9A590]/20 text-[#B9A590] hover:text-[#B9A590]/80 bg-transparent backdrop-blur-sm"
+                              style={{ borderColor: '#B9A590' }}
+                              initial={{ opacity: 1, y: 0 }}
+                            >
+                              Book a Session
+                            </motion.button>
+                          </div>
                         </div>
-
-                        {/* Paragraph sequence inline: start only after title fully exits, then fade out before SYNTROPY */}
-                        <motion.p
-                          className="absolute text-[24px] sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl leading-relaxed text-white/95 drop-shadow-lg font-playfair font-normal text-center px-3 sm:px-6"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: [0, 1, 1, 0] }}
-                          transition={{ delay: 4.7, duration: 18.8, ease: 'easeInOut', times: [0, 0.02, 0.93, 1] }}
-                          style={{
-                            maxWidth: isPhone ? '92vw' : '95vw',
-                            lineHeight: '1.5',
-                            fontSize: isPhone ? 20 : undefined,
-                            overflowWrap: isPhone ? 'normal' : 'break-word',
-                            wordBreak: isPhone ? 'keep-all' : undefined,
-                            hyphens: isPhone ? 'manual' : undefined,
-                            textAlign: 'center',
-                            textWrap: isPhone ? 'balance' as any : undefined
-                          }}
-                        >
-                          {/* first text uses letter-by-letter typing effect, starts after title fades out */}
-                          <motion.span
-                            initial={{ opacity: 1 }}
-                            animate={{ opacity: [1, 1, 0.3, 0.3, 0.3, 0.3, 0.3] }}
-                            transition={{ duration: 15.0, delay: 4.7, times: [0, 0.45, 0.46, 0.6, 0.75, 0.87, 1] }}
-                          >
-                            <TypingText 
-                              text="We've been taught that the universe and the body are destined for entropy:" 
-                              delay={4.7} 
-                              duration={4.0} 
-                              useNbsp={!isPhone}
-                            />
-                          </motion.span>
-                          <motion.span
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 1, 0.3, 0.3, 0.3, 0.3] }}
-                            transition={{ duration: 10.0, delay: 9.2, times: [0, 0.2, 0.4, 0.45, 0.6, 0.8, 1] }}
-                          >
-                            {' '}
-                            decay, disorder, decline.
-                            {' '}
-                          </motion.span>
-                          <motion.span
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 1, 0.3, 0.3, 0.3] }}
-                            transition={{ duration: 8.0, delay: 11.2, times: [0, 0.25, 0.5, 0.56, 0.75, 1] }}
-                          >
-                            Yet life itself is
-                          </motion.span>
-                          <motion.span
-                            className="italic"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 1, 0.3, 0.3] }}
-                            transition={{ duration: 6.0, delay: 13.2, times: [0, 0.33, 0.67, 0.75, 1] }}
-                          >
-                            {' '}
-                            inherently syntropic
-                          </motion.span>
-                          <motion.span
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 1, 0.3] }}
-                            transition={{ duration: 2.5, delay: 15.2, times: [0, 0.6, 0.8, 1], ease: 'easeInOut' }}
-                          >
-                            —conscious,
-                          </motion.span>
-                          <motion.span
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 0.3] }}
-                            transition={{ duration: 3.0, delay: 15.7, times: [0, 0.6, 1], ease: 'easeInOut' }}
-                          >
-                            {' '}intelligent,{' '}
-                          </motion.span>
-                          <motion.span
-                            className="font-semibold"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 2.0, delay: 17.95, ease: 'easeInOut' }}
-                          >
-                            self-healing.
-                          </motion.span>
-                        </motion.p>
-
-                        {/* SYNTROPY headline appears after paragraph fades out */}
-                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                          <div className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-kudryashev text-white drop-shadow-xl tracking-wide uppercase whitespace-nowrap">
+                      </motion.div>
+                    ) : (
+                      // Play full animation sequence
+                      <motion.div className="relative z-20 min-h-[16rem] flex items-center justify-center">
+                        {/* Vertically centered container that shows title then paragraph in same place */}
+                        <div className="relative min-h-[10rem] w-full flex items-center justify-center">
+                          {/* Title with Medicine using clipPath and Reimagined using fade */}
+                          <div className="absolute text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-kudryashev text-white drop-shadow-xl tracking-wide uppercase flex flex-col items-center gap-1 sm:block sm:whitespace-nowrap">
+                            {/* Medicine with original clipPath animation, holds 1 second after full text */}
                             <motion.span
                               className="inline-block"
                               initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
                               animate={{
-                                opacity: [0, 1, 1],
-                                clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0% 0 0)']
+                                opacity: [0, 1, 1, 0],
+                                clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0 0 100%)']
                               }}
-                              transition={{ duration: 1.8, delay: 23.5, ease: 'easeInOut', times: [0, 0.3, 1] }}
+                              transition={{ duration: 4.2, delay: 0.5, ease: 'easeInOut', times: [0, 0.17, 0.81, 1] }}
                               style={{ willChange: 'clip-path, opacity' }}
                             >
-                              SYNTROPY
+                              Medicine
+                            </motion.span>
+                            {/* Space between words (desktop only) */}
+                            <span className="hidden sm:inline"> </span>
+                            {/* Reimagined with fade animation, holds 1 second after fully visible */}
+                            <motion.span
+                              className="inline-block"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: [0, 1, 1, 0] }}
+                              transition={{ duration: 3.5, delay: 1.2, ease: 'easeInOut', times: [0, 0.57, 0.86, 1] }}
+                            >
+                              Reimagined
                             </motion.span>
                           </div>
-                          <motion.div
-                            className="mt-2 text-sm sm:text-base md:text-lg lg:text-xl tracking-widest text-white/90 uppercase font-ivymode"
-                            initial={{ opacity: 0, y: 6 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 25.3, duration: 0.6, ease: 'easeOut' }}
+
+                          {/* Paragraph sequence inline: start only after title fully exits, then fade out before SYNTROPY */}
+                          <motion.p
+                            className="absolute text-[24px] sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl leading-relaxed text-white/95 drop-shadow-lg font-playfair font-normal text-center px-3 sm:px-6"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: [0, 1, 1, 0] }}
+                            transition={{ delay: 4.7, duration: 18.8, ease: 'easeInOut', times: [0, 0.02, 0.93, 1] }}
+                            style={{
+                              maxWidth: isPhone ? '92vw' : '95vw',
+                              lineHeight: '1.5',
+                              fontSize: isPhone ? 20 : undefined,
+                              overflowWrap: isPhone ? 'normal' : 'break-word',
+                              wordBreak: isPhone ? 'keep-all' : undefined,
+                              hyphens: isPhone ? 'manual' : undefined,
+                              textAlign: 'center',
+                              textWrap: isPhone ? 'balance' as any : undefined
+                            }}
                           >
-                            MEDICINE REIMAGINED
-                          </motion.div>
-                          <motion.button
-                            onClick={() => setLightboxText({
-                              title: 'Book a Session',
-                              content: 'Contact us to schedule your personalized Syntropy session and begin your journey to optimal health and wellness.'
-                            })}
-                            className="mt-4 px-6 py-3 text-base sm:text-lg font-medium border-2 rounded-full transition-all duration-300 hover:bg-[#B9A590]/20 text-[#B9A590] hover:text-[#B9A590]/80 bg-transparent backdrop-blur-sm"
-                            style={{ borderColor: '#B9A590' }}
-                            initial={{ opacity: 0, y: 6 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 26.5, duration: 0.6, ease: 'easeOut' }}
-                          >
-                            Book a Session
-                          </motion.button>
+                            {/* first text uses letter-by-letter typing effect, starts after title fades out */}
+                            <motion.span
+                              initial={{ opacity: 1 }}
+                              animate={{ opacity: [1, 1, 0.3, 0.3, 0.3, 0.3, 0.3] }}
+                              transition={{ duration: 15.0, delay: 4.7, times: [0, 0.45, 0.46, 0.6, 0.75, 0.87, 1] }}
+                            >
+                              <TypingText 
+                                text="We've been taught that the universe and the body are destined for entropy:" 
+                                delay={4.7} 
+                                duration={4.0} 
+                                useNbsp={!isPhone}
+                              />
+                            </motion.span>
+                            <motion.span
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: [0, 1, 1, 0.3, 0.3, 0.3, 0.3] }}
+                              transition={{ duration: 10.0, delay: 9.2, times: [0, 0.2, 0.4, 0.45, 0.6, 0.8, 1] }}
+                            >
+                              {' '}
+                              decay, disorder, decline.
+                              {' '}
+                            </motion.span>
+                            <motion.span
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: [0, 1, 1, 0.3, 0.3, 0.3] }}
+                              transition={{ duration: 8.0, delay: 11.2, times: [0, 0.25, 0.5, 0.56, 0.75, 1] }}
+                            >
+                              Yet life itself is
+                            </motion.span>
+                            <motion.span
+                              className="italic"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: [0, 1, 1, 0.3, 0.3] }}
+                              transition={{ duration: 6.0, delay: 13.2, times: [0, 0.33, 0.67, 0.75, 1] }}
+                            >
+                              {' '}
+                              inherently syntropic
+                            </motion.span>
+                            <motion.span
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: [0, 1, 1, 0.3] }}
+                              transition={{ duration: 2.5, delay: 15.2, times: [0, 0.6, 0.8, 1], ease: 'easeInOut' }}
+                            >
+                              —conscious,
+                            </motion.span>
+                            <motion.span
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: [0, 1, 0.3] }}
+                              transition={{ duration: 3.0, delay: 15.7, times: [0, 0.6, 1], ease: 'easeInOut' }}
+                            >
+                              {' '}intelligent,{' '}
+                            </motion.span>
+                            <motion.span
+                              className="font-semibold"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ duration: 2.0, delay: 17.95, ease: 'easeInOut' }}
+                            >
+                              self-healing.
+                            </motion.span>
+                          </motion.p>
+
+                          {/* SYNTROPY headline appears after paragraph fades out */}
+                          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                            <div className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-kudryashev text-white drop-shadow-xl tracking-wide uppercase whitespace-nowrap">
+                              <motion.span
+                                className="inline-block"
+                                initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
+                                animate={{
+                                  opacity: [0, 1, 1],
+                                  clipPath: ['inset(0 100% 0 0)', 'inset(0 0% 0 0)', 'inset(0 0% 0 0)']
+                                }}
+                                transition={{ duration: 1.8, delay: 23.5, ease: 'easeInOut', times: [0, 0.3, 1] }}
+                                style={{ willChange: 'clip-path, opacity' }}
+                              >
+                                SYNTROPY
+                              </motion.span>
+                            </div>
+                            <motion.div
+                              className="mt-2 text-sm sm:text-base md:text-lg lg:text-xl tracking-widest text-white/90 uppercase font-ivymode"
+                              initial={{ opacity: 0, y: 6 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 25.3, duration: 0.6, ease: 'easeOut' }}
+                            >
+                              MEDICINE REIMAGINED
+                            </motion.div>
+                            <motion.button
+                              onClick={() => setLightboxText({
+                                title: 'Book a Session',
+                                content: 'Contact us to schedule your personalized Syntropy session and begin your journey to optimal health and wellness.'
+                              })}
+                              className="mt-4 px-6 py-3 text-base sm:text-lg font-medium border-2 rounded-full transition-all duration-300 hover:bg-[#B9A590]/20 text-[#B9A590] hover:text-[#B9A590]/80 bg-transparent backdrop-blur-sm"
+                              style={{ borderColor: '#B9A590' }}
+                              initial={{ opacity: 0, y: 6 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 26.5, duration: 0.6, ease: 'easeOut' }}
+                            >
+                              Book a Session
+                            </motion.button>
+                          </div>
                         </div>
-                      </div>
-                    </motion.div>
+                      </motion.div>
+                    )
                   ) : sectionNumber === 2 ? (
                     <div className="relative z-20">
                       {/* Our Goal Title */}
