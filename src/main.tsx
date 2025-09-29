@@ -6,16 +6,15 @@ import App from './App.tsx'
 import ServicesApp from './ServicesApp.tsx'
 
 function AkApp() {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
   const [isPhone, setIsPhone] = useState(window.innerWidth < 640)
   const [akLightbox, setAkLightbox] = useState<{ title: string, content: string } | null>(null)
   const [akSection, setAkSection] = useState<'ak-aurikinetics' | 'ak-what' | 'ak-how' | 'ak-root' | 'ak-method'>('ak-aurikinetics')
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [navLinePosition, setNavLinePosition] = useState({ x: 0, width: 0 })
 
   useEffect(() => {
     const checkResponsive = () => {
-      setIsMobile(window.innerWidth < 768)
       setIsPhone(window.innerWidth < 640)
     }
     checkResponsive()
@@ -70,6 +69,47 @@ function AkApp() {
     }
   }, [akSection])
 
+  useEffect(() => {
+    const updateNavLinePosition = () => {
+      // Map sections to nav indices for reliable positioning
+      const sectionToIndex = {
+        'ak-aurikinetics': 0, // Aurikinetics
+        'ak-what': 1, // What
+        'ak-how': 2, // How
+        'ak-root': 3, // Root
+        'ak-method': 4  // Method
+      };
+      
+      const activeIndex = sectionToIndex[akSection as keyof typeof sectionToIndex];
+      if (activeIndex === undefined) return;
+      
+      // Find the nav container and get all nav items
+      const navContainer = document.querySelector('nav');
+      if (!navContainer) return;
+      
+      const navItems = navContainer.querySelectorAll('a');
+      const activeNavItem = navItems[activeIndex];
+      
+      if (activeNavItem && navContainer) {
+        const navRect = navContainer.getBoundingClientRect();
+        const itemRect = activeNavItem.getBoundingClientRect();
+        
+        setNavLinePosition({
+          x: itemRect.left - navRect.left,
+          width: itemRect.width
+        });
+      }
+    };
+
+    // Update immediately and on resize
+    updateNavLinePosition();
+    window.addEventListener('resize', updateNavLinePosition);
+    
+    return () => {
+      window.removeEventListener('resize', updateNavLinePosition);
+    };
+  }, [akSection]);
+
   const getAkBackground = (section: typeof akSection) => {
     const map: Record<typeof akSection, string> = {
       'ak-aurikinetics': "url(/ak-1.jpg)",
@@ -101,7 +141,7 @@ function AkApp() {
           className="fixed inset-0 z-0"
           style={{
             backgroundImage: getAkBackground(akSection),
-            backgroundSize: isPhone ? undefined : (isMobile ? 'cover' : '100% auto'),
+            backgroundSize: isPhone ? undefined : 'cover',
             backgroundPosition: 'center center',
             backgroundRepeat: 'no-repeat'
           }}
@@ -153,6 +193,17 @@ function AkApp() {
               <motion.span className="mb-1 h-0.5 w-6 transition-colors duration-300 bg-white" animate={{ opacity: desktopMenuOpen ? 0 : 1 }} />
               <motion.span className="h-0.5 w-6 transition-colors duration-300 bg-white" animate={{ rotate: desktopMenuOpen ? -45 : 0, y: desktopMenuOpen ? -6 : 0 }} />
             </motion.button>
+            
+            <motion.div
+              className="absolute bottom-0 h-0.5 bg-white transition-colors duration-300"
+              initial={false}
+              animate={{
+                x: navLinePosition.x,
+                width: navLinePosition.width
+              }}
+              transition={{ type: 'tween', duration: 0.15, ease: 'easeOut' }}
+              style={{ bottom: '-8px', willChange: 'transform, width' }}
+            />
           </nav>
 
           <motion.button

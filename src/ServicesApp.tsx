@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import './index.css'
 
 function ServicesApp() {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
   const [isPhone, setIsPhone] = useState(window.innerWidth < 640)
   const [servicesLightbox, setServicesLightbox] = useState<{ title: string, content: string } | null>(null)
   const [servicesSection, setServicesSection] = useState<'services-overview' | 'services-frequency' | 'services-kinetics' | 'services-concierge' | 'services-membership' | 'services-timeframes' | 'services-disclaimer'>('services-overview')
@@ -13,10 +12,10 @@ function ServicesApp() {
   const [isCoachingModalOpen, setIsCoachingModalOpen] = useState(false)
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [navLinePosition, setNavLinePosition] = useState({ x: 0, width: 0 })
 
   useEffect(() => {
     const checkResponsive = () => {
-      setIsMobile(window.innerWidth < 768)
       setIsPhone(window.innerWidth < 640)
     }
     checkResponsive()
@@ -71,6 +70,49 @@ function ServicesApp() {
     }
   }, [servicesSection])
 
+  useEffect(() => {
+    const updateNavLinePosition = () => {
+      // Map sections to nav indices for reliable positioning
+      const sectionToIndex = {
+        'services-overview': 0, // Overview
+        'services-frequency': 1, // What it is
+        'services-kinetics': 2, // Plans
+        'services-concierge': 3, // Go All In
+        'services-membership': 4, // Coaching
+        'services-timeframes': 5, // Timeframes
+        'services-disclaimer': 6  // Hours
+      };
+      
+      const activeIndex = sectionToIndex[servicesSection as keyof typeof sectionToIndex];
+      if (activeIndex === undefined) return;
+      
+      // Find the nav container and get all nav items
+      const navContainer = document.querySelector('nav');
+      if (!navContainer) return;
+      
+      const navItems = navContainer.querySelectorAll('a');
+      const activeNavItem = navItems[activeIndex];
+      
+      if (activeNavItem && navContainer) {
+        const navRect = navContainer.getBoundingClientRect();
+        const itemRect = activeNavItem.getBoundingClientRect();
+        
+        setNavLinePosition({
+          x: itemRect.left - navRect.left,
+          width: itemRect.width
+        });
+      }
+    };
+
+    // Update immediately and on resize
+    updateNavLinePosition();
+    window.addEventListener('resize', updateNavLinePosition);
+    
+    return () => {
+      window.removeEventListener('resize', updateNavLinePosition);
+    };
+  }, [servicesSection]);
+
   const getServicesBackground = (section: typeof servicesSection) => {
     const map: Record<typeof servicesSection, string> = {
       'services-overview': "url(/4.jpg)",
@@ -106,7 +148,7 @@ function ServicesApp() {
           className="fixed inset-0 z-0"
           style={{
             backgroundImage: getServicesBackground(servicesSection),
-            backgroundSize: isMobile ? 'cover' : '100% auto',
+            backgroundSize: 'cover',
             backgroundPosition: 'center center',
             backgroundRepeat: 'no-repeat'
           }}
@@ -160,6 +202,17 @@ function ServicesApp() {
               <motion.span className="mb-1 h-0.5 w-6 transition-colors duration-300 bg-white" animate={{ opacity: desktopMenuOpen ? 0 : 1 }} />
               <motion.span className="h-0.5 w-6 transition-colors duration-300 bg-white" animate={{ rotate: desktopMenuOpen ? -45 : 0, y: desktopMenuOpen ? -6 : 0 }} />
             </motion.button>
+            
+            <motion.div
+              className="absolute bottom-0 h-0.5 bg-white transition-colors duration-300"
+              initial={false}
+              animate={{
+                x: navLinePosition.x,
+                width: navLinePosition.width
+              }}
+              transition={{ type: 'tween', duration: 0.15, ease: 'easeOut' }}
+              style={{ bottom: '-8px', willChange: 'transform, width' }}
+            />
           </nav>
 
           <motion.button

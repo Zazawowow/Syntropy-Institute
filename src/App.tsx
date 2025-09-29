@@ -242,7 +242,7 @@ function App() {
       style={{ 
         backgroundImage: isPhone ? 'none' : getBackgroundImage(currentSection),
         // Tablet/desktop unchanged; phone uses dedicated <img>
-        backgroundSize: isPhone ? undefined : (isMobile ? 'cover' : '100% auto'),
+        backgroundSize: isPhone ? undefined : 'cover',
         backgroundPosition: 'center center',
         backgroundRepeat: 'no-repeat',
         backgroundAttachment: isMobile ? 'scroll' : 'fixed'
