@@ -533,6 +533,139 @@ function ServicesApp() {
         </section>
       </main>
 
+      {/* Floating Back Button */}
+      {servicesSection !== 'services-overview' && (
+      <motion.button
+        onClick={(e) => {
+          const sections = ['services-overview', 'services-frequency', 'services-kinetics', 'services-concierge', 'services-membership', 'services-timeframes', 'services-disclaimer'];
+          const currentIndex = sections.indexOf(servicesSection);
+          const prevIndex = currentIndex - 1;
+          
+          if (prevIndex >= 0) {
+            const prevSection = sections[prevIndex];
+            e.preventDefault();
+            const el = document.getElementById(prevSection);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+          }
+        }}
+        className={`fixed bottom-8 z-50 flex items-center justify-center shadow-lg transition-all duration-300 ${
+          isPhone 
+            ? 'right-24 w-14 h-14 rounded-full border-2' 
+            : 'right-40 px-6 py-3 rounded-full border-2 min-w-[120px]'
+        } bg-white border-white text-black hover:bg-gray-100 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)] font-medium`}
+        whileHover={{ boxShadow: "0 0 25px rgba(255,255,255,0.8)" }}
+        whileTap={{ scale: 0.98 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2, duration: 0.3 }}
+        title="Go to previous section"
+      >
+          <svg 
+            width="24" 
+            height="24"
+            viewBox="0 0 24 24" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg"
+            className="sm:mr-2"
+          >
+            <path 
+              d="M19 12H5M12 19l-7-7 7-7" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            />
+          </svg>
+        <span className="hidden sm:inline text-sm font-semibold">Back</span>
+      </motion.button>
+      )}
+
+      {/* Floating Next Button */}
+      {servicesSection !== 'services-disclaimer' && (
+      <motion.button
+        onClick={(e) => {
+          const sections = ['services-overview', 'services-frequency', 'services-kinetics', 'services-concierge', 'services-membership', 'services-timeframes', 'services-disclaimer'];
+          const currentIndex = sections.indexOf(servicesSection);
+          const nextIndex = currentIndex + 1;
+          
+          if (nextIndex < sections.length) {
+            const nextSection = sections[nextIndex];
+            e.preventDefault();
+            const el = document.getElementById(nextSection);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+          }
+        }}
+        className={`fixed bottom-8 right-8 z-50 flex items-center justify-center shadow-lg transition-all duration-300 ${
+          isPhone 
+            ? 'w-14 h-14 rounded-full border-2' 
+            : 'px-6 py-3 rounded-full border-2 min-w-[120px]'
+        } border-white bg-transparent text-white hover:bg-gray-800 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)] font-medium`}
+        whileHover={{ boxShadow: "0 0 25px rgba(255,255,255,0.8)" }}
+        whileTap={{ scale: 0.98 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2, duration: 0.3 }}
+        title="Go to next section"
+      >
+        <span className="hidden sm:inline text-sm font-semibold">Next</span>
+          <svg 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg"
+            className="sm:ml-2"
+          >
+            <path 
+              d="M5 12h14M12 5l7 7-7 7" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            />
+          </svg>
+      </motion.button>
+      )}
+
+      {/* Floating End Button for Last Section */}
+      {servicesSection === 'services-disclaimer' && (
+      <motion.button
+        onClick={() => {
+          // Scroll to top or show end message
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        className={`fixed bottom-8 right-8 z-50 flex items-center justify-center shadow-lg transition-all duration-300 ${
+          isPhone 
+            ? 'w-14 h-14 rounded-full border-2' 
+            : 'px-6 py-3 rounded-full border-2 min-w-[120px]'
+        } border-white bg-transparent text-white hover:bg-gray-800 hover:shadow-[0_0_20px_rgba(255,255,255,0.6)] font-medium`}
+        whileHover={{ boxShadow: "0 0 25px rgba(255,255,255,0.8)" }}
+        whileTap={{ scale: 0.98 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2, duration: 0.3 }}
+        title="Return to beginning"
+      >
+        <span className="hidden sm:inline text-sm font-semibold">End</span>
+          <svg 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg"
+            className="sm:ml-2"
+          >
+            <path 
+              d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            />
+          </svg>
+      </motion.button>
+      )}
+
       <AnimatePresence>
         {servicesLightbox && (
           <motion.div
