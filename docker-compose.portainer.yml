@@ -5,9 +5,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: syntropy-website
+    container_name: syntropy
     ports:
-      - "8081:80"
+      - "8082:80"
     restart: unless-stopped
     environment:
       - NODE_ENV=production
