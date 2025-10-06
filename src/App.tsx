@@ -44,6 +44,18 @@ function App() {
       return false;
     }
   });
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (lightboxText) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [lightboxText]);
   
  
  
@@ -368,14 +380,11 @@ function App() {
             {[
               { label: 'Syntropy', href: '/' },
               { label: 'AuraKinetics', href: '/aurakinetics' },
-              { label: 'About Our Services', href: '/services' },
+              { label: 'Our Services', href: '/services' },
+              { label: 'Yunasai Ministry', href: '/yunasai' },
               { label: 'Book a Session', href: '#', onClick: () => setLightboxText({
                 title: 'Book a Session',
                 content: 'Contact us to schedule your personalized Syntropy session and begin your journey to optimal health and wellness.'
-              }) },
-              { label: 'About Yunasai Ministry', href: '#', onClick: () => setLightboxText({
-                title: 'About Yunasai Ministry',
-                content: 'Yunasai Ministry is a Private Ministerial Association operating within the private domain under Ecclesiastical Law. Our services are for spiritual and educational purposes only.'
               }) },
               { label: 'Member Disclosure & Agreement', href: '#', onClick: () => setLightboxText({
                 title: 'Member Disclosure & Agreement',
@@ -423,14 +432,11 @@ function App() {
             {[
               { label: 'Syntropy', href: '/' },
               { label: 'AuraKinetics', href: '/aurakinetics' },
-              { label: 'About Our Services', href: '/services' },
+              { label: 'Our Services', href: '/services' },
+              { label: 'Yunasai Ministry', href: '/yunasai' },
               { label: 'Book a Session', href: '#', onClick: () => setLightboxText({
                 title: 'Book a Session',
                 content: 'Contact us to schedule your personalized Syntropy session and begin your journey to optimal health and wellness.'
-              }) },
-              { label: 'About Yunasai Ministry', href: '#', onClick: () => setLightboxText({
-                title: 'About Yunasai Ministry',
-                content: 'Yunasai Ministry is a Private Ministerial Association operating within the private domain under Ecclesiastical Law. Our services are for spiritual and educational purposes only.'
               }) },
               { label: 'Member Disclosure & Agreement', href: '#', onClick: () => setLightboxText({
                 title: 'Member Disclosure & Agreement',
@@ -988,7 +994,7 @@ function App() {
        <AnimatePresence>
          {lightboxText && (
            <motion.div
-             className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-xl"
+             className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-xl p-4"
              initial={{ opacity: 0 }}
              animate={{ opacity: 1 }}
              exit={{ opacity: 0 }}
@@ -998,14 +1004,14 @@ function App() {
              <div className="absolute inset-0 bg-black/60"></div>
              
              <motion.div
-               className="relative max-w-4xl max-h-[85vh] mx-4 bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden z-10"
+               className={`relative ${lightboxText.title === 'Book a Session' ? 'max-w-5xl w-full h-[85vh]' : 'max-w-4xl max-h-[85vh]'} mx-4 bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden z-10`}
                initial={{ scale: 0.9, opacity: 0, y: 20 }}
                animate={{ scale: 1, opacity: 1, y: 0 }}
                exit={{ scale: 0.9, opacity: 0, y: 20 }}
                transition={{ type: "spring", damping: 30, stiffness: 400 }}
                onClick={(e) => e.stopPropagation()}
              >
-               <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5 rounded-3xl"></div>
+               <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5 rounded-3xl pointer-events-none"></div>
                
                <button
                  onClick={() => setLightboxText(null)}
@@ -1020,45 +1026,69 @@ function App() {
                  </div>
                </button>
                
-               <motion.div
-                 className="p-10 sm:p-14 text-center"
-                 initial={{ opacity: 0, y: 30 }}
-                 animate={{ opacity: 1, y: 0 }}
-                 transition={{ delay: 0.2, duration: 0.6 }}
-               >
-                 <motion.h3
-                   className="text-4xl sm:text-5xl lg:text-6xl font-ivymode font-light text-white mb-3 tracking-wider drop-shadow-2xl"
-                   initial={{ opacity: 0, y: 20 }}
-                   animate={{ opacity: 1, y: 0 }}
-                   transition={{ delay: 0.3, duration: 0.8 }}
-                 >
-                   {lightboxText.title}
-                 </motion.h3>
-                 
+               {lightboxText.title === 'Book a Session' ? (
                  <motion.div
-                   className="w-24 h-0.5 bg-gradient-to-r from-transparent via-white/60 to-transparent mx-auto mb-8"
+                   className="h-full flex flex-col"
+                   initial={{ opacity: 0 }}
+                   animate={{ opacity: 1 }}
+                   transition={{ delay: 0.2, duration: 0.6 }}
+                 >
+                   <div className="p-6 sm:p-8 text-center border-b border-white/10 flex-shrink-0">
+                     <h3 className="text-3xl sm:text-4xl lg:text-5xl font-ivymode font-light text-white tracking-wider drop-shadow-2xl">
+                       Book a Session
+                     </h3>
+                   </div>
+                   <div className="flex-1 min-h-0">
+                     <iframe
+                       src="https://cal.com/syntropy"
+                       className="w-full h-full border-0"
+                       title="Book a Session"
+                     />
+                   </div>
+                 </motion.div>
+               ) : (
+                 <motion.div
+                   className="p-10 sm:p-14 text-center overflow-y-auto max-h-full"
+                   initial={{ opacity: 0, y: 30 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   transition={{ delay: 0.2, duration: 0.6 }}
+                 >
+                   <motion.h3
+                     className="text-4xl sm:text-5xl lg:text-6xl font-ivymode font-light text-white mb-3 tracking-wider drop-shadow-2xl"
+                     initial={{ opacity: 0, y: 20 }}
+                     animate={{ opacity: 1, y: 0 }}
+                     transition={{ delay: 0.3, duration: 0.8 }}
+                   >
+                     {lightboxText.title}
+                   </motion.h3>
+                   
+                   <motion.div
+                     className="w-24 h-0.5 bg-gradient-to-r from-transparent via-white/60 to-transparent mx-auto mb-8"
+                     initial={{ scaleX: 0 }}
+                     animate={{ scaleX: 1 }}
+                     transition={{ delay: 0.5, duration: 0.8 }}
+                   ></motion.div>
+                   
+                   <motion.p
+                     className="text-lg sm:text-xl lg:text-2xl leading-relaxed text-white/95 max-w-3xl mx-auto drop-shadow-lg font-rajdhani"
+                     style={{ lineHeight: '1.8' }}
+                     initial={{ opacity: 0, y: 20 }}
+                     animate={{ opacity: 1, y: 0 }}
+                     transition={{ delay: 0.6, duration: 0.8 }}
+                   >
+                     {lightboxText.content}
+                   </motion.p>
+                 </motion.div>
+               )}
+               
+               {lightboxText.title !== 'Book a Session' && (
+                 <motion.div 
+                   className="h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"
                    initial={{ scaleX: 0 }}
                    animate={{ scaleX: 1 }}
-                   transition={{ delay: 0.5, duration: 0.8 }}
+                   transition={{ delay: 0.8, duration: 1 }}
                  ></motion.div>
-                 
-                 <motion.p
-                   className="text-lg sm:text-xl lg:text-2xl leading-relaxed text-white/95 max-w-3xl mx-auto drop-shadow-lg font-rajdhani"
-                   style={{ lineHeight: '1.8' }}
-                   initial={{ opacity: 0, y: 20 }}
-                   animate={{ opacity: 1, y: 0 }}
-                   transition={{ delay: 0.6, duration: 0.8 }}
-                 >
-                   {lightboxText.content}
-                 </motion.p>
-               </motion.div>
-               
-               <motion.div 
-                 className="h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"
-                 initial={{ scaleX: 0 }}
-                 animate={{ scaleX: 1 }}
-                 transition={{ delay: 0.8, duration: 1 }}
-               ></motion.div>
+               )}
              </motion.div>
            </motion.div>
          )}

@@ -5,7 +5,7 @@ import './index.css'
 function ServicesApp() {
   const [isPhone, setIsPhone] = useState(window.innerWidth < 640)
   const [servicesLightbox, setServicesLightbox] = useState<{ title: string, content: string } | null>(null)
-  const [servicesSection, setServicesSection] = useState<'services-overview' | 'services-frequency' | 'services-kinetics' | 'services-concierge' | 'services-membership' | 'services-timeframes' | 'services-disclaimer'>('services-overview')
+  const [servicesSection, setServicesSection] = useState<'services-frequency' | 'services-kinetics' | 'services-concierge' | 'services-membership' | 'services-timeframes' | 'services-disclaimer'>('services-frequency')
   const [isLongTermModalOpen, setIsLongTermModalOpen] = useState(false)
   const [isIntroModalOpen, setIsIntroModalOpen] = useState(false)
   const [isPrecisionModalOpen, setIsPrecisionModalOpen] = useState(false)
@@ -13,6 +13,18 @@ function ServicesApp() {
   const [desktopMenuOpen, setDesktopMenuOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [navLinePosition, setNavLinePosition] = useState({ x: 0, width: 0 })
+
+  // Lock body scroll when any modal is open
+  useEffect(() => {
+    if (servicesLightbox || isLongTermModalOpen || isIntroModalOpen || isPrecisionModalOpen || isCoachingModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [servicesLightbox, isLongTermModalOpen, isIntroModalOpen, isPrecisionModalOpen, isCoachingModalOpen])
 
   useEffect(() => {
     const checkResponsive = () => {
@@ -31,7 +43,7 @@ function ServicesApp() {
 
   // Robust section detection: IntersectionObserver with sentinels and top-of-page override
   useEffect(() => {
-    const ids = ['services-overview', 'services-frequency', 'services-kinetics', 'services-concierge', 'services-membership', 'services-timeframes', 'services-disclaimer'] as const
+    const ids = ['services-frequency', 'services-kinetics', 'services-concierge', 'services-membership', 'services-timeframes', 'services-disclaimer'] as const
     const observer = new IntersectionObserver(
       (entries) => {
         // Pick the entry with the greatest intersection ratio
@@ -60,7 +72,7 @@ function ServicesApp() {
     }
 
     const topOverride = () => {
-      if (window.scrollY < 80 && servicesSection !== 'services-overview') setServicesSection('services-overview')
+      if (window.scrollY < 80 && servicesSection !== 'services-frequency') setServicesSection('services-frequency')
     }
     window.addEventListener('scroll', topOverride, { passive: true })
 
@@ -74,13 +86,12 @@ function ServicesApp() {
     const updateNavLinePosition = () => {
       // Map sections to nav indices for reliable positioning
       const sectionToIndex = {
-        'services-overview': 0, // Overview
-        'services-frequency': 1, // What it is
-        'services-kinetics': 2, // Plans
-        'services-concierge': 3, // Go All In
-        'services-membership': 4, // Coaching
-        'services-timeframes': 5, // Timeframes
-        'services-disclaimer': 6  // Hours
+        'services-frequency': 0, // What it is
+        'services-kinetics': 1, // Plans
+        'services-concierge': 2, // Go All In
+        'services-membership': 3, // Coaching
+        'services-timeframes': 4, // Timeframes
+        'services-disclaimer': 5  // Hours
       };
       
       const activeIndex = sectionToIndex[servicesSection as keyof typeof sectionToIndex];
@@ -115,7 +126,6 @@ function ServicesApp() {
 
   const getServicesBackground = (section: typeof servicesSection) => {
     const map: Record<typeof servicesSection, string> = {
-      'services-overview': "url(/4.jpg)",
       'services-frequency': "url(/services-2.jpg)",
       'services-kinetics': "url(/vitalfield-1.jpg)",
       'services-concierge': "url(/5.jpg)",
@@ -128,7 +138,6 @@ function ServicesApp() {
 
   const getServicesMobileSrc = (section: typeof servicesSection) => {
     const map: Record<typeof servicesSection, string> = {
-      'services-overview': "/mobile-4.jpg",
       'services-frequency': "/services-2.jpg",
       'services-kinetics': "/vitalfield-1.jpg",
       'services-concierge': "/mobile-5.jpg",
@@ -175,7 +184,6 @@ function ServicesApp() {
           </a>
         <nav className="hidden sm:flex sm:absolute sm:top-8 sm:right-4 items-center space-x-8 text-lg font-medium transition-colors duration-300 text-white relative">
           {[
-            { id: 'services-overview', label: 'Overview' },
             { id: 'services-frequency', label: 'What it is' },
             { id: 'services-kinetics', label: 'Plans' },
             { id: 'services-concierge', label: 'Go All In' },
@@ -238,14 +246,11 @@ function ServicesApp() {
             {[
               { label: 'Syntropy', href: '/' },
               { label: 'AuraKinetics', href: '/aurakinetics' },
-              { label: 'About Our Services', href: '/services' },
+              { label: 'Our Services', href: '/services' },
+              { label: 'Yunasai Ministry', href: '/yunasai' },
               { label: 'Book a Session', href: '#', onClick: () => setServicesLightbox({
                 title: 'Book a Session',
                 content: 'Contact us to schedule your personalized Syntropy session and begin your journey to optimal health and wellness.'
-              }) },
-              { label: 'About Yunasai Ministry', href: '#', onClick: () => setServicesLightbox({
-                title: 'About Yunasai Ministry',
-                content: 'Yunasai Ministry is a Private Ministerial Association operating within the private domain under Ecclesiastical Law. Our services are for spiritual and educational purposes only.'
               }) },
               { label: 'Member Disclosure & Agreement', href: '#', onClick: () => setServicesLightbox({
                 title: 'Member Disclosure & Agreement',
@@ -289,14 +294,11 @@ function ServicesApp() {
             {[
               { label: 'Syntropy', href: '/' },
               { label: 'AuraKinetics', href: '/aurakinetics' },
-              { label: 'About Our Services', href: '/services' },
+              { label: 'Our Services', href: '/services' },
+              { label: 'Yunasai Ministry', href: '/yunasai' },
               { label: 'Book a Session', href: '#', onClick: () => setServicesLightbox({
                 title: 'Book a Session',
                 content: 'Contact us to schedule your personalized Syntropy session and begin your journey to optimal health and wellness.'
-              }) },
-              { label: 'About Yunasai Ministry', href: '#', onClick: () => setServicesLightbox({
-                title: 'About Yunasai Ministry',
-                content: 'Yunasai Ministry is a Private Ministerial Association operating within the private domain under Ecclesiastical Law. Our services are for spiritual and educational purposes only.'
               }) },
               { label: 'Member Disclosure & Agreement', href: '#', onClick: () => setServicesLightbox({
                 title: 'Member Disclosure & Agreement',
@@ -329,20 +331,6 @@ function ServicesApp() {
       </AnimatePresence>
 
       <main className="-mt-16 sm:-mt-24 relative">
-        <section id="services-overview" className="snap-section flex flex-col snap-start min-h-screen bg-transparent relative">
-          <div id="services-overview-sentinel" aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-px h-px opacity-0" />
-          <div className="flex-1 flex items-center justify-center relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4">
-            <div className="text-center max-w-xs sm:max-w-2xl md:max-w-3xl lg:max-w-4xl w-full mx-auto px-2 sm:px-4">
-              <div className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-kudryashev text-white drop-shadow-xl tracking-wide uppercase whitespace-nowrap mb-4">
-                AuraKinetics
-              </div>
-              <div className="text-base sm:text-xl md:text-2xl lg:text-3xl tracking-widest text-white/90 uppercase font-ivymode mb-2">
-                AuraKinetics + Syntropy Frequency
-              </div>
-            </div>
-          </div>
-        </section>
-
         <section id="services-frequency" className="snap-section flex flex-col snap-start min-h-screen bg-transparent relative">
           <div id="services-frequency-sentinel" aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-px h-px opacity-0" />
           <div className="flex-1 flex items-center justify-center relative z-20 overflow-hidden -mt-16 sm:-mt-12 px-4">
@@ -534,10 +522,10 @@ function ServicesApp() {
       </main>
 
       {/* Floating Back Button */}
-      {servicesSection !== 'services-overview' && (
+      {servicesSection !== 'services-frequency' && (
       <motion.button
         onClick={(e) => {
-          const sections = ['services-overview', 'services-frequency', 'services-kinetics', 'services-concierge', 'services-membership', 'services-timeframes', 'services-disclaimer'];
+          const sections = ['services-frequency', 'services-kinetics', 'services-concierge', 'services-membership', 'services-timeframes', 'services-disclaimer'];
           const currentIndex = sections.indexOf(servicesSection);
           const prevIndex = currentIndex - 1;
           
@@ -584,7 +572,7 @@ function ServicesApp() {
       {servicesSection !== 'services-disclaimer' && (
       <motion.button
         onClick={(e) => {
-          const sections = ['services-overview', 'services-frequency', 'services-kinetics', 'services-concierge', 'services-membership', 'services-timeframes', 'services-disclaimer'];
+          const sections = ['services-frequency', 'services-kinetics', 'services-concierge', 'services-membership', 'services-timeframes', 'services-disclaimer'];
           const currentIndex = sections.indexOf(servicesSection);
           const nextIndex = currentIndex + 1;
           
@@ -669,7 +657,7 @@ function ServicesApp() {
       <AnimatePresence>
         {servicesLightbox && (
           <motion.div
-            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-xl"
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-xl p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -679,14 +667,14 @@ function ServicesApp() {
             <div className="absolute inset-0 bg-black/60"></div>
 
             <motion.div
-              className="relative max-w-4xl max-h[85vh] mx-4 bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden z-10"
+              className={`relative ${servicesLightbox.title === 'Book a Session' ? 'max-w-5xl w-full h-[85vh]' : 'max-w-4xl max-h-[85vh]'} mx-4 bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden z-10`}
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ type: 'spring', damping: 30, stiffness: 400 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5 rounded-3xl"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5 rounded-3xl pointer-events-none"></div>
 
               <button
                 onClick={() => setServicesLightbox(null)}
@@ -701,14 +689,36 @@ function ServicesApp() {
                 </div>
               </button>
 
-              <motion.div className="p-10 sm:p-14 text-center" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.6 }}>
-                <motion.h3 className="text-3xl sm:text-4xl lg:text-5xl font-ivymode font-light text-white mb-3 tracking-wider drop-shadow-2xl" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.8 }}>
-                  {servicesLightbox.title}
-                </motion.h3>
-                <motion.p className="text-lg sm:text-xl lg:text-2xl leading-relaxed text-white/95 max-w-3xl mx-auto drop-shadow-lg font-rajdhani" style={{ lineHeight: '1.8' }} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.8 }}>
-                  {servicesLightbox.content}
-                </motion.p>
-              </motion.div>
+                {servicesLightbox.title === 'Book a Session' ? (
+                  <motion.div
+                    className="h-full flex flex-col"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2, duration: 0.6 }}
+                  >
+                    <div className="p-6 sm:p-8 text-center border-b border-white/10 flex-shrink-0">
+                      <h3 className="text-3xl sm:text-4xl lg:text-5xl font-ivymode font-light text-white tracking-wider drop-shadow-2xl">
+                        Book a Session
+                      </h3>
+                    </div>
+                    <div className="flex-1 min-h-0">
+                      <iframe
+                        src="https://cal.com/syntropy"
+                        className="w-full h-full border-0"
+                        title="Book a Session"
+                      />
+                    </div>
+                  </motion.div>
+                ) : (
+                <motion.div className="p-10 sm:p-14 text-center overflow-y-auto max-h-full" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.6 }}>
+                  <motion.h3 className="text-3xl sm:text-4xl lg:text-5xl font-ivymode font-light text-white mb-3 tracking-wider drop-shadow-2xl" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.8 }}>
+                    {servicesLightbox.title}
+                  </motion.h3>
+                  <motion.p className="text-lg sm:text-xl lg:text-2xl leading-relaxed text-white/95 max-w-3xl mx-auto drop-shadow-lg font-rajdhani" style={{ lineHeight: '1.8' }} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.8 }}>
+                    {servicesLightbox.content}
+                  </motion.p>
+                </motion.div>
+              )}
             </motion.div>
           </motion.div>
         )}

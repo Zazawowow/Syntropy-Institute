@@ -20,12 +20,8 @@
 /* IvyMode Font Faces */
 @font-face {
   font-family: 'Ivy Mode';
-  src: url('/ivymode/IvyMode-Light.eot');
   src: local('Ivy Mode Light'), local('IvyMode-Light'),
-      url('/ivymode/IvyMode-Light.eot?#iefix') format('embedded-opentype'),
-      url('/ivymode/IvyMode-Light.woff2') format('woff2'),
-      url('/ivymode/IvyMode-Light.woff') format('woff'),
-      url('/ivymode/IvyMode-Light.ttf') format('truetype');
+      url('/IvyMode-Light.woff') format('woff');
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -33,12 +29,8 @@
 
 @font-face {
   font-family: 'Ivy Mode';
-  src: url('/ivymode/IvyMode-Regular.eot');
   src: local('Ivy Mode Regular'), local('IvyMode-Regular'),
-      url('/ivymode/IvyMode-Regular.eot?#iefix') format('embedded-opentype'),
-      url('/ivymode/IvyMode-Regular.woff2') format('woff2'),
-      url('/ivymode/IvyMode-Regular.woff') format('woff'),
-      url('/ivymode/IvyMode-Regular.ttf') format('truetype');
+      url('/IvyMode-Light.woff') format('woff');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
